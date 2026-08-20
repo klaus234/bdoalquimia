@@ -440,7 +440,23 @@
             "peso": "0.20",
             "plata": "80",
             "nomejorable": true,
-            "grupo": true
+            "grupo": true,
+            "gid": 4001,
+            "miembros": [
+                {
+                    "t": "Poción de Vida (P)",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Poción de Vida (M)",
+                    "v": 6
+                },
+                {
+                    "t": "Poción de Vida (G)",
+                    "v": 36
+                }
+            ]
         },
         "elixirdedeliriosinfin": {
             "titulo": "Elixir de Delirio sin Fin",
@@ -783,103 +799,435 @@
             "titulo": "Hierba Luz del Atardecer",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3001,
+            "miembros": [
+                {
+                    "t": "Hierba Luz del Atardecer",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Bulto de Hierba Luz del Atardecer",
+                    "v": 6
+                },
+                {
+                    "t": "Hierba Luz del Atardecer de Calidad",
+                    "v": 6
+                },
+                {
+                    "t": "Hierba Luz del Atardecer de Alta Calidad",
+                    "v": 36
+                }
+            ]
         },
         "azaleaplateada": {
             "titulo": "Azalea Plateada",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3002,
+            "miembros": [
+                {
+                    "t": "Azalea Plateada",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Azalea Plateada de Calidad",
+                    "v": 6
+                },
+                {
+                    "t": "Ramo de Azalea Plateada",
+                    "v": 6
+                },
+                {
+                    "t": "Azalea Plateada de Alta Calidad",
+                    "v": 36
+                }
+            ]
         },
         "florescamadefuego": {
             "titulo": "Flor Escama de Fuego",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3003,
+            "miembros": [
+                {
+                    "t": "Flor Escama de Fuego",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Flor Escama de Fuego de Calidad",
+                    "v": 6
+                },
+                {
+                    "t": "Montón de Flores Escama de Fuego",
+                    "v": 6
+                },
+                {
+                    "t": "Flor Escama de Fuego de Alta Calidad",
+                    "v": 36
+                }
+            ]
         },
         "hierbademilanos": {
             "titulo": "Hierba de Mil Años",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3006,
+            "miembros": [
+                {
+                    "t": "Hierba de Mil Años",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hierba de Mil Años de Calidad",
+                    "v": 6
+                },
+                {
+                    "t": "Hierba de Mil Años de Alta Calidad",
+                    "v": 36
+                }
+            ]
         },
         "hongoadivino": {
             "titulo": "Hongo adivino",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3007,
+            "miembros": [
+                {
+                    "t": "Hongo adivino",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Adivino Grande",
+                    "v": 2
+                },
+                {
+                    "t": "Hongo Adivino de Calidad",
+                    "v": 12
+                },
+                {
+                    "t": "Hongo Adivino de Alta Calidad",
+                    "v": 72
+                }
+            ]
         },
         "hongoflecha": {
             "titulo": "Hongo flecha",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3008,
+            "miembros": [
+                {
+                    "t": "Hongo flecha",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Flecha Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Flecha de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Flecha de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongoenano": {
             "titulo": "Hongo Enano",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3009,
+            "miembros": [
+                {
+                    "t": "Hongo Enano",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Enano Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Enano de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Enano de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongonube": {
             "titulo": "Hongo Nube",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3010,
+            "miembros": [
+                {
+                    "t": "Hongo Nube",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Nube Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Nube de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Nube de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongocielo": {
             "titulo": "Hongo Cielo",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3011,
+            "miembros": [
+                {
+                    "t": "Hongo Cielo",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Cielo Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Cielo de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Cielo de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongotigre": {
             "titulo": "Hongo tigre",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3012,
+            "miembros": [
+                {
+                    "t": "Hongo tigre",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Tigre Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Tigre de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Tigre de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongoemperador": {
             "titulo": "Hongo Emperador",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3013,
+            "miembros": [
+                {
+                    "t": "Hongo Emperador",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Emperador Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Emperador de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Emperador de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongofantasma": {
             "titulo": "Hongo Fantasma",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3014,
+            "miembros": [
+                {
+                    "t": "Hongo Fantasma",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Fantasma Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Fantasma de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Fantasma de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongohinchazon": {
             "titulo": "Hongo hinchazón",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3016,
+            "miembros": [
+                {
+                    "t": "Hongo hinchazón",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Hinchazón Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Hinchazón de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Hinchazón de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongofanfarron": {
             "titulo": "Hongo Fanfarrón",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3017,
+            "miembros": [
+                {
+                    "t": "Hongo Fanfarrón",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Fanfarrón Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Fanfarrón de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Fanfarrón de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongoancestral": {
             "titulo": "Hongo ancestral",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3018,
+            "miembros": [
+                {
+                    "t": "Hongo ancestral",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo ancestral Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Ancestral de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Ancestral de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongopayaso": {
             "titulo": "Hongo payaso",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3019,
+            "miembros": [
+                {
+                    "t": "Hongo payaso",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Hongo Amanita Grande",
+                    "v": 6
+                },
+                {
+                    "t": "Hongo Payaso de Calidad",
+                    "v": 36
+                },
+                {
+                    "t": "Hongo Amanita de Alta Calidad",
+                    "v": 216
+                }
+            ]
         },
         "hongotrufa": {
             "titulo": "Hongo Trufa",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 3020,
+            "miembros": [
+                {
+                    "t": "Hongo Trufa",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Trufa de Calidad",
+                    "v": 6
+                },
+                {
+                    "t": "Trufa de Alta Calidad",
+                    "v": 36
+                }
+            ]
         },
         "plantasilvestre": {
             "titulo": "Planta Silvestre",
@@ -896,31 +1244,163 @@
             "titulo": "Sangre de Zorro",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 803,
+            "miembros": [
+                {
+                    "t": "Sangre de Escorpión",
+                    "v": 1
+                },
+                {
+                    "t": "Sangre de Zorro",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Sangre de Comadreja",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Mapache",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Marmota",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Mono",
+                    "v": 2
+                }
+            ]
         },
         "sangredecerdo": {
             "titulo": "Sangre de Cerdo",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 801,
+            "miembros": [
+                {
+                    "t": "Sangre de Cerdo",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Sangre de Cabra",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Ciervo",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Llama",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Oveja",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Res",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Waragon",
+                    "v": 2
+                }
+            ]
         },
         "sangredeoso": {
             "titulo": "Sangre de Oso",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 802,
+            "miembros": [
+                {
+                    "t": "Sangre de León",
+                    "v": 1
+                },
+                {
+                    "t": "Sangre de Oso",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Sangre de Yak",
+                    "v": 1
+                },
+                {
+                    "t": "Sangre de Dinosaurio",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Ogro",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Trol",
+                    "v": 2
+                }
+            ]
         },
         "sangredelobo": {
             "titulo": "Sangre de Lobo",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 805,
+            "miembros": [
+                {
+                    "t": "Sangre de Lobo",
+                    "v": 1,
+                    "propio": true
+                },
+                {
+                    "t": "Sangre de Rinoceronte",
+                    "v": 1
+                },
+                {
+                    "t": "Sangre de Dragón Chita",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Flamenco",
+                    "v": 2
+                }
+            ]
         },
         "sangredemurcielago": {
             "titulo": "Sangre de Murciélago",
             "peso": "0.10",
             "plata": "0",
-            "grupo": true
+            "grupo": true,
+            "gid": 804,
+            "miembros": [
+                {
+                    "t": "Sangre de Lagartija",
+                    "v": 1
+                },
+                {
+                    "t": "Sangre de Cobra",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Gusano",
+                    "v": 2
+                },
+                {
+                    "t": "Sangre de Murciélago",
+                    "v": 2,
+                    "propio": true
+                },
+                {
+                    "t": "Sangre del Pájaro Cucú",
+                    "v": 2
+                }
+            ]
         },
         "sangredelabestiadivina": {
             "titulo": "Sangre de la Bestia Divina",

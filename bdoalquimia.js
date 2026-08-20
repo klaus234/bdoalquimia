@@ -103,12 +103,111 @@ function crearBadgeTipo(id) {
     return b;
 }
 
-function crearMarcaGrupo() {
+/* -----------------------------------------------------------------
+   Grupos de materiales
+   -----------------------------------------------------------------
+   Un ingrediente con `grupo` acepta cualquier ítem de su grupo. Los que
+   además traen `miembros` (sólo los ingredientes base) pueden desplegar la
+   lista con la cantidad equivalente de cada sustituto.
+
+   El "valor" de un miembro es cuántas unidades básicas reemplaza, así que
+   para cubrir `cantidad` del ítem mostrado hacen falta:
+       cantidad * valor(del ítem mostrado) / valor(del sustituto)
+   ----------------------------------------------------------------- */
+
+function tieneMiembros(clave) {
+    const d = rdata["datos"][clave];
+    return d["miembros"] != undefined && d["miembros"].length > 0;
+}
+
+function crearMarcaGrupo(clave) {
     const m = document.createElement("span");
     m.className = "marca_grupo";
     m.innerText = "↻";
-    m.title = "Sustituible por cualquier ítem de su grupo";
+    if (clave != undefined && tieneMiembros(clave)) {
+        m.classList.add("desplegable");
+        m.title = "Ver los " + rdata["datos"][clave]["miembros"].length + " ítems de su grupo";
+    } else {
+        m.title = "Sustituible por cualquier ítem de su grupo";
+    }
     return m;
+}
+
+function llenarPanelGrupo(panel) {
+    const clave = panel.bdoclave;
+    const datos = rdata["datos"][clave];
+    const miembros = datos["miembros"];
+    const cantidad = panel.bdocantidad();
+    const propio = miembros.find(function (m) { return m["propio"]; }) || { "v": 1 };
+
+    panel.innerHTML = "";
+
+    const tit = document.createElement("div");
+    tit.className = "panel_grupo_tit";
+    tit.innerText = "Grupo #" + datos["gid"] + " · sirve cualquiera de estos";
+    panel.append(tit);
+
+    const ul = document.createElement("ul");
+    for (let m of miembros) {
+        const li = document.createElement("li");
+        if (m["propio"])
+            li.className = "propio";
+
+        const nom = document.createElement("span");
+        nom.className = "mg_nombre";
+        nom.innerText = m["t"];
+
+        const cant = document.createElement("span");
+        cant.className = "mg_cant";
+        cant.innerText = "x" + formatearMilesAR(Math.ceil(cantidad * propio["v"] / m["v"]));
+        cant.title = "Valor " + m["v"] + " (reemplaza " + m["v"] + " unidad(es) básica(s))";
+
+        li.append(nom);
+        li.append(cant);
+        ul.append(li);
+    }
+    panel.append(ul);
+}
+
+/* Cuelga la marca ↻ de `dondeMarca` y, si hay miembros, el panel desplegable
+   de `dondePanel`. `obtenerCantidad` se evalúa cada vez que se refresca. */
+function montarGrupo(dondeMarca, dondePanel, clave, obtenerCantidad) {
+    if (!rdata["datos"][clave]["grupo"])
+        return;
+
+    const marca = crearMarcaGrupo(clave);
+    dondeMarca.append(marca);
+
+    if (!tieneMiembros(clave))
+        return;
+
+    const panel = document.createElement("div");
+    panel.className = "panel_grupo oculto";
+    panel.bdoclave = clave;
+    panel.bdocantidad = obtenerCantidad;
+    dondePanel.append(panel);
+
+    marca.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const abierto = !panel.classList.contains("oculto");
+        if (abierto) {
+            panel.classList.add("oculto");
+            marca.classList.remove("abierta");
+        } else {
+            llenarPanelGrupo(panel);
+            panel.classList.remove("oculto");
+            marca.classList.add("abierta");
+        }
+    });
+}
+
+/* Los paneles abiertos de la lista principal siguen a los inputs de cantidad. */
+function refrescarPanelesGrupo() {
+    document.querySelectorAll("#ingredientes .panel_grupo").forEach(function (p) {
+        if (!p.classList.contains("oculto"))
+            llenarPanelGrupo(p);
+    });
 }
 
 /* La lista de ingredientes base tiene dos vistas: el árbol anidado y la lista
@@ -213,12 +312,12 @@ function crearListaPuros(totalesGlobales) {
         span_titulo.className = "ing_titulo_ingrediente";
         span_titulo.innerHTML = `<span class="titing">${rdata["datos"][k]["titulo"]}</span>`;
 
+        const totalPuro = Math.ceil(totalesGlobales[k]);
         span_contenedor.append(span_titulo);
-        span_contenedor.append(crearSpanCantidad(Math.ceil(totalesGlobales[k]), 0));
-        if (rdata["datos"][k]["grupo"])
-            span_contenedor.append(crearMarcaGrupo());
+        span_contenedor.append(crearSpanCantidad(totalPuro, 0));
 
         li.append(span_contenedor);
+        montarGrupo(span_contenedor, li, k, function () { return totalPuro; });
         ul.append(li);
     }
 
@@ -378,9 +477,8 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales) {
 
             span_contenedor.append(span_titulo);
             span_contenedor.append(span_cant);
-            if (rdata["datos"][ingId]["grupo"])
-                span_contenedor.append(crearMarcaGrupo());
             li.append(span_contenedor);
+            montarGrupo(span_contenedor, li, ingId, function () { return cantidad_ing; });
         }
 
         ul.append(li);
@@ -410,6 +508,7 @@ function actualizarIngredientes(valor) {
     }
     document.getElementById("gasto").innerText = "$ " + formatearMilesAR(platatotal);
     setPeso(pesototal);
+    refrescarPanelesGrupo();
 }
 
 /* El enlace lleva la cantidad pedida y los ratios, así la pestaña nueva
@@ -467,6 +566,7 @@ function modificadorIngrediente(e) {
     }
     document.getElementById("gasto").innerText = "$ " + formatearMilesAR(platatotal);
     setPeso(pesototal);
+    refrescarPanelesGrupo();
 
     const cantidadinp = document.getElementById("cantidad");
     const total = document.getElementById("total");
@@ -722,8 +822,12 @@ function setAndLoad() {
            simple o procesamiento. La marca ↻ dice que acepta su grupo. */
         if (isLink)
             lix.append(crearBadgeTipo(ird));
-        if (rdata["datos"][ird]["grupo"])
-            lix.append(crearMarcaGrupo());
+
+        /* la marca ↻ va acá, pero el panel desplegable se cuelga del <li>
+           entero para que caiga en su propia línea, debajo de las cajitas */
+        let contMarca = document.createElement("span");
+        contMarca.className = "cont_marca";
+        lix.append(contMarca);
 
         let spansector = document.createElement("span");
         spansector.className = "seccajas";
@@ -749,6 +853,10 @@ function setAndLoad() {
         }
 
         lix.append(spansector)
+        montarGrupo(contMarca, lix, ird, function () {
+            const inp = document.getElementById(ird + "_cant");
+            return inp == null ? 0 : (Number(inp.value) || 0);
+        });
         ilista.append(lix);
     }
 

@@ -175,6 +175,7 @@ input[type="number"]:focus {
 #ingredientes li {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
     padding: 9px 10px;
     margin-bottom: 8px;
@@ -920,4 +921,106 @@ button:active {
     #tabs_base .tab_btn {
         flex: 1 1 100%;
     }
+}
+
+/* ---------------------------------------------------------------
+   Grupos de materiales: la marca ↻ despliega los sustitutos
+   --------------------------------------------------------------- */
+
+.cont_marca {
+    display: inline-flex;
+    align-items: center;
+}
+
+.cont_marca:empty {
+    display: none;
+}
+
+.marca_grupo.desplegable {
+    cursor: pointer;
+    transition: transform 120ms ease, background-color 120ms ease;
+}
+
+.marca_grupo.desplegable:hover {
+    background: rgba(78, 227, 165, 0.3);
+    transform: translateY(-1px);
+}
+
+.marca_grupo.abierta {
+    background: #4ee3a5;
+    border-color: #4ee3a5;
+    color: #0d2e21;
+}
+
+.panel_grupo {
+    flex-basis: 100%;
+    width: 100%;
+    margin-top: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(10, 30, 24, 0.55);
+    border: 1px solid rgba(78, 227, 165, 0.28);
+    animation: itemEnter 220ms ease both;
+}
+
+.panel_grupo_tit {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    color: #7ef0bd;
+    margin-bottom: 6px;
+}
+
+.panel_grupo ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 2px 14px;
+}
+
+/* pisa el layout de fila que #ingredientes le da a sus li */
+#ingredientes .panel_grupo li,
+.panel_grupo li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 3px 6px;
+    margin: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    animation: none;
+    font-size: 13.5px;
+}
+
+/* el selector con #ingredientes de arriba le gana por especificidad,
+   así que la variante resaltada también lo necesita */
+#ingredientes .panel_grupo li.propio,
+.panel_grupo li.propio {
+    background: rgba(78, 227, 165, 0.12);
+}
+
+.panel_grupo li.propio .mg_nombre::after {
+    content: " (el de la receta)";
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.mg_nombre {
+    color: var(--text-1);
+}
+
+.panel_grupo li.propio .mg_nombre {
+    color: #c9fbe6;
+    font-weight: 700;
+}
+
+.mg_cant {
+    font-weight: 800;
+    color: var(--accent-3);
+    white-space: nowrap;
 }
