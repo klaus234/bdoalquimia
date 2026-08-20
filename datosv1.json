@@ -1,0 +1,1039 @@
+{
+    "recetas": {
+        "perfumedevalentia": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedeballenaazul": "1",
+                "rastrodelanaturaleza": "3",
+                "nudodearbolensangrentado": "6",
+                "aguapurificada": "4",
+                "reactivodeliquidoclaro": "2"
+            }
+        },
+        "aguapurificada": {
+            "tipo": "calentar",
+            "ing": {
+                "botelladeaguaderio": "1"
+            }
+        },
+        "reactivodeliquidoclaro": {
+            "tipo": "alquimia",
+            "ing": {
+                "plantasilvestre": "1",
+                "hierbaluzdelatardecer": "1",
+                "sal": "1",
+                "aguapurificada": "1"
+            }
+        },
+        "sal": {
+            "tipo": "calentar",
+            "ing": {
+                "botelladeaguademar": "1"
+            }
+        },
+        "perfumederapidez": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedeballenaazul": "1",
+                "polvodetiempo": "4",
+                "hierbademilanos": "6",
+                "aguapurificada": "4",
+                "reactivodeliquidoclaro": "2"
+            }
+        },
+        "frascodearmoniaedania": {
+            "tipo": "simple",
+            "ing": {
+                "elixirdevoluntadinquebrantable": "1",
+                "frascodearmonia": "1",
+                "elixirdeedaniapoderoso": "1",
+                "catalizadormagico": "1"
+            }
+        },
+        "elixirdevoluntad": {
+            "tipo": "alquimia",
+            "ing": {
+                "reactivodepolvopuro": "1",
+                "hierbaluzdelatardecer": "4",
+                "sangredelobo": "6",
+                "aguapurificada": "3"
+            }
+        },
+        "reactivodepolvopuro": {
+            "tipo": "alquimia",
+            "ing": {
+                "plantasilvestre": "1",
+                "azaleaplateada": "1",
+                "azucar": "1",
+                "aguapurificada": "1"
+            }
+        },
+        "frascodearmonia": {
+            "tipo": "simple",
+            "ing": {
+                "frascoderabia": "1",
+                "frascodeadaptacion": "1",
+                "frascodepoderpotencial": "1",
+                "frascodecorrupcion": "1",
+                "frascodeviolencia": "1"
+            }
+        },
+        "frascoderabia": {
+            "tipo": "simple",
+            "ing": {
+                "elixirdedeliriosinfin": "1",
+                "elixirdeconcentracion": "3",
+                "elixirdefuria": "3",
+                "elixirdeladestruccion": "3",
+                "catalizadormagico": "1"
+            }
+        },
+        "elixirdedeliriosinfin": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitederegeneracion": "1",
+                "reactivodeliquidoclaro": "5",
+                "saviadecedro": "5",
+                "rastrodelanaturaleza": "3",
+                "hongofantasma": "2"
+            }
+        },
+        "aceitederegeneracion": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelabestiadivina": "1",
+                "frutadelanaturaleza": "1",
+                "polvodelagrieta": "1",
+                "hierbademilanos": "1"
+            }
+        },
+        "sangredelabestiadivina": {
+            "tipo": "alquimia",
+            "ing": {
+                "hojadelespiritu": "1",
+                "rastrodelanaturaleza": "1",
+                "reactivodepolvopuro": "1",
+                "sangredemurcielago": "2"
+            }
+        },
+        "elixirdeconcentracion": {
+            "tipo": "alquimia",
+            "ing": {
+                "reactivodeliquidoclaro": "1",
+                "hongonube": "3",
+                "plantasilvestre": "2",
+                "sangredeoso": "3"
+            }
+        },
+        "elixirdefuria": {
+            "tipo": "alquimia",
+            "ing": {
+                "hongoenano": "4",
+                "saviadefresno": "1",
+                "sangredeoso": "4",
+                "aguapurificada": "3"
+            }
+        },
+        "elixirdeladestruccion": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedetormentas": "1",
+                "rastrodelanaturaleza": "3",
+                "reactivodeliquidoclaro": "5",
+                "polvodefuego": "5",
+                "saviadecedrodelcamponevado": "7"
+            }
+        },
+        "aceitedetormentas": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredetirano": "1",
+                "cortezadelarbolviejo": "1",
+                "frutadelanaturaleza": "1",
+                "polvodetiempo": "1"
+            }
+        },
+        "sangredetirano": {
+            "tipo": "alquimia",
+            "ing": {
+                "ramadelmonje": "1",
+                "rastrodelanaturaleza": "1",
+                "reactivodepolvopuro": "1",
+                "sangredeoso": "2"
+            }
+        },
+        "frascodeadaptacion": {
+            "tipo": "simple",
+            "ing": {
+                "elixirdevidafuerte": "1",
+                "elixirdedefensa": "3",
+                "elixirdeenergia": "3",
+                "elixirdeespiralbrillante": "1",
+                "catalizadormagico": "1"
+            }
+        },
+        "elixirdevidafuerte": {
+            "tipo": "alquimia",
+            "ing": {
+                "reactivodepolvopuro": "1",
+                "azaleaplateada": "3",
+                "sangredezorro": "5",
+                "pociondevidap": "3"
+            }
+        },
+        "elixirdedefensa": {
+            "tipo": "alquimia",
+            "ing": {
+                "reactivodeliquidoclaro": "1",
+                "saviadefresno": "6",
+                "sangredecerdo": "5",
+                "aguapurificada": "3"
+            }
+        },
+        "elixirdeenergia": {
+            "tipo": "alquimia",
+            "ing": {
+                "reactivodepolvopuro": "1",
+                "hongoenano": "2",
+                "saviadeabedul": "5",
+                "sangredeoso": "4"
+            }
+        },
+        "elixirdeespiralbrillante": {
+            "tipo": "alquimia",
+            "ing": {
+                "saviadetuyaoriental": "6",
+                "ramadelmonje": "3",
+                "sangredelpayaso": "2",
+                "polvodefuego": "2",
+                "aguapurificada": "3"
+            }
+        },
+        "sangredelpayaso": {
+            "tipo": "alquimia",
+            "ing": {
+                "hojadelespiritu": "1",
+                "polvodelaoscuridad": "1",
+                "reactivodeliquidoclaro": "1",
+                "sangredelobo": "2"
+            }
+        },
+        "frascodepoderpotencial": {
+            "tipo": "simple",
+            "ing": {
+                "elixirdeviento": "3",
+                "elixirdevelocidad": "3",
+                "elixirdehechizos": "3",
+                "elixirdeimpacto": "3",
+                "catalizadormagico": "1"
+            }
+        },
+        "elixirdeviento": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelhombresabio": "1",
+                "hongoadivino": "5",
+                "saviadepino": "5",
+                "polvodelaoscuridad": "2"
+            }
+        },
+        "sangredelhombresabio": {
+            "tipo": "alquimia",
+            "ing": {
+                "ramadelmonje": "1",
+                "rastrodelanaturaleza": "1",
+                "reactivodeliquidoclaro": "1",
+                "sangredezorro": "2"
+            }
+        },
+        "elixirdevelocidad": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelabestiadivina": "1",
+                "hongoflecha": "5",
+                "saviadeabedul": "5",
+                "polvodelaoscuridad": "2"
+            }
+        },
+        "elixirdehechizos": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredetirano": "1",
+                "florescamadefuego": "5",
+                "saviadearboldearce": "3",
+                "polvodelaoscuridad": "2"
+            }
+        },
+        "elixirdeimpacto": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelpayaso": "1",
+                "hongotigre": "5",
+                "saviadecedro": "7",
+                "polvodetiempo": "3"
+            }
+        },
+        "frascodecorrupcion": {
+            "tipo": "simple",
+            "ing": {
+                "elixirderobofuerte": "1",
+                "elixirdepenetracionbrutal": "1",
+                "elixirdemuerte": "3",
+                "elixirdelaparca": "3",
+                "catalizadormagico": "1"
+            }
+        },
+        "elixirderobofuerte": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceiteindomable": "1",
+                "reactivodeliquidoclaro": "4",
+                "hongohinchazon": "3",
+                "saviadeabedul": "4",
+                "rastrodelanaturaleza": "2"
+            }
+        },
+        "aceiteindomable": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelpayaso": "1",
+                "ramadelmonje": "1",
+                "frutadelanaturaleza": "1",
+                "polvodefuego": "1"
+            }
+        },
+        "elixirdepenetracionbrutal": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedecorrupcion": "1",
+                "reactivodeliquidoclaro": "4",
+                "hongofanfarron": "5",
+                "saviadepino": "5",
+                "rastrodelanaturaleza": "2"
+            }
+        },
+        "aceitedecorrupcion": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelpecador": "1",
+                "hojadelespiritu": "1",
+                "frutadelanaturaleza": "1",
+                "polvodelaoscuridad": "1"
+            }
+        },
+        "sangredelpecador": {
+            "tipo": "alquimia",
+            "ing": {
+                "nudodearbolensangrentado": "1",
+                "polvodefuego": "1",
+                "reactivodeliquidoclaro": "1",
+                "sangredecerdo": "2"
+            }
+        },
+        "elixirdemuerte": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedetranquilidad": "1",
+                "reactivodeliquidoclaro": "6",
+                "hongoancestral": "2",
+                "saviadefresno": "7",
+                "rastrodelanaturaleza": "2"
+            }
+        },
+        "aceitedetranquilidad": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelhombresabio": "1",
+                "nudodearbolensangrentado": "1",
+                "frutadelanaturaleza": "1",
+                "polvodelatierra": "1"
+            }
+        },
+        "elixirdelaparca": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceiteindomable": "1",
+                "reactivodepolvopuro": "4",
+                "hongocielo": "2",
+                "ramadelmonje": "2",
+                "rastrodelanaturaleza": "4"
+            }
+        },
+        "frascodeviolencia": {
+            "tipo": "simple",
+            "ing": {
+                "elixirdeasesino": "3",
+                "elixirdedeteccion": "3",
+                "elixirdemasacrador": "3",
+                "elixirdecielodespiadado": "1",
+                "catalizadormagico": "1"
+            }
+        },
+        "elixirdeasesino": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitederegeneracion": "1",
+                "reactivodepolvopuro": "5",
+                "hongopayaso": "4",
+                "hierbademilanos": "2",
+                "rastrodelanaturaleza": "2"
+            }
+        },
+        "elixirdedeteccion": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedetormentas": "1",
+                "reactivodepolvopuro": "6",
+                "hongotrufa": "3",
+                "cortezadelarbolviejo": "2",
+                "rastrodelanaturaleza": "3"
+            }
+        },
+        "elixirdemasacrador": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedecorrupcion": "1",
+                "reactivodepolvopuro": "7",
+                "hongotigre": "2",
+                "hojadelespiritu": "2",
+                "rastrodelanaturaleza": "3"
+            }
+        },
+        "elixirdecielodespiadado": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedetranquilidad": "1",
+                "reactivodepolvopuro": "6",
+                "hongoemperador": "1",
+                "nudodearbolensangrentado": "2",
+                "rastrodelanaturaleza": "4"
+            }
+        },
+        "elixirdeedaniapoderoso": {
+            "tipo": "simple",
+            "ing": {
+                "elixirdeedania": "3",
+                "reactivodeliquidoazul": "1"
+            }
+        },
+        "elixirdeedania": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelpecador": "2",
+                "rastrodelanaturaleza": "4",
+                "cortezadelarbolviejo": "5",
+                "reactivodeliquidoclaro": "5",
+                "saviadearbolcaphras": "6"
+            }
+        },
+        "elixirdevoluntadinquebrantable": {
+            "tipo": "simple",
+            "ing": {
+                "elixirdevoluntad": "3",
+                "reactivodeliquidoazul": "1"
+            }
+        }
+    },
+    "datos": {
+        "pociondevidap": {
+            "titulo": "Poción de Vida (P)",
+            "peso": "0.20",
+            "plata": "80",
+            "nomejorable": true,
+            "grupo": true
+        },
+        "elixirdedeliriosinfin": {
+            "titulo": "Elixir de Delirio sin Fin",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirderobofuerte": {
+            "titulo": "Elixir de Robo Fuerte",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdepenetracionbrutal": {
+            "titulo": "Elixir de Penetración Brutal",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdemuerte": {
+            "titulo": "Elixir de Muerte",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdeviento": {
+            "titulo": "Elixir de Viento",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "elixirdevelocidad": {
+            "titulo": "Elixir de Velocidad",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "elixirdehechizos": {
+            "titulo": "Elixir de Hechizos",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "elixirdeasesino": {
+            "titulo": "Elixir de Asesino",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdedeteccion": {
+            "titulo": "Elixir de Detección",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdeconcentracion": {
+            "titulo": "Elixir de Concentración",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Principiante Nv. 1"
+        },
+        "elixirdevoluntad": {
+            "titulo": "Elixir de Voluntad",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Principiante Nv. 1"
+        },
+        "elixirdevoluntadinquebrantable": {
+            "titulo": "Elixir de Voluntad Inquebrantable",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "elixirdefuria": {
+            "titulo": "Elixir de Furia",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdevidafuerte": {
+            "titulo": "Elixir de Vida Fuerte",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Principiante Nv. 1"
+        },
+        "elixirdelaparca": {
+            "titulo": "Elixir de la Parca",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdedefensa": {
+            "titulo": "Elixir de Defensa",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Principiante Nv. 1"
+        },
+        "elixirdemasacrador": {
+            "titulo": "Elixir de Masacrador",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdecielodespiadado": {
+            "titulo": "Elixir de Cielo Despiadado",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdeenergia": {
+            "titulo": "Elixir de Energía",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Principiante Nv. 1"
+        },
+        "perfumedevalentia": {
+            "titulo": "Perfume de Valentía",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "perfumederapidez": {
+            "titulo": "Perfume de Rapidez",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdeimpacto": {
+            "titulo": "Elixir de Impacto",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "elixirdeespiralbrillante": {
+            "titulo": "Elixir de Espiral Brillante",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "elixirdeladestruccion": {
+            "titulo": "Elíxir de la Destrucción",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "frascoderabia": {
+            "titulo": "Frasco de Rabia",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodeadaptacion": {
+            "titulo": "Frasco de Adaptación",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodepoderpotencial": {
+            "titulo": "Frasco de Poder Potencial",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodecorrupcion": {
+            "titulo": "Frasco de Corrupción",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodeviolencia": {
+            "titulo": "Frasco de Violencia",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodearmonia": {
+            "titulo": "Frasco de Armonía",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodearmoniaedania": {
+            "titulo": "Frasco de Armonía - Edania",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "elixirdeedania": {
+            "titulo": "Elixir de Edania",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdeedaniapoderoso": {
+            "titulo": "Elixir de Edania Poderoso",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "polvodelaoscuridad": {
+            "titulo": "Polvo de la Oscuridad",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "polvodefuego": {
+            "titulo": "Polvo de Fuego",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "polvodelagrieta": {
+            "titulo": "Polvo de la Grieta",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "polvodelatierra": {
+            "titulo": "Polvo de la Tierra",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "polvodetiempo": {
+            "titulo": "Polvo de Tiempo",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "reactivodeliquidoazul": {
+            "titulo": "Reactivo de Líquido Azul",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "saviadefresno": {
+            "titulo": "Savia de Fresno",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "saviadearboldearce": {
+            "titulo": "Savia de Árbol de Arce",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "saviadepino": {
+            "titulo": "Savia de Pino",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "saviadeabedul": {
+            "titulo": "Savia de Abedul",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "nudodearbolensangrentado": {
+            "titulo": "Nudo de Árbol Ensangrentado",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "hojadelespiritu": {
+            "titulo": "Hoja del Espíritu",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "ramadelmonje": {
+            "titulo": "Rama del Monje",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "cortezadelarbolviejo": {
+            "titulo": "Corteza del Árbol Viejo",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "saviadecedro": {
+            "titulo": "Savia de Cedro",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "saviadetuyaoriental": {
+            "titulo": "Savia de Tuya Oriental",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "saviadecedrodelcamponevado": {
+            "titulo": "Savia de Cedro del Campo Nevado",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "saviadearbolcaphras": {
+            "titulo": "Savia de Árbol Caphras",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "frutadelanaturaleza": {
+            "titulo": "Fruta de la Naturaleza",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "reactivodeliquidoclaro": {
+            "titulo": "Reactivo de Líquido Claro",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Principiante Nv. 1"
+        },
+        "reactivodepolvopuro": {
+            "titulo": "Reactivo de Polvo Puro",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Principiante Nv. 1"
+        },
+        "hierbaluzdelatardecer": {
+            "titulo": "Hierba Luz del Atardecer",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "azaleaplateada": {
+            "titulo": "Azalea Plateada",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "florescamadefuego": {
+            "titulo": "Flor Escama de Fuego",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hierbademilanos": {
+            "titulo": "Hierba de Mil Años",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongoadivino": {
+            "titulo": "Hongo adivino",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongoflecha": {
+            "titulo": "Hongo flecha",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongoenano": {
+            "titulo": "Hongo Enano",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongonube": {
+            "titulo": "Hongo Nube",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongocielo": {
+            "titulo": "Hongo Cielo",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongotigre": {
+            "titulo": "Hongo tigre",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongoemperador": {
+            "titulo": "Hongo Emperador",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongofantasma": {
+            "titulo": "Hongo Fantasma",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongohinchazon": {
+            "titulo": "Hongo hinchazón",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongofanfarron": {
+            "titulo": "Hongo Fanfarrón",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongoancestral": {
+            "titulo": "Hongo ancestral",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongopayaso": {
+            "titulo": "Hongo payaso",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "hongotrufa": {
+            "titulo": "Hongo Trufa",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "plantasilvestre": {
+            "titulo": "Planta Silvestre",
+            "peso": "0.10",
+            "plata": "0"
+        },
+        "rastrodelanaturaleza": {
+            "titulo": "Rastro de la Naturaleza",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "sangredezorro": {
+            "titulo": "Sangre de Zorro",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "sangredecerdo": {
+            "titulo": "Sangre de Cerdo",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "sangredeoso": {
+            "titulo": "Sangre de Oso",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "sangredelobo": {
+            "titulo": "Sangre de Lobo",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "sangredemurcielago": {
+            "titulo": "Sangre de Murciélago",
+            "peso": "0.10",
+            "plata": "0",
+            "grupo": true
+        },
+        "sangredelabestiadivina": {
+            "titulo": "Sangre de la Bestia Divina",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Principiante Nv. 1"
+        },
+        "sangredetirano": {
+            "titulo": "Sangre de Tirano",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "sangredelpayaso": {
+            "titulo": "Sangre del Payaso",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "sangredelpecador": {
+            "titulo": "Sangre del Pecador",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "sangredelhombresabio": {
+            "titulo": "Sangre del Hombre Sabio",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "aceitederegeneracion": {
+            "titulo": "Aceite de Regeneración",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "aceitedetormentas": {
+            "titulo": "Aceite de Tormentas",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "aceiteindomable": {
+            "titulo": "Aceite Indomable",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "aceitedecorrupcion": {
+            "titulo": "Aceite de Corrupción",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "aceitedetranquilidad": {
+            "titulo": "Aceite de Tranquilidad",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "botelladeaguademar": {
+            "titulo": "Botella de Agua de Mar",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "botelladeaguaderio": {
+            "titulo": "Botella de Agua de Río",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "aguapurificada": {
+            "titulo": "Agua Purificada",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "grupo": true
+        },
+        "sal": {
+            "titulo": "Sal",
+            "peso": "0.01",
+            "plata": "20",
+            "nomejorable": true
+        },
+        "azucar": {
+            "titulo": "Azúcar",
+            "peso": "0.01",
+            "plata": "20",
+            "nomejorable": true
+        },
+        "aceitedeballenaazul": {
+            "titulo": "Aceite de Ballena Azul",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "catalizadormagico": {
+            "titulo": "Catalizador Mágico",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
+        }
+    }
+}
