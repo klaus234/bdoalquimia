@@ -1059,18 +1059,25 @@ function setAndLoad() {
         }
 
         lix.append(spanmoney);
-        lix.append(spantitle);
 
         /* El badge dice de dónde sale este ingrediente: alquimia, alquimia
-           simple o procesamiento. La marca ↻ dice que acepta su grupo. */
+           simple o procesamiento. La marca ↻ dice que acepta su grupo.
+
+           Título, badge y marca van juntos dentro de .ing_cabeza: como el <li>
+           es flex-wrap, sin este contenedor un título largo hace que las cajas
+           de cantidad se vayan a una línea nueva. */
+        let cabeza = document.createElement("span");
+        cabeza.className = "ing_cabeza";
+        cabeza.append(spantitle);
         if (isLink)
-            lix.append(crearBadgeTipo(ird));
+            cabeza.append(crearBadgeTipo(ird));
 
         /* la marca ↻ va acá, pero el panel desplegable se cuelga del <li>
            entero para que caiga en su propia línea, debajo de las cajitas */
         let contMarca = document.createElement("span");
         contMarca.className = "cont_marca";
-        lix.append(contMarca);
+        cabeza.append(contMarca);
+        lix.append(cabeza);
 
         let spansector = document.createElement("span");
         spansector.className = "seccajas";

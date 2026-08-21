@@ -25,12 +25,7 @@
                 "aguapurificada": "1"
             }
         },
-        "sal": {
-            "tipo": "calentar",
-            "ing": {
-                "botelladeaguademar": "1"
-            }
-        },
+        
         "perfumederapidez": {
             "tipo": "alquimia",
             "ing": {
