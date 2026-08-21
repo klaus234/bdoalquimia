@@ -290,6 +290,61 @@ function filtrarIngredientesBase() {
     });
 }
 
+/* Barra de avance encima de la lista de puros. */
+function crearCabeceraProgreso() {
+    const li = document.createElement("li");
+    li.className = "progreso_puros";
+
+    const txt = document.createElement("span");
+    txt.id = "progreso_puros_txt";
+    txt.className = "progreso_puros_txt";
+
+    const barra = document.createElement("span");
+    barra.className = "b_base b_contenedor progreso_puros_cont";
+    const relleno = document.createElement("span");
+    relleno.id = "progreso_puros_barra";
+    relleno.className = "b_base b_usado";
+    relleno.style = "width: 0%;";
+    barra.append(relleno);
+
+    const btn = document.createElement("button");
+    btn.className = "btn_limpiar_tildes";
+    btn.innerText = "Destildar todo";
+    btn.addEventListener("click", function () {
+        completados = {};
+        document.querySelectorAll("#ingredientes_puros .ingrediente_puro").forEach(function (el) {
+            el.querySelector(".chk_puro").checked = false;
+            el.classList.remove("completado");
+        });
+        actualizarProgresoPuros();
+    });
+
+    li.append(txt);
+    li.append(barra);
+    li.append(btn);
+    return li;
+}
+
+function actualizarProgresoPuros() {
+    const items = document.querySelectorAll("#ingredientes_puros .ingrediente_puro");
+    const total = items.length;
+    let hechos = 0;
+    items.forEach(function (el) {
+        if (el.querySelector(".chk_puro").checked) hechos++;
+    });
+
+    const tab = document.getElementById("tab_puros");
+    if (tab != null)
+        tab.innerText = total > 0
+            ? "Ingredientes puros (" + hechos + "/" + total + ")"
+            : "Ingredientes puros";
+
+    const barra = document.getElementById("progreso_puros_barra");
+    const txt = document.getElementById("progreso_puros_txt");
+    if (barra != null) barra.style = "width: " + (total > 0 ? (hechos * 100 / total) : 0) + "%;";
+    if (txt != null) txt.innerText = hechos + " de " + total + " conseguidos";
+}
+
 /* Lista plana con lo que hay que conseguir de verdad: las hojas del árbol,
    es decir todo lo que NO es una receta (ni de alquimia ni de procesamiento).
    Las cantidades son los totales ya acumulados de todas las ramas. */
@@ -304,6 +359,22 @@ function crearListaPuros(totalesGlobales) {
     for (let k of puros) {
         const li = document.createElement("li");
         li.className = "ingrediente_puro";
+
+        /* tildar lo que ya conseguiste; el avance vive en `completados` para
+           que sobreviva a un recálculo de la lista */
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.className = "chk_puro";
+        chk.id = "chk_" + k;
+        chk.checked = completados[k] == true;
+        chk.title = "Marcar como conseguido";
+        chk.addEventListener("change", function () {
+            completados[k] = this.checked;
+            li.classList.toggle("completado", this.checked);
+            actualizarProgresoPuros();
+        });
+        if (chk.checked) li.classList.add("completado");
+        li.append(chk);
 
         const span_contenedor = document.createElement("span");
         span_contenedor.className = "ing_contenedor";
@@ -346,8 +417,9 @@ function generarListaIngredientes() {
 
     /* las dos vistas se arman juntas y se muestra la que esté activa */
     const puros = crearListaPuros(totalesGlobales);
+    ulpuros.append(crearCabeceraProgreso());
     ulpuros.append(puros.ul);
-    document.getElementById("tab_puros").innerText = "Ingredientes puros (" + puros.cantidad + ")";
+    actualizarProgresoPuros();
 
     if (buscadorIngredientes && buscadorIngredientes.value.trim() !== "") {
         filtrarIngredientesBase();
@@ -597,11 +669,20 @@ function crearCaja(cname, idname) {
     return box;
 }
 
+/* Los campos de peso pueden estar vacíos: sin esto parseFloat("") = NaN y el
+   NaN se propaga al texto y al ancho de las barras. */
+function numeroSeguro(valor) {
+    const n = parseFloat(valor);
+    return isFinite(n) ? n : 0;
+}
+
 function calcPrct(total, usado) {
-    if (total != 0 || total != undefined) {
-        return (usado * 100) / total > 100 ? 100 : (usado * 100) / total;
-    }
-    return 0;
+    total = numeroSeguro(total);
+    usado = numeroSeguro(usado);
+    if (total <= 0)
+        return 0;
+    const p = (usado * 100) / total;
+    return p > 100 ? 100 : p;
 }
 
 function seleccionarCaja() {
@@ -630,22 +711,25 @@ let secondLoad = false;
 let gastoIngCalculados = {};
 
 function updatePeso() {
-    const pmax = document.getElementById("pesomax").value;
-    const pmio = document.getElementById("mipeso").value;
+    const pmax = numeroSeguro(document.getElementById("pesomax").value);
+    const pmio = numeroSeguro(document.getElementById("mipeso").value);
 
     const bocupado = document.getElementById("bocupado");
     const busado = document.getElementById("busado");
 
     let pocupado = calcPrct(pmax, pmio);
     let pusado = calcPrct(pmax, gpeso);
-    const resultado = Math.round(((parseFloat(pmio) + parseFloat(gpeso)) + Number.EPSILON) * 100) / 100;
+    const resultado = Math.round(((pmio + numeroSeguro(gpeso)) + Number.EPSILON) * 100) / 100;
 
     const pocup = document.getElementById("pesoocu")
     const pomax = document.getElementById("pesotot");
-    pocup.innerText = "" + resultado;
-    pomax.innerText = "/ " + pmax + " LT";
+    pocup.innerText = resultado.toFixed(2);
+    pomax.innerText = "/ " + pmax.toFixed(2) + " LT";
 
-    if ((pmax - resultado) < 50)
+    /* sin peso máximo cargado no hay nada que avisar */
+    if (pmax <= 0)
+        pocup.style = "none";
+    else if ((pmax - resultado) < 50)
         if ((pmax - resultado) < 0)
             pocup.style = "color: red;";
         else
@@ -687,6 +771,150 @@ function leerPreferencias() {
     try { return JSON.parse(p); } catch (e) { return {}; }
 }
 
+/* -----------------------------------------------------------------
+   Estado de progreso
+   -----------------------------------------------------------------
+   Distinto de las preferencias: las preferencias son los ajustes que
+   valen para toda la calculadora (ratios, peso de la mula), mientras que
+   el estado es el avance concreto de UNA receta — cuánto vas a hacer, a
+   qué precio, con qué calidades y qué ingredientes ya conseguiste.
+   Se guarda uno por receta y se restaura solo al abrirla.
+   ----------------------------------------------------------------- */
+const CLAVE_ESTADO = "estado_alquimia";
+
+/* ingredientes puros ya conseguidos de la receta abierta */
+let completados = {};
+
+function leerEstados() {
+    const p = localStorage.getItem(CLAVE_ESTADO);
+    if (p == null || p == "") return {};
+    try { return JSON.parse(p) || {}; } catch (e) { return {}; }
+}
+
+function valorDe(id) {
+    const e = document.getElementById(id);
+    return e == null ? undefined : e.value;
+}
+
+function ponerValor(id, valor) {
+    const e = document.getElementById(id);
+    if (e != null && valor != undefined) e.value = valor;
+}
+
+function guardarEstado() {
+    const est = {
+        "v": 1,
+        "fecha": Date.now(),
+        "cantidad": valorDe("cantidad"),
+        "ratio": valorDe("ratio"),
+        "ratio_proc": valorDe("ratio_proc"),
+        "pesomax": valorDe("pesomax"),
+        "mipeso": valorDe("mipeso"),
+        "vista": vistaBaseActual,
+        "calidades": {},
+        "precios": {},
+        "gastos": [],
+        "completados": Object.keys(completados).filter(function (k) { return completados[k]; })
+    };
+
+    for (let ing of inglist) {
+        const inp = document.getElementById(ing + "_cant");
+        if (inp != null && inp.bdogrado != "normal")
+            est["calidades"][ing] = inp.bdogrado;
+        const pl = document.getElementById("inpplata_" + ing);
+        if (pl != null && pl.value != rdata["datos"][ing]["plata"])
+            est["precios"][ing] = pl.value;
+        if (gastoIngCalculados[ing])
+            est["gastos"].push(ing);
+    }
+
+    const todos = leerEstados();
+    todos[currentingrediente] = est;
+    localStorage.setItem(CLAVE_ESTADO, JSON.stringify(todos));
+
+    this.disabled = true;
+    this.style = "opacity: 0.5;";
+    this.innerText = "Guardando...";
+    setTimeout(function () {
+        this.disabled = false; this.style = ""; this.innerText = "Guardar estado";
+    }.bind(this), 300);
+}
+
+function borrarEstado(recetaId) {
+    const todos = leerEstados();
+    delete todos[recetaId];
+    localStorage.setItem(CLAVE_ESTADO, JSON.stringify(todos));
+}
+
+function fechaCorta(ms) {
+    const d = new Date(ms);
+    const p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return p(d.getDate()) + "/" + p(d.getMonth() + 1) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+function mostrarAvisoEstado(est) {
+    const cab = document.getElementById("cabecera_receta");
+    const aviso = document.createElement("div");
+    aviso.id = "aviso_estado";
+    aviso.className = "aviso_estado";
+
+    const txt = document.createElement("span");
+    txt.innerText = "Estado restaurado" + (est["fecha"] ? " · guardado el " + fechaCorta(est["fecha"]) : "");
+    aviso.append(txt);
+
+    const btn = document.createElement("button");
+    btn.className = "btn_descartar";
+    btn.innerText = "Descartar";
+    btn.title = "Borra el estado guardado de esta receta y empieza de cero";
+    btn.addEventListener("click", function () {
+        borrarEstado(currentingrediente);
+        const o = { "id": currentingrediente };
+        o.setAndLoad = setAndLoad;
+        o.setAndLoad();
+    });
+    aviso.append(btn);
+
+    cab.parentNode.insertBefore(aviso, cab.nextSibling);
+}
+
+/* Aplica el estado sobre una receta recién montada. El orden importa: las
+   calidades cambian cuánto rinde cada ingrediente, así que van antes de
+   fijar la cantidad, que es lo que dispara el recálculo general. */
+function aplicarEstado(est) {
+    ponerValor("ratio", est["ratio"]);
+    ponerValor("ratio_proc", est["ratio_proc"]);
+
+    const cal = est["calidades"] || {};
+    for (let ing in cal) {
+        const caja = document.getElementById("box_" + ing + "_" + cal[ing]);
+        if (caja != null) caja.click();
+    }
+
+    const pre = est["precios"] || {};
+    for (let ing in pre) ponerValor("inpplata_" + ing, pre[ing]);
+
+    for (let ing of (est["gastos"] || [])) {
+        const b = document.getElementById("actplata_" + ing);
+        if (b != null && !gastoIngCalculados[ing]) b.click();
+    }
+
+    ponerValor("pesomax", est["pesomax"]);
+    ponerValor("mipeso", est["mipeso"]);
+
+    completados = {};
+    for (let k of (est["completados"] || [])) completados[k] = true;
+
+    const c = document.getElementById("cantidad");
+    c.value = est["cantidad"] || 0;
+    c.dispatchEvent(new Event("input"));
+    updatePeso();
+
+    generarListaIngredientes();
+    if (est["vista"]) cambiarVistaBase(est["vista"]);
+
+    mostrarAvisoEstado(est);
+}
+
 /* Cabecera: qué es esta receta y cómo se elabora. */
 function construirCabecera(id) {
     let cab = document.getElementById("cabecera_receta");
@@ -722,6 +950,21 @@ function construirCabecera(id) {
 function setAndLoad() {
     gastoIngCalculados = {};
     modoseleccion = false;
+
+    /* al cambiar de receta se limpia el avance y las listas calculadas: si
+       quedaran las de la receta anterior, "Guardar estado" grabaría datos
+       que no son de esta receta */
+    completados = {};
+    const avisoViejo = document.getElementById("aviso_estado");
+    if (avisoViejo != null) avisoViejo.remove();
+    for (let idLista of ["ingredientes_base", "ingredientes_puros"]) {
+        const ul = document.getElementById(idLista);
+        if (ul != null) ul.innerHTML = "<li>Sin calcular aún</li>";
+    }
+    const tabPuros = document.getElementById("tab_puros");
+    if (tabPuros != null) tabPuros.innerText = "Ingredientes puros";
+    const buscadorIng = document.getElementById("buscador_ingredientes");
+    if (buscadorIng != null) { buscadorIng.value = ""; buscadorIng.style.display = "none"; }
     const t = rdata["datos"][this.id]["titulo"];
     document.title = t + " - Alquimia BDO";
     inglist = [];
@@ -898,11 +1141,20 @@ function setAndLoad() {
     let botonsave = document.createElement("button");
     botonsave.innerText = "Guardar preferencias";
     botonsave.classList.add("savebtn");
+    botonsave.title = "Ratios y peso, para todas las recetas";
     botonsave.onclick = guardarPreferencias;
+
+    /* el avance de ESTA receta, aparte de las preferencias generales */
+    let botonestado = document.createElement("button");
+    botonestado.innerText = "Guardar estado";
+    botonestado.classList.add("estadobtn");
+    botonestado.title = "Cantidad, precios, calidades y lo ya conseguido de esta receta";
+    botonestado.onclick = guardarEstado;
 
     boton.innerText = "Calcular Ingredientes";
     boton.addEventListener("click", generarListaIngredientes);
     nli.append(boton);
+    nli.append(botonestado);
     nli.append(botonsave);
 
     let total = crearElementoLi(otros, "Total obtenidos: ", "total");
@@ -965,11 +1217,8 @@ function setAndLoad() {
     fbutton.innerText = "LLENAR";
 
     fbutton.onclick = function () {
-        let pmax = document.getElementById("pesomax").value;
-        let pmio = document.getElementById("mipeso").value;
-
-        if (pmax == "") pmax = 0;
-        if (pmio == "") pmio = 0;
+        const pmax = numeroSeguro(document.getElementById("pesomax").value);
+        const pmio = numeroSeguro(document.getElementById("mipeso").value);
 
         const disponible = pmax - pmio;
 
@@ -979,10 +1228,12 @@ function setAndLoad() {
             const ddato = 1 * Math.ceil(inputcocic.bdocant / calidad_ing[calidades[inputcocic.bdogrado]]);
             pesodata += parseFloat(rdata["datos"][ingx]["peso"]) * ddato;
         }
-        const resultado = Math.floor((disponible / pesodata) * 0.95);
+        /* sin peso máximo cargado, o con ingredientes sin peso, no hay nada que llenar */
+        if (disponible <= 0 || pesodata <= 0)
+            return;
 
         const tinput = document.getElementById("cantidad");
-        tinput.value = resultado;
+        tinput.value = Math.floor((disponible / pesodata) * 0.95);
         let e = new Event("input");
         tinput.dispatchEvent(e);
     }
@@ -1009,12 +1260,63 @@ function setAndLoad() {
         }
     }
 
+    /* los spinners nativos no combinan con el tema: los reemplazamos */
+    ponerSpinners(document.getElementById("contenido"));
+
+    /* si esta receta tiene avance guardado, se restaura encima de todo lo anterior */
+    const estadoGuardado = leerEstados()[this.id];
+    if (estadoGuardado != undefined)
+        aplicarEstado(estadoGuardado);
+
     secondLoad = true;
 }
 
 function generarListaIngredientesSiHay() {
     if (document.querySelector("#ingredientes_base .ingrediente_item") != null)
         generarListaIngredientes();
+}
+
+/* -----------------------------------------------------------------
+   Flechitas de los inputs numéricos
+   -----------------------------------------------------------------
+   Las nativas son grises y no hay forma de tematizarlas de verdad, así que
+   se ocultan por CSS y se reemplazan por estas, que respetan el `step` del
+   input y disparan el mismo evento `input` que escribir a mano.
+   ----------------------------------------------------------------- */
+function crearBotonSpinner(inp, dir, glifo) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "spin_btn";
+    b.innerText = glifo;
+    b.tabIndex = -1;
+    b.addEventListener("click", function (e) {
+        e.preventDefault();
+        const paso = parseFloat(inp.step) || 1;
+        const actual = parseFloat(inp.value);
+        let n = (isFinite(actual) ? actual : 0) + dir * paso;
+        if (n < 0) n = 0;
+        /* sumar decimales en coma flotante deja cosas como 2.5000000000000004 */
+        const dec = (String(paso).split(".")[1] || "").length;
+        inp.value = dec > 0 ? parseFloat(n.toFixed(dec)) : Math.round(n);
+        inp.dispatchEvent(new Event("input"));
+    });
+    return b;
+}
+
+function ponerSpinners(raiz) {
+    raiz.querySelectorAll('input[type="number"]').forEach(function (inp) {
+        if (inp.bdospinner) return;
+        inp.bdospinner = true;
+
+        const cont = document.createElement("span");
+        cont.className = "spinner";
+        cont.append(crearBotonSpinner(inp, 1, "▲"));
+        cont.append(crearBotonSpinner(inp, -1, "▼"));
+        inp.after(cont);
+
+        if (inp.parentElement != null)
+            inp.parentElement.classList.add("con_spinner");
+    });
 }
 
 function crearElementoLi(donde, texto, id, sininput) {
@@ -1050,8 +1352,264 @@ function findGetParameter(parameterName) {
     return result;
 }
 
+/* =================================================================
+   Consola
+   =================================================================
+   Se abre y cierra con la tecla | (la de al lado del 1), estilo CS 1.6:
+   baja desde arriba, translúcida, y responde aunque estés escribiendo
+   dentro de un input.
+
+   Evalúa cuentas con un parser propio — nada de eval(), que ejecutaría
+   cualquier cosa que se escriba.
+   ================================================================= */
+
+let consolaHistorial = [];
+let consolaPosHist = -1;
+let consolaUltimo = 0;
+let consolaFocoPrevio = null;
+
+function consolaAbierta() {
+    const c = document.getElementById("consola");
+    return c != null && c.classList.contains("abierta");
+}
+
+/* La tecla al lado del 1: en latinoamericano da "|", en otros layouts
+   da ` o º, pero siempre es la misma tecla física (Backquote). */
+function esTeclaConsola(e) {
+    if (e.metaKey) return false;
+    if (e.key === "|") return true;
+    if (e.ctrlKey || e.altKey) return false;
+    return e.code === "Backquote";
+}
+
+// --- evaluador -----------------------------------------------------
+
+function tokenizarExpresion(txt) {
+    const tokens = [];
+    const re = /\s*(\d+(?:[.,]\d+)?|[a-zA-Z]+|[()+\-*/%^]|\S)/g;
+    let m;
+    while ((m = re.exec(txt)) !== null) tokens.push(m[1]);
+    return tokens;
+}
+
+function evaluarExpresion(txt) {
+    const t = tokenizarExpresion(txt);
+    let i = 0;
+
+    const ver = function () { return t[i]; };
+    const comer = function () { return t[i++]; };
+    const esNumero = function (s) { return s != undefined && /^\d+(?:[.,]\d+)?$/.test(s); };
+
+    function expr() {
+        let v = term();
+        while (ver() === "+" || ver() === "-") {
+            const op = comer();
+            const d = term();
+            v = op === "+" ? v + d : v - d;
+        }
+        return v;
+    }
+
+    function term() {
+        let v = unario();
+        while (ver() === "*" || ver() === "/" || ver() === "%") {
+            const op = comer();
+            const d = unario();
+            if ((op === "/" || op === "%") && d === 0) throw new Error("no se puede dividir por cero");
+            v = op === "*" ? v * d : (op === "/" ? v / d : v % d);
+        }
+        return v;
+    }
+
+    function unario() {
+        if (ver() === "-") { comer(); return -unario(); }
+        if (ver() === "+") { comer(); return unario(); }
+        return potencia();
+    }
+
+    function potencia() {
+        const base = primario();
+        if (ver() === "^") { comer(); return Math.pow(base, unario()); }  // 2^3^2 = 2^(3^2)
+        return base;
+    }
+
+    function primario() {
+        const s = ver();
+        if (s == undefined) throw new Error("la cuenta termina antes de tiempo");
+        if (s === "(") {
+            comer();
+            const v = expr();
+            if (ver() !== ")") throw new Error("falta cerrar un paréntesis");
+            comer();
+            return v;
+        }
+        if (esNumero(s)) { comer(); return parseFloat(comaAPunto(s)); }
+        if (/^[a-zA-Z]+$/.test(s)) {
+            if (s.toLowerCase() === "ans") { comer(); return consolaUltimo; }
+            throw new Error('no conozco "' + s + '"');
+        }
+        throw new Error('no entiendo "' + s + '"');
+    }
+
+    const r = expr();
+    if (i < t.length) throw new Error('sobra "' + t.slice(i).join(" ") + '"');
+    if (typeof r !== "number" || isNaN(r)) throw new Error("eso no da un número");
+    if (!isFinite(r)) throw new Error("el resultado se fue al infinito");
+    return r;
+}
+
+function comaAPunto(s) { return s.replace(",", "."); }
+
+function formatearResultado(n) {
+    /* 0.1 + 0.2 tiene que dar 0.3, no 0.30000000000000004 */
+    const limpio = Math.round(n * 1e10) / 1e10;
+    const plano = String(limpio);
+    const entero = plano.split(".")[0].replace("-", "");
+    if (entero.length > 4) {
+        const partes = plano.split(".");
+        const conMiles = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return plano + "   (" + conMiles + (partes[1] ? "," + partes[1] : "") + ")";
+    }
+    return plano;
+}
+
+// --- salida --------------------------------------------------------
+
+function consolaEscribir(texto, clase) {
+    const salida = document.getElementById("consola_salida");
+    const linea = document.createElement("div");
+    linea.className = "consola_linea_salida " + (clase || "");
+    linea.innerText = texto;
+    salida.append(linea);
+    salida.scrollTop = salida.scrollHeight;
+}
+
+function consolaLimpiar() {
+    document.getElementById("consola_salida").innerHTML = "";
+}
+
+function consolaAyuda() {
+    consolaEscribir("Operadores:  +  -  *  /  %  ^  y paréntesis", "info");
+    consolaEscribir("Decimales con punto o coma:  2.5  ·  2,5", "info");
+    consolaEscribir("ans reutiliza el último resultado:  ans * 2", "info");
+    consolaEscribir("Comandos:  help  ·  clear (o cls)", "info");
+}
+
+function consolaEjecutar(entrada) {
+    const txt = entrada.trim();
+    if (txt === "") return;
+
+    consolaHistorial.push(txt);
+    consolaPosHist = consolaHistorial.length;
+    consolaEscribir("> " + txt, "eco");
+
+    const cmd = txt.toLowerCase();
+    if (cmd === "clear" || cmd === "cls") { consolaLimpiar(); return; }
+    if (cmd === "help" || cmd === "ayuda" || cmd === "?") { consolaAyuda(); return; }
+
+    try {
+        const r = evaluarExpresion(txt);
+        consolaUltimo = r;
+        consolaEscribir("= " + formatearResultado(r), "resultado");
+    } catch (err) {
+        consolaEscribir("✗ " + err.message, "error");
+    }
+}
+
+// --- abrir / cerrar ------------------------------------------------
+
+function abrirConsola() {
+    const c = document.getElementById("consola");
+    const inp = document.getElementById("consola_input");
+    consolaFocoPrevio = document.activeElement;
+    c.classList.add("abierta");
+    c.setAttribute("aria-hidden", "false");
+    if (document.getElementById("consola_salida").children.length === 0) {
+        consolaEscribir("Calculadora — escribí una cuenta y Enter. Ej: (40 * 3) / 2", "info");
+    }
+    inp.value = "";
+    consolaPosHist = consolaHistorial.length;
+    setTimeout(function () { inp.focus(); }, 30);
+}
+
+function cerrarConsola() {
+    const c = document.getElementById("consola");
+    c.classList.remove("abierta");
+    c.setAttribute("aria-hidden", "true");
+    document.getElementById("consola_input").blur();
+    if (consolaFocoPrevio != null && document.contains(consolaFocoPrevio)) {
+        try { consolaFocoPrevio.focus(); } catch (e) { }
+    }
+    consolaFocoPrevio = null;
+}
+
+function alternarConsola() {
+    if (consolaAbierta()) cerrarConsola(); else abrirConsola();
+}
+
+function moverHistorial(dir) {
+    if (consolaHistorial.length === 0) return;
+    const inp = document.getElementById("consola_input");
+    consolaPosHist += dir;
+    if (consolaPosHist < 0) consolaPosHist = 0;
+    if (consolaPosHist >= consolaHistorial.length) {
+        consolaPosHist = consolaHistorial.length;
+        inp.value = "";
+        return;
+    }
+    inp.value = consolaHistorial[consolaPosHist];
+    setTimeout(function () { inp.setSelectionRange(inp.value.length, inp.value.length); }, 0);
+}
+
+function iniciarConsola() {
+    const inp = document.getElementById("consola_input");
+
+    /* en captura, así gana a los demás handlers y el "|" nunca llega al input
+       que estés tipeando */
+    document.addEventListener("keydown", function (e) {
+        if (esTeclaConsola(e)) {
+            e.preventDefault();
+            e.stopPropagation();
+            alternarConsola();
+            return;
+        }
+        if (!consolaAbierta()) return;
+
+        if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
+            cerrarConsola();
+            return;
+        }
+        if (e.target !== inp) return;
+
+        if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            consolaEjecutar(inp.value);
+            inp.value = "";
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            e.stopPropagation();
+            moverHistorial(-1);
+        } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            e.stopPropagation();
+            moverHistorial(1);
+        }
+    }, true);
+
+    /* clic en el fondo de la consola = volver al input */
+    document.getElementById("consola").addEventListener("mousedown", function (e) {
+        if (e.target.id === "consola_input") return;
+        e.preventDefault();
+        inp.focus();
+    });
+}
+
 let totalget;
 document.addEventListener('keydown', function (event) {
+    if (consolaAbierta()) return;   // con la consola abierta las flechas son del historial
     if (modoseleccion) {
         const lista_li_recetas = lista_recetas_ul.children;
 
@@ -1124,6 +1682,8 @@ window.addEventListener("load", function () {
     ratioget = findGetParameter("r");
     ratioprocget = findGetParameter("rp");
     lista_recetas_ul = document.getElementById("lista_recetas");
+
+    iniciarConsola();
 
     document.getElementById("tab_arbol").addEventListener("click", function () { cambiarVistaBase("arbol"); });
     document.getElementById("tab_puros").addEventListener("click", function () { cambiarVistaBase("puros"); });
