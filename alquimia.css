@@ -919,7 +919,7 @@ button:active {
 }
 
 .ingrediente_puro .ing_contenedor {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-width: 0;
     justify-content: space-between;
     border-left-color: var(--accent-2);
@@ -1380,5 +1380,67 @@ input[type="number"]::-webkit-inner-spin-button {
     .ing_cabeza {
         flex: 1 1 auto;
         flex-wrap: wrap;
+    }
+}
+
+/* ---------------------------------------------------------------
+   Cuánto llevás juntado de cada ingrediente puro
+   --------------------------------------------------------------- */
+
+.tengo_wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+
+/* más angosto que los inputs de la calculadora: acá va un contador.
+   El selector lleva input[type=number] porque la regla general de los
+   inputs numéricos le gana por especificidad a una clase sola. */
+input[type="number"].inp_tengo {
+    width: 5.2em;
+    min-height: 32px;
+    padding: 5px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+    color: var(--accent-3);
+}
+
+.inp_tengo:focus {
+    border-color: rgba(78, 227, 165, 0.6);
+    box-shadow: 0 0 0 3px rgba(78, 227, 165, 0.15);
+}
+
+.nec_txt {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+    min-width: 3.2em;
+}
+
+/* a medio juntar: se distingue de lo que no arrancó y de lo ya completo */
+.ingrediente_puro.parcial .ing_contenedor {
+    border-left-color: var(--accent-3);
+}
+
+.ingrediente_puro.parcial .inp_tengo {
+    border-color: rgba(255, 209, 102, 0.5);
+}
+
+.ingrediente_puro.completado .inp_tengo {
+    color: var(--accent-2);
+    border-color: rgba(78, 227, 165, 0.45);
+    opacity: 0.7;
+}
+
+.ingrediente_puro.completado .nec_txt {
+    opacity: 0.5;
+}
+
+@media (max-width: 620px) {
+    .tengo_wrap {
+        margin-left: auto;
     }
 }

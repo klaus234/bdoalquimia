@@ -309,12 +309,15 @@ function crearCabeceraProgreso() {
 
     const btn = document.createElement("button");
     btn.className = "btn_limpiar_tildes";
-    btn.innerText = "Destildar todo";
+    btn.innerText = "Vaciar todo";
+    btn.title = "Pone en cero lo juntado de todos los ingredientes";
     btn.addEventListener("click", function () {
-        completados = {};
+        tenidos = {};
         document.querySelectorAll("#ingredientes_puros .ingrediente_puro").forEach(function (el) {
             el.querySelector(".chk_puro").checked = false;
+            el.querySelector(".inp_tengo").value = 0;
             el.classList.remove("completado");
+            el.classList.remove("parcial");
         });
         actualizarProgresoPuros();
     });
@@ -329,9 +332,18 @@ function actualizarProgresoPuros() {
     const items = document.querySelectorAll("#ingredientes_puros .ingrediente_puro");
     const total = items.length;
     let hechos = 0;
+    let avance = 0;
+
     items.forEach(function (el) {
-        if (el.querySelector(".chk_puro").checked) hechos++;
+        const nec = el.bdonecesario || 0;
+        const tengo = cantidadTenida(el.bdoclave, nec);
+        if (nec > 0 && tengo >= nec) hechos++;
+        /* cada ingrediente pesa igual: si no, los que se piden de a 60
+           taparían por completo a los que se piden de a 1 */
+        if (nec > 0) avance += Math.min(tengo, nec) / nec;
     });
+
+    const pct = total > 0 ? Math.round(avance * 100 / total) : 0;
 
     const tab = document.getElementById("tab_puros");
     if (tab != null)
@@ -341,8 +353,8 @@ function actualizarProgresoPuros() {
 
     const barra = document.getElementById("progreso_puros_barra");
     const txt = document.getElementById("progreso_puros_txt");
-    if (barra != null) barra.style = "width: " + (total > 0 ? (hechos * 100 / total) : 0) + "%;";
-    if (txt != null) txt.innerText = hechos + " de " + total + " conseguidos";
+    if (barra != null) barra.style = "width: " + pct + "%;";
+    if (txt != null) txt.innerText = hechos + " de " + total + " completos · " + pct + "%";
 }
 
 /* Lista plana con lo que hay que conseguir de verdad: las hojas del árbol,
@@ -359,21 +371,23 @@ function crearListaPuros(totalesGlobales) {
     for (let k of puros) {
         const li = document.createElement("li");
         li.className = "ingrediente_puro";
+        const necesario = Math.ceil(totalesGlobales[k]);
+        li.bdoclave = k;
+        li.bdonecesario = necesario;
 
-        /* tildar lo que ya conseguiste; el avance vive en `completados` para
-           que sobreviva a un recálculo de la lista */
+        /* si venía de un estado viejo marcado sólo como "listo", acá se
+           convierte en un número concreto: si no, subir la cantidad a
+           elaborar lo daría por completo para siempre */
+        if (tenidos[k] === COMPLETO_SIN_CANTIDAD) tenidos[k] = necesario;
+
+        /* el tilde es el atajo de "ya lo tengo todo"; el input de al lado es
+           para ir anotando lo que juntás. Los dos escriben en `tenidos`, que
+           es lo único que se guarda. */
         const chk = document.createElement("input");
         chk.type = "checkbox";
         chk.className = "chk_puro";
         chk.id = "chk_" + k;
-        chk.checked = completados[k] == true;
-        chk.title = "Marcar como conseguido";
-        chk.addEventListener("change", function () {
-            completados[k] = this.checked;
-            li.classList.toggle("completado", this.checked);
-            actualizarProgresoPuros();
-        });
-        if (chk.checked) li.classList.add("completado");
+        chk.title = "Marcar como conseguido del todo";
         li.append(chk);
 
         const span_contenedor = document.createElement("span");
@@ -383,12 +397,59 @@ function crearListaPuros(totalesGlobales) {
         span_titulo.className = "ing_titulo_ingrediente";
         span_titulo.innerHTML = `<span class="titing">${rdata["datos"][k]["titulo"]}</span>`;
 
-        const totalPuro = Math.ceil(totalesGlobales[k]);
         span_contenedor.append(span_titulo);
-        span_contenedor.append(crearSpanCantidad(totalPuro, 0));
-
+        span_contenedor.append(crearSpanCantidad(necesario, 0));
         li.append(span_contenedor);
-        montarGrupo(span_contenedor, li, k, function () { return totalPuro; });
+
+        const tengoWrap = document.createElement("span");
+        tengoWrap.className = "tengo_wrap";
+
+        const inpTengo = document.createElement("input");
+        inpTengo.type = "number";
+        inpTengo.className = "inp_tengo";
+        inpTengo.min = 0;
+        inpTengo.value = cantidadTenida(k, necesario);
+        /* sin flechitas: acá se escribe el número a mano */
+        inpTengo.bdospinner = true;
+
+        const nec = document.createElement("span");
+        nec.className = "nec_txt";
+        nec.innerText = "/ " + formatearMilesAR(necesario);
+
+        tengoWrap.append(inpTengo);
+        tengoWrap.append(nec);
+        li.append(tengoWrap);
+
+        /* después del contador, para que el panel de sustitutos quede último
+           y ocupe su propio renglón debajo de toda la fila */
+        montarGrupo(span_contenedor, li, k, function () { return necesario; });
+
+        const sincronizar = function () {
+            const tengo = cantidadTenida(k, necesario);
+            const completo = necesario > 0 && tengo >= necesario;
+            chk.checked = completo;
+            li.classList.toggle("completado", completo);
+            li.classList.toggle("parcial", !completo && tengo > 0);
+            const falta = Math.max(0, necesario - tengo);
+            inpTengo.title = falta > 0 ? "Faltan " + formatearMilesAR(falta) : "Completo";
+        };
+
+        inpTengo.addEventListener("input", function () {
+            let n = parseInt(this.value, 10);
+            if (!isFinite(n) || n < 0) n = 0;
+            tenidos[k] = n;
+            sincronizar();
+            actualizarProgresoPuros();
+        });
+
+        chk.addEventListener("change", function () {
+            tenidos[k] = this.checked ? necesario : 0;
+            inpTengo.value = tenidos[k];
+            sincronizar();
+            actualizarProgresoPuros();
+        });
+
+        sincronizar();
         ul.append(li);
     }
 
@@ -782,8 +843,19 @@ function leerPreferencias() {
    ----------------------------------------------------------------- */
 const CLAVE_ESTADO = "estado_alquimia";
 
-/* ingredientes puros ya conseguidos de la receta abierta */
-let completados = {};
+/* Cuánto llevás juntado de cada ingrediente puro de la receta abierta:
+   { clave: cantidad }. El tilde no se guarda aparte — un ingrediente está
+   completo cuando lo que tenés llega a lo que hace falta.
+   El valor especial COMPLETO_SIN_CANTIDAD viene de estados guardados con la
+   versión anterior, que sólo anotaba "listo" sin cuánto. */
+let tenidos = {};
+const COMPLETO_SIN_CANTIDAD = -1;
+
+function cantidadTenida(clave, necesario) {
+    const t = tenidos[clave];
+    if (t === COMPLETO_SIN_CANTIDAD) return necesario;
+    return t > 0 ? t : 0;
+}
 
 function leerEstados() {
     const p = localStorage.getItem(CLAVE_ESTADO);
@@ -814,8 +886,14 @@ function guardarEstado() {
         "calidades": {},
         "precios": {},
         "gastos": [],
-        "completados": Object.keys(completados).filter(function (k) { return completados[k]; })
+        "tenidos": {}
     };
+
+    /* sólo lo que tiene algo juntado, para no engordar el localStorage */
+    for (let k in tenidos) {
+        if (tenidos[k] > 0 || tenidos[k] === COMPLETO_SIN_CANTIDAD)
+            est["tenidos"][k] = tenidos[k];
+    }
 
     for (let ing of inglist) {
         const inp = document.getElementById(ing + "_cant");
@@ -901,8 +979,13 @@ function aplicarEstado(est) {
     ponerValor("pesomax", est["pesomax"]);
     ponerValor("mipeso", est["mipeso"]);
 
-    completados = {};
-    for (let k of (est["completados"] || [])) completados[k] = true;
+    tenidos = {};
+    const guardados = est["tenidos"] || {};
+    for (let k in guardados) tenidos[k] = guardados[k];
+    /* estados de la versión anterior: sólo anotaban qué estaba listo, sin cuánto */
+    for (let k of (est["completados"] || [])) {
+        if (tenidos[k] == undefined) tenidos[k] = COMPLETO_SIN_CANTIDAD;
+    }
 
     const c = document.getElementById("cantidad");
     c.value = est["cantidad"] || 0;
@@ -954,7 +1037,7 @@ function setAndLoad() {
     /* al cambiar de receta se limpia el avance y las listas calculadas: si
        quedaran las de la receta anterior, "Guardar estado" grabaría datos
        que no son de esta receta */
-    completados = {};
+    tenidos = {};
     const avisoViejo = document.getElementById("aviso_estado");
     if (avisoViejo != null) avisoViejo.remove();
     for (let idLista of ["ingredientes_base", "ingredientes_puros"]) {
