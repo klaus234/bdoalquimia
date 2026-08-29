@@ -133,11 +133,26 @@ function crearMarcaGrupo(clave) {
     return m;
 }
 
+/* Cuántas unidades de un sustituto hacen falta en total.
+   La sustitución se resuelve POR ELABORACIÓN: en el juego cada craft consume
+   sus propios ingredientes y lo que sobra del ítem de mayor valor se pierde,
+   no queda para el siguiente. Si la receta pide 5 Flor Escama de Fuego y una
+   de Alta Calidad vale 36, esa flor cubre ese craft entero y nada más: para
+   100 elaboraciones hacen falta 100 flores, no 100*5/36. */
+function unidadesSustituto(usos, vPropio, vMiembro) {
+    let total = 0;
+    for (let u of usos) {
+        const porElaboracion = Math.ceil((u["q"] * vPropio) / vMiembro);
+        total += u["veces"] * porElaboracion;
+    }
+    return Math.ceil(total);
+}
+
 function llenarPanelGrupo(panel) {
     const clave = panel.bdoclave;
     const datos = rdata["datos"][clave];
     const miembros = datos["miembros"];
-    const cantidad = panel.bdocantidad();
+    const usos = panel.bdousos() || [];
     const propio = miembros.find(function (m) { return m["propio"]; }) || { "v": 1 };
 
     panel.innerHTML = "";
@@ -159,19 +174,27 @@ function llenarPanelGrupo(panel) {
 
         const cant = document.createElement("span");
         cant.className = "mg_cant";
-        cant.innerText = "x" + formatearMilesAR(Math.ceil(cantidad * propio["v"] / m["v"]));
-        cant.title = "Valor " + m["v"] + " (reemplaza " + m["v"] + " unidad(es) básica(s))";
+        cant.innerText = "x" + formatearMilesAR(unidadesSustituto(usos, propio["v"], m["v"]));
+        cant.title = m["v"] > propio["v"]
+            ? "Vale " + m["v"] + ": cubre una elaboración entera y lo que sobra se pierde"
+            : "Vale " + m["v"];
 
         li.append(nom);
         li.append(cant);
         ul.append(li);
     }
     panel.append(ul);
+
+    const nota = document.createElement("div");
+    nota.className = "panel_grupo_nota";
+    nota.innerText = "Se gasta por elaboración: lo que sobra de un ítem de mayor valor no pasa a la siguiente.";
+    panel.append(nota);
 }
 
 /* Cuelga la marca ↻ de `dondeMarca` y, si hay miembros, el panel desplegable
-   de `dondePanel`. `obtenerCantidad` se evalúa cada vez que se refresca. */
-function montarGrupo(dondeMarca, dondePanel, clave, obtenerCantidad) {
+   de `dondePanel`. `obtenerUsos` devuelve [{q, veces}, ...] y se evalúa cada
+   vez que se refresca el panel. */
+function montarGrupo(dondeMarca, dondePanel, clave, obtenerUsos) {
     if (!rdata["datos"][clave]["grupo"])
         return;
 
@@ -184,7 +207,7 @@ function montarGrupo(dondeMarca, dondePanel, clave, obtenerCantidad) {
     const panel = document.createElement("div");
     panel.className = "panel_grupo oculto";
     panel.bdoclave = clave;
-    panel.bdocantidad = obtenerCantidad;
+    panel.bdousos = obtenerUsos;
     dondePanel.append(panel);
 
     marca.addEventListener("click", function (e) {
@@ -360,7 +383,7 @@ function actualizarProgresoPuros() {
 /* Lista plana con lo que hay que conseguir de verdad: las hojas del árbol,
    es decir todo lo que NO es una receta (ni de alquimia ni de procesamiento).
    Las cantidades son los totales ya acumulados de todas las ramas. */
-function crearListaPuros(totalesGlobales) {
+function crearListaPuros(totalesGlobales, usosGlobales) {
     const ul = document.createElement("ul");
     ul.className = "lista_puros";
 
@@ -421,8 +444,9 @@ function crearListaPuros(totalesGlobales) {
         li.append(tengoWrap);
 
         /* después del contador, para que el panel de sustitutos quede último
-           y ocupe su propio renglón debajo de toda la fila */
-        montarGrupo(span_contenedor, li, k, function () { return necesario; });
+           y ocupe su propio renglón debajo de toda la fila. Acá el ingrediente
+           puede venir de varias ramas, así que van todos sus usos. */
+        montarGrupo(span_contenedor, li, k, function () { return usosGlobales[k] || []; });
 
         const sincronizar = function () {
             const tengo = cantidadTenida(k, necesario);
@@ -471,13 +495,14 @@ function generarListaIngredientes() {
 
     const cantidad = parseFloat(document.getElementById("cantidad").value) || 0;
     const totalesGlobales = {};
-    acumularTotalesArbol(currentingrediente, cantidad, 0, totalesGlobales);
+    const usosGlobales = {};
+    acumularTotalesArbol(currentingrediente, cantidad, 0, totalesGlobales, usosGlobales);
 
     const ul = crearArbolIngredientes(currentingrediente, cantidad, 0, totalesGlobales);
     ulingredientes.append(ul);
 
     /* las dos vistas se arman juntas y se muestra la que esté activa */
-    const puros = crearListaPuros(totalesGlobales);
+    const puros = crearListaPuros(totalesGlobales, usosGlobales);
     ulpuros.append(crearCabeceraProgreso());
     ulpuros.append(puros.ul);
     actualizarProgresoPuros();
@@ -519,20 +544,30 @@ function elaboracionesNecesarias(recetaId, cantidad, nivel) {
     return Math.ceil(cantidad / ratioDeReceta(recetaId));
 }
 
-function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales) {
+/* Además del total, anota cada "uso": cuántas unidades pide la receta por
+   elaboración y cuántas veces se elabora. Un mismo ingrediente puede entrar
+   por varias ramas con cantidades distintas, y los sustitutos de grupo se
+   calculan por elaboración, no sobre el total. */
+function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales, usosGlobales) {
     const ingredientes = ingredientesDe(recetaId);
     const keysLista = Object.keys(ingredientes).sort();
     const veces = elaboracionesNecesarias(recetaId, cantidad, nivel);
 
     for (let ingId of keysLista) {
-        const cantidad_ing = Math.ceil(veces * ingredientes[ingId]);
+        const porElaboracion = Number(ingredientes[ingId]);
+        const cantidad_ing = Math.ceil(veces * porElaboracion);
         if (!totalesGlobales[ingId]) {
             totalesGlobales[ingId] = 0;
         }
         totalesGlobales[ingId] += cantidad_ing;
 
+        if (usosGlobales != undefined) {
+            if (!usosGlobales[ingId]) usosGlobales[ingId] = [];
+            usosGlobales[ingId].push({ "q": porElaboracion, "veces": veces });
+        }
+
         if (esReceta(ingId)) {
-            acumularTotalesArbol(ingId, cantidad_ing, nivel + 1, totalesGlobales);
+            acumularTotalesArbol(ingId, cantidad_ing, nivel + 1, totalesGlobales, usosGlobales);
         }
     }
 }
@@ -611,7 +646,9 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales) {
             span_contenedor.append(span_titulo);
             span_contenedor.append(span_cant);
             li.append(span_contenedor);
-            montarGrupo(span_contenedor, li, ingId, function () { return cantidad_ing; });
+            montarGrupo(span_contenedor, li, ingId, function () {
+                return [{ "q": Number(ingredientes[ingId]), "veces": veces }];
+            });
         }
 
         ul.append(li);
@@ -1188,7 +1225,11 @@ function setAndLoad() {
         lix.append(spansector)
         montarGrupo(contMarca, lix, ird, function () {
             const inp = document.getElementById(ird + "_cant");
-            return inp == null ? 0 : (Number(inp.value) || 0);
+            const cant = document.getElementById("cantidad");
+            if (inp == null || cant == null) return [];
+            /* lo que pide la receta por elaboración, ya con la calidad elegida */
+            const q = Math.ceil(inp.bdocant / calidad_ing[calidades[inp.bdogrado]]);
+            return [{ "q": q, "veces": Number(cant.value) || 0 }];
         });
         ilista.append(lix);
     }

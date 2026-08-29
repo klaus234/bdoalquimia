@@ -1444,3 +1444,12 @@ input[type="number"].inp_tengo {
         margin-left: auto;
     }
 }
+
+.panel_grupo_nota {
+    margin-top: 7px;
+    padding-top: 6px;
+    border-top: 1px dashed rgba(78, 227, 165, 0.22);
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--muted);
+}
