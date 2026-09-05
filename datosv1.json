@@ -1,5 +1,25 @@
 {
     "recetas": {
+        "perfumedeanhelo": {
+            "tipo": "alquimia",
+            "fuente": "https://bdocodex.com/sp/item/1411/",
+            "ing": {
+                "rastrodelanaturaleza": "5",
+                "bultodearbolrojo": "5",
+                "reactivodeliquidoclaro": "5",
+                "aceitedecorrupcion": "6",
+                "coralderusalka": "30"
+            }
+        },
+        "perfumedeanhelosimple": {
+            "tipo": "simple",
+            "fuente": "https://www.sa.playblackdesert.com/es-MX/News/Detail?countryType=es-MX&groupContentNo=6639",
+            "ing": {
+                "perfumedevalentia": "1",
+                "polvobrillante": "3",
+                "esenciadecaphras": "10"
+            }
+        },
         "perfumedevalentia": {
             "tipo": "alquimia",
             "ing": {
@@ -430,6 +450,90 @@
         }
     },
     "datos": {
+        "perfumedeanhelo": {
+            "titulo": "Perfume de Anhelo",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "perfumedeanhelosimple": {
+            "titulo": "Perfume de Anhelo (Alquimia Simple)",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "bultodearbolrojo": {
+            "titulo": "Bulto de Árbol Rojo",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Material ocasional al talar árboles; también se obtiene con trabajadores en nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5011/"
+                ],
+                "verificado": "2026-09-05"
+            }
+        },
+        "coralderusalka": {
+            "titulo": "Coral de Rusalka",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Derrotar Cangrejos Espalda de Piedra Coral en Edania y minar sus restos con un pico.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-MX/News/Detail?countryType=es-MX&groupContentNo=6639",
+                    "https://bdocodex.com/sp/item/821255/"
+                ],
+                "verificado": "2026-09-05"
+            }
+        },
+        "polvobrillante": {
+            "titulo": "Polvo Brillante",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "alquimia",
+                    "mercado"
+                ],
+                "detalle": "Subproducto aleatorio de una elaboración de alquimia exitosa; no tiene una receta con rendimiento garantizado.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/9733/"
+                ],
+                "verificado": "2026-09-05"
+            }
+        },
+        "esenciadecaphras": {
+            "titulo": "Esencia de Caphras",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Talar o extraer fluidos de árboles Caphras en Edania.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-MX/News/Detail?countryType=es-MX&groupContentNo=6639",
+                    "https://bdocodex.com/sp/item/821259/"
+                ],
+                "verificado": "2026-09-05"
+            }
+        },
         "pociondevidap": {
             "titulo": "Poción de Vida (P)",
             "peso": "0.20",
@@ -451,7 +555,20 @@
                     "t": "Poción de Vida (G)",
                     "v": 36
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "npc",
+                    "intercambio",
+                    "mercado"
+                ],
+                "detalle": "Comprar a un vendedor de artículos generales o intercambiar 2 Pociones de Vida (Principiante) con Lara.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/517/",
+                    "https://bdocodex.com/sp/item/502/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "elixirdedeliriosinfin": {
             "titulo": "Elixir de Delirio sin Fin",
@@ -679,102 +796,333 @@
             "titulo": "Polvo de la Oscuridad",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Subproducto de minería; también se obtiene con trabajadores en nodos de minerales.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/4801/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "polvodefuego": {
             "titulo": "Polvo de Fuego",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Subproducto de minería; también se obtiene con trabajadores en nodos de minerales.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/4802/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "polvodelagrieta": {
             "titulo": "Polvo de la Grieta",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Subproducto de minería; también se obtiene con trabajadores en nodos de minerales.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/4803/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "polvodelatierra": {
             "titulo": "Polvo de la Tierra",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Subproducto de minería; también se obtiene con trabajadores en nodos de minerales.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/4804/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "polvodetiempo": {
             "titulo": "Polvo de Tiempo",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Subproducto de minería; también se obtiene con trabajadores en nodos de minerales.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/4805/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "reactivodeliquidoazul": {
             "titulo": "Reactivo de Líquido Azul",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "npc"
+                ],
+                "detalle": "Comprar en una tienda NPC de artículos generales.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/4916/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "saviadefresno": {
             "titulo": "Savia de Fresno",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos del árbol correspondiente o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5001/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "saviadearboldearce": {
             "titulo": "Savia de Árbol de Arce",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos del árbol correspondiente o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5002/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "saviadepino": {
             "titulo": "Savia de Pino",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos del árbol correspondiente o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5003/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "saviadeabedul": {
             "titulo": "Savia de Abedul",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos del árbol correspondiente o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5004/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "nudodearbolensangrentado": {
             "titulo": "Nudo de Árbol Ensangrentado",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Material ocasional al talar árboles; también se obtiene con trabajadores en nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5005/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hojadelespiritu": {
             "titulo": "Hoja del Espíritu",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Material ocasional al talar árboles; también se obtiene con trabajadores en nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5006/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "ramadelmonje": {
             "titulo": "Rama del Monje",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Material ocasional al talar árboles; también se obtiene con trabajadores en nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5007/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "cortezadelarbolviejo": {
             "titulo": "Corteza del Árbol Viejo",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Material ocasional al talar árboles; también se obtiene con trabajadores en nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5008/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "saviadecedro": {
             "titulo": "Savia de Cedro",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos del árbol correspondiente o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5010/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "saviadetuyaoriental": {
             "titulo": "Savia de Tuya Oriental",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos del árbol correspondiente o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5020/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "saviadecedrodelcamponevado": {
             "titulo": "Savia de Cedro del Campo Nevado",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos del árbol correspondiente o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5024/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "saviadearbolcaphras": {
             "titulo": "Savia de Árbol Caphras",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos del árbol correspondiente o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5025/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "frutadelanaturaleza": {
             "titulo": "Fruta de la Naturaleza",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado"
+                ],
+                "detalle": "Se obtiene ocasionalmente al recolectar plantas y al mejorar cultivos en un huerto.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "reactivodeliquidoclaro": {
             "titulo": "Reactivo de Líquido Claro",
@@ -814,7 +1162,21 @@
                     "t": "Hierba Luz del Atardecer de Alta Calidad",
                     "v": 36
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "npc",
+                    "cultivo",
+                    "mercado",
+                    "nodos"
+                ],
+                "detalle": "Recolectar hierbas, cultivar sus semillas o comprar al vendedor de hierbas (por ejemplo, Nieves en Calpheon). También en nodos de recolección.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "azaleaplateada": {
             "titulo": "Azalea Plateada",
@@ -840,7 +1202,21 @@
                     "t": "Azalea Plateada de Alta Calidad",
                     "v": 36
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "npc",
+                    "cultivo",
+                    "mercado",
+                    "nodos"
+                ],
+                "detalle": "Recolectar hierbas, cultivar sus semillas o comprar al vendedor de hierbas (por ejemplo, Nieves en Calpheon). También en nodos de recolección.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "florescamadefuego": {
             "titulo": "Flor Escama de Fuego",
@@ -866,7 +1242,20 @@
                     "t": "Flor Escama de Fuego de Alta Calidad",
                     "v": 36
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "npc",
+                    "cultivo",
+                    "mercado"
+                ],
+                "detalle": "Recolectar hierbas, cultivar sus semillas o comprar al vendedor de hierbas (por ejemplo, Nieves en Calpheon).",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hierbademilanos": {
             "titulo": "Hierba de Mil Años",
@@ -888,7 +1277,18 @@
                     "t": "Hierba de Mil Años de Alta Calidad",
                     "v": 36
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Recolectar hierbas silvestres con las manos o una azada; también aparece como hierba recolectable.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5406/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongoadivino": {
             "titulo": "Hongo adivino",
@@ -914,7 +1314,23 @@
                     "t": "Hongo Adivino de Alta Calidad",
                     "v": 72
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado",
+                    "npc",
+                    "nodos"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa. Brandio, en Calpheon, vende el hongo de grado normal. También mediante trabajadores en nodos de hongos.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5407/",
+                    "https://bdocodex.com/sp/npc/42007/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongoflecha": {
             "titulo": "Hongo flecha",
@@ -940,7 +1356,23 @@
                     "t": "Hongo Flecha de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado",
+                    "npc",
+                    "nodos"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa. Brandio, en Calpheon, vende el hongo de grado normal. También mediante trabajadores en nodos de hongos.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5408/",
+                    "https://bdocodex.com/sp/npc/42007/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongoenano": {
             "titulo": "Hongo Enano",
@@ -966,7 +1398,23 @@
                     "t": "Hongo Enano de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado",
+                    "npc",
+                    "nodos"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa. Brandio, en Calpheon, vende el hongo de grado normal. También mediante trabajadores en nodos de hongos.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5409/",
+                    "https://bdocodex.com/sp/npc/42007/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongonube": {
             "titulo": "Hongo Nube",
@@ -992,7 +1440,23 @@
                     "t": "Hongo Nube de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado",
+                    "npc",
+                    "nodos"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa. Brandio, en Calpheon, vende el hongo de grado normal. También mediante trabajadores en nodos de hongos.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5410/",
+                    "https://bdocodex.com/sp/npc/42007/",
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongocielo": {
             "titulo": "Hongo Cielo",
@@ -1018,7 +1482,21 @@
                     "t": "Hongo Cielo de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado",
+                    "npc"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa. Brandio, en Calpheon, vende el hongo de grado normal.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5411/",
+                    "https://bdocodex.com/sp/npc/42007/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongotigre": {
             "titulo": "Hongo tigre",
@@ -1044,7 +1522,21 @@
                     "t": "Hongo Tigre de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado",
+                    "npc"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa. Brandio, en Calpheon, vende el hongo de grado normal.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5412/",
+                    "https://bdocodex.com/sp/npc/42007/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongoemperador": {
             "titulo": "Hongo Emperador",
@@ -1070,7 +1562,23 @@
                     "t": "Hongo Emperador de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado",
+                    "npc",
+                    "nodos"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa. Brandio, en Calpheon, vende el hongo de grado normal. También mediante trabajadores en nodos de hongos.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5413/",
+                    "https://bdocodex.com/sp/npc/42007/",
+                    "https://bdocodex.com/sp/npc/42007/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongofantasma": {
             "titulo": "Hongo Fantasma",
@@ -1096,7 +1604,21 @@
                     "t": "Hongo Fantasma de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado",
+                    "npc"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa. Brandio, en Calpheon, vende el hongo de grado normal.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5414/",
+                    "https://bdocodex.com/sp/npc/42007/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongohinchazon": {
             "titulo": "Hongo hinchazón",
@@ -1122,7 +1644,19 @@
                     "t": "Hongo Hinchazón de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5416/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongofanfarron": {
             "titulo": "Hongo Fanfarrón",
@@ -1148,7 +1682,19 @@
                     "t": "Hongo Fanfarrón de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5417/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongoancestral": {
             "titulo": "Hongo ancestral",
@@ -1174,7 +1720,19 @@
                     "t": "Hongo Ancestral de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5418/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongopayaso": {
             "titulo": "Hongo payaso",
@@ -1200,7 +1758,19 @@
                     "t": "Hongo Amanita de Alta Calidad",
                     "v": 216
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5419/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "hongotrufa": {
             "titulo": "Hongo Trufa",
@@ -1222,18 +1792,53 @@
                     "t": "Trufa de Alta Calidad",
                     "v": 36
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo",
+                    "mercado"
+                ],
+                "detalle": "Recolectar el hongo con las manos o una azada; también cultivar su hifa.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5420/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "plantasilvestre": {
             "titulo": "Planta Silvestre",
             "peso": "0.10",
-            "plata": "0"
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Recolectar hierbas silvestres con una azada.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "rastrodelanaturaleza": {
             "titulo": "Rastro de la Naturaleza",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "nodos",
+                    "botin",
+                    "mercado"
+                ],
+                "detalle": "Excavación con trabajadores y botín de determinados monstruos.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "sangredezorro": {
             "titulo": "Sangre de Zorro",
@@ -1267,7 +1872,18 @@
                     "t": "Sangre de Mono",
                     "v": 2
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Extraer sangre del animal derrotado con un recolector de fluidos.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "sangredecerdo": {
             "titulo": "Sangre de Cerdo",
@@ -1305,7 +1921,18 @@
                     "t": "Sangre de Waragon",
                     "v": 2
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Extraer sangre del animal derrotado con un recolector de fluidos.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "sangredeoso": {
             "titulo": "Sangre de Oso",
@@ -1339,7 +1966,18 @@
                     "t": "Sangre de Trol",
                     "v": 2
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Extraer sangre del animal derrotado con un recolector de fluidos.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "sangredelobo": {
             "titulo": "Sangre de Lobo",
@@ -1365,7 +2003,18 @@
                     "t": "Sangre de Flamenco",
                     "v": 2
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Extraer sangre del animal derrotado con un recolector de fluidos.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "sangredemurcielago": {
             "titulo": "Sangre de Murciélago",
@@ -1395,7 +2044,18 @@
                     "t": "Sangre del Pájaro Cucú",
                     "v": 2
                 }
-            ]
+            ],
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Extraer sangre del animal derrotado con un recolector de fluidos.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "sangredelabestiadivina": {
             "titulo": "Sangre de la Bestia Divina",
@@ -1471,13 +2131,35 @@
             "titulo": "Botella de Agua de Mar",
             "peso": "0.20",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Usar una botella vacía dentro del mar. El NPC vende la botella vacía, no el agua recolectada.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/6652/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "botelladeaguaderio": {
             "titulo": "Botella de Agua de Río",
             "peso": "0.20",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Usar una botella vacía dentro de un río. El NPC vende la botella vacía, no el agua recolectada.",
+                "fuentes": [
+                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "aguapurificada": {
             "titulo": "Agua Purificada",
@@ -1490,25 +2172,67 @@
             "titulo": "Sal",
             "peso": "0.01",
             "plata": "20",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "npc"
+                ],
+                "detalle": "Comprar a vendedores de cocina o posaderos.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/9001/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "azucar": {
             "titulo": "Azúcar",
             "peso": "0.01",
             "plata": "20",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "npc"
+                ],
+                "detalle": "Comprar a vendedores de cocina o posaderos.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/9002/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "aceitedeballenaazul": {
             "titulo": "Aceite de Ballena Azul",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "caza",
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Cazar una ballena azul y recolectar con un cuchillo de carnicero; el aceite es una obtención poco frecuente.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/9727/"
+                ],
+                "verificado": "2026-09-05"
+            }
         },
         "catalizadormagico": {
             "titulo": "Catalizador Mágico",
             "peso": "0.10",
             "plata": "0",
-            "nomejorable": true
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "npc"
+                ],
+                "detalle": "Comprar a un vendedor de la Luna Vieja.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/820936/"
+                ],
+                "verificado": "2026-09-05"
+            }
         }
     }
 }

@@ -238,6 +238,60 @@ function refrescarPanelesGrupo() {
    procesamiento: se compran o se recolectan). */
 let vistaBaseActual = "arbol";
 
+/* Métodos verificados por ingrediente; el precio del Codex no implica venta NPC. */
+const OBTENCION = {
+    recoleccion: { icono: "⛏", label: "Recolección" },
+    npc: { icono: "🏪", label: "Tienda NPC" },
+    nodos: { icono: "⚒", label: "Nodos" },
+    cultivo: { icono: "🌱", label: "Cultivo" },
+    botin: { icono: "⚔", label: "Botín" },
+    caza: { icono: "🏹", label: "Caza" },
+    alquimia: { icono: "⚗", label: "Subproducto" },
+    intercambio: { icono: "⇄", label: "Intercambio" },
+    mercado: { icono: "⚖", label: "Mercado" }
+};
+
+function crearIconoObtencion(tipo) {
+    const metodo = OBTENCION[tipo];
+    const badge = document.createElement("span");
+    badge.className = "badge_obtencion obtencion_" + tipo;
+    badge.title = metodo.label;
+    const icono = document.createElement("span");
+    icono.setAttribute("aria-hidden", "true");
+    icono.textContent = metodo.icono;
+    badge.append(icono, document.createTextNode(metodo.label));
+    return badge;
+}
+
+function crearObtencion(clave) {
+    const dato = rdata.datos[clave];
+    const info = dato.obtencion;
+    const detalles = document.createElement("details");
+    detalles.className = "obtencion";
+    const resumen = document.createElement("summary");
+    resumen.setAttribute("aria-label", "Cómo obtener " + dato.titulo);
+    resumen.title = "Ver métodos de obtención y fuentes de " + dato.titulo;
+    if (info && info.metodos.length) {
+        for (const tipo of info.metodos) resumen.append(crearIconoObtencion(tipo));
+    } else {
+        resumen.textContent = "ⓘ Obtención sin verificar";
+    }
+    const texto = document.createElement("p");
+    texto.textContent = info ? info.detalle : "Todavía no hay métodos verificados para este ingrediente.";
+    detalles.append(resumen, texto);
+    if (info) {
+        for (const fuente of info.fuentes) {
+            const enlace = document.createElement("a");
+            enlace.href = fuente;
+            enlace.target = "_blank";
+            enlace.rel = "noopener noreferrer";
+            enlace.textContent = new URL(fuente).hostname.includes("bdocodex") ? "BDO Codex ↗" : "Black Desert SA ↗";
+            detalles.append(enlace);
+        }
+    }
+    return detalles;
+}
+
 function cambiarVistaBase(vista) {
     vistaBaseActual = vista;
 
@@ -442,6 +496,9 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         tengoWrap.append(inpTengo);
         tengoWrap.append(nec);
         li.append(tengoWrap);
+        li.append(crearObtencion(k));
+        chk.setAttribute("aria-label", "Marcar " + rdata.datos[k].titulo + " como conseguido");
+        inpTengo.setAttribute("aria-label", "Cantidad conseguida de " + rdata.datos[k].titulo);
 
         /* después del contador, para que el panel de sustitutos quede último
            y ocupe su propio renglón debajo de toda la fila. Acá el ingrediente
@@ -504,6 +561,10 @@ function generarListaIngredientes() {
     /* las dos vistas se arman juntas y se muestra la que esté activa */
     const puros = crearListaPuros(totalesGlobales, usosGlobales);
     ulpuros.append(crearCabeceraProgreso());
+    const ayudaObtencion = document.createElement("li");
+    ayudaObtencion.className = "ayuda_obtencion";
+    ayudaObtencion.textContent = "Cómo conseguirlos · Tocá los íconos para ver detalles y fuentes. Pueden tener varios métodos. Mercado = compra a otros jugadores, según disponibilidad. Los métodos corresponden al ítem indicado; los sustitutos pueden variar.";
+    ulpuros.append(ayudaObtencion);
     ulpuros.append(puros.ul);
     actualizarProgresoPuros();
 
@@ -1065,6 +1126,16 @@ function construirCabecera(id) {
     ayuda.className = "ayuda_tipo";
     ayuda.innerText = AYUDA_TIPO[grupo];
     cab.append(ayuda);
+    const fuente = rdata.recetas[id].fuente;
+    if (fuente) {
+        const enlace = document.createElement("a");
+        enlace.className = "fuente_receta";
+        enlace.href = fuente;
+        enlace.target = "_blank";
+        enlace.rel = "noopener noreferrer";
+        enlace.textContent = "Ver receta en la fuente ↗";
+        cab.append(enlace);
+    }
 }
 
 function setAndLoad() {
@@ -1096,6 +1167,11 @@ function setAndLoad() {
     ilista.innerHTML = "";
     if (secondLoad)
         window.history.pushState(this.id, "Titulo", "?id=" + this.id);
+    else {
+        const url = new URL(window.location.href);
+        url.searchParams.set("id", this.id);
+        window.history.replaceState(this.id, "Titulo", url);
+    }
     currentingrediente = this.id;
     const ingredientes = ingredientesDe(this.id);
     const grupo = grupoDe(this.id);
@@ -1238,6 +1314,16 @@ function setAndLoad() {
     const rAlq = prefs["ratio"] != undefined ? prefs["ratio"] : 2.5;
     const rProc = prefs["ratio_proc"] != undefined ? prefs["ratio_proc"] : 2.5;
 
+    const ajustes = document.createElement("details");
+    ajustes.id = "ajustes_generales";
+    const resumenAjustes = document.createElement("summary");
+    resumenAjustes.textContent = "⚙ Preferencias de la calculadora";
+    const ayudaAjustes = document.createElement("p");
+    ayudaAjustes.className = "ayuda_guardado";
+    ayudaAjustes.textContent = "Ratios y peso predeterminados para todas las recetas.";
+    const listaAjustes = document.createElement("ul");
+    ajustes.append(resumenAjustes, ayudaAjustes, listaAjustes);
+
     let cant = crearElementoLi(otros, VERBO_TIPO[grupo], "cantidad");
     cant.children[1].addEventListener("input", modificarSegunCantidad);
 
@@ -1250,7 +1336,7 @@ function setAndLoad() {
         fijo.children[1].className = "fijo_txt";
     }
 
-    let ratio = crearElementoLi(otros,
+    let ratio = crearElementoLi(listaAjustes,
         grupo == "alquimia" ? "Ratio de Alquimia: " : "Ratio de Alquimia (sub-recetas): ", "ratio");
     ratio.classList.add("ratio_txt");
     ratio.children[1].value = rAlq;
@@ -1258,7 +1344,7 @@ function setAndLoad() {
     ratio.children[1].addEventListener("input",
         grupo == "alquimia" ? modificarSegunRatio : generarListaIngredientesSiHay);
 
-    let ratio_proc = crearElementoLi(otros,
+    let ratio_proc = crearElementoLi(listaAjustes,
         grupo == "proc" ? "Ratio de Procesamiento: " : "Ratio de Procesamiento (sub-recetas): ", "ratio_proc");
     ratio_proc.classList.add("ratio_proc_txt");
     ratio_proc.children[1].value = rProc;
@@ -1285,8 +1371,24 @@ function setAndLoad() {
     boton.innerText = "Calcular Ingredientes";
     boton.addEventListener("click", generarListaIngredientes);
     nli.append(boton);
-    nli.append(botonestado);
-    nli.append(botonsave);
+    ajustes.append(botonsave);
+
+    let avance = document.getElementById("acciones_estado");
+    if (!avance) {
+        avance = document.createElement("div");
+        avance.id = "acciones_estado";
+        const tabs = document.getElementById("tabs_base");
+        tabs.parentNode.insertBefore(avance, tabs);
+    }
+    avance.replaceChildren();
+    const ayudaEstado = document.createElement("div");
+    const tituloEstado = document.createElement("strong");
+    tituloEstado.textContent = "Avance de esta receta";
+    const detalleEstado = document.createElement("p");
+    detalleEstado.className = "ayuda_guardado";
+    detalleEstado.textContent = "Guardá cantidades, precios, calidades e ingredientes conseguidos. Se restaura al volver a abrirla.";
+    ayudaEstado.append(tituloEstado, detalleEstado);
+    avance.append(ayudaEstado, botonestado);
 
     let total = crearElementoLi(otros, "Total obtenidos: ", "total");
     total.children[1].addEventListener("input", modificarSegunTotal);
@@ -1320,7 +1422,7 @@ function setAndLoad() {
     dinputpeso.style = "display: none;";
 
     divpeso.append(dinputpeso);
-    otros.append(divpeso);
+    ajustes.insertBefore(divpeso, botonsave);
 
     let pesomax = crearElementoLi(dinputpeso, "Peso máx", "pesomax");
     pesomax.children[1].step = 0.01;
@@ -1374,6 +1476,10 @@ function setAndLoad() {
 
     ppeso.children[1].innerText = "LT 0.00";
     otros.append(nli);
+    const filaAjustes = document.createElement("li");
+    filaAjustes.className = "fila_ajustes";
+    filaAjustes.append(ajustes);
+    otros.append(filaAjustes);
     dinputpeso.append(infopesox);
 
     if (prefs["pesomax"] != undefined) pesomax.children[1].value = prefs["pesomax"];
