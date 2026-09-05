@@ -23,6 +23,13 @@ Los métodos corresponden al ingrediente mostrado, no a todos sus sustitutos.
 «Guardar estado» está junto a la lista de ingredientes y conserva el avance de
 cada receta. Los datos existentes en el almacenamiento local siguen siendo compatibles.
 
+Doble clic en la cantidad amarilla de un ingrediente puro permite ajustar toda
+la receta a esa cantidad disponible. Enter o salir del campo aplica; Escape
+cancela. También se puede abrir el editor con Tab y Enter. Se calculan las
+máximas elaboraciones completas posibles respetando los redondeos de cada
+subreceta, y se conservan las cantidades ya conseguidas. Se aceptan enteros
+como `1000` o `1.000`; si sobra material, se informa cuánto se utilizará.
+
 Pruebas de catálogo y cálculos: `node --test tests/recetas.test.cjs`.
 Pruebas de navegador: `node tests/interfaz.cjs` (requiere Playwright y Chromium).
 Se pueden configurar `PLAYWRIGHT_MODULE`, `CHROME_PATH` y `SCREENSHOT_DIR` para

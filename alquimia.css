@@ -1509,6 +1509,36 @@ input[type="number"].inp_tengo {
 .obtencion_nodos, .obtencion_mercado { color: #accfff; }
 .obtencion_botin, .obtencion_caza { color: #ffb5ac; }
 
+button.cantidad_puro_editable {
+    width: auto;
+    min-width: 32px;
+    padding: 3px 4px;
+    background: transparent;
+    color: var(--accent-3);
+    font: inherit;
+    font-weight: 700;
+    box-shadow: none;
+    border-radius: 5px;
+    cursor: text;
+    touch-action: manipulation;
+}
+button.cantidad_puro_editable:hover { background: rgba(255, 209, 102, 0.12); transform: none; }
+button.cantidad_puro_editable:focus-visible { outline: 2px solid var(--accent-3); }
+button.cantidad_puro_editable[hidden] { display: none; }
+input.editar_cantidad_puro {
+    width: 7em;
+    max-width: 100%;
+    padding: 5px;
+    border: 1px solid var(--accent-3);
+    border-radius: 5px;
+    background: var(--bg-0);
+    color: var(--accent-3);
+    font: inherit;
+    text-align: right;
+}
+.aviso_recalculo_puro { color: var(--accent-3); font-size: 13px; margin-bottom: 12px; }
+.aviso_recalculo_puro:empty { margin: 0; }
+
 @media (max-width: 620px) {
     #acciones_estado { flex-direction: column; align-items: stretch; }
     #acciones_estado .estadobtn { width: 100%; }

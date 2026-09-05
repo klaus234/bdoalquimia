@@ -437,6 +437,110 @@ function actualizarProgresoPuros() {
 /* Lista plana con lo que hay que conseguir de verdad: las hojas del árbol,
    es decir todo lo que NO es una receta (ni de alquimia ni de procesamiento).
    Las cantidades son los totales ya acumulados de todas las ramas. */
+/* Invertir el mismo árbol que se muestra, incluidos sus redondeos por rama.
+   Una proporción directa falla cuando un material aparece en varias subrecetas. */
+function elaboracionesConIngrediente(recetaId, clave, disponible) {
+    if (!Number.isSafeInteger(disponible) || disponible < 0)
+        throw new RangeError("Ingresá una cantidad entera, positiva o cero.");
+    const consumo = function (cantidad) {
+        const totales = {};
+        acumularTotalesArbol(recetaId, cantidad, 0, totales);
+        return totales[clave] || 0;
+    };
+    if (esReceta(clave) || consumo(1) <= 0)
+        throw new Error("El ingrediente no pertenece a esta receta.");
+    if (disponible === 0) return 0;
+    let minimo = 0;
+    let maximo = 1;
+    while (consumo(maximo) <= disponible) {
+        minimo = maximo;
+        if (maximo === Number.MAX_SAFE_INTEGER) return maximo;
+        maximo = Math.min(maximo * 2, Number.MAX_SAFE_INTEGER);
+    }
+    while (maximo - minimo > 1) {
+        const medio = minimo + Math.floor((maximo - minimo) / 2);
+        if (consumo(medio) <= disponible) minimo = medio;
+        else maximo = medio;
+    }
+    return minimo;
+}
+
+function crearCantidadPuro(clave, necesario) {
+    const contenedor = document.createElement("span");
+    contenedor.className = "cantcing";
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "cantcing_local cantidad_puro_editable";
+    boton.textContent = "x" + formatearMilesAR(necesario);
+    boton.title = "Doble clic para ajustar toda la receta usando esta cantidad";
+    boton.setAttribute("aria-label", "Ajustar receta según " + rdata.datos[clave].titulo + ": " + necesario);
+    contenedor.append(boton);
+    const editar = function () {
+        if (contenedor.querySelector("input")) return;
+        const input = document.createElement("input");
+        input.type = "text";
+        input.inputMode = "numeric";
+        input.className = "editar_cantidad_puro";
+        input.value = necesario;
+        input.setAttribute("aria-label", "Cantidad para recalcular con " + rdata.datos[clave].titulo);
+        input.title = "Enter o salir del campo: aplicar. Escape: cancelar. Se usan elaboraciones completas.";
+        boton.hidden = true;
+        contenedor.append(input);
+        input.focus();
+        input.select();
+        let terminado = false;
+        const cancelar = function () {
+            terminado = true;
+            input.remove();
+            boton.hidden = false;
+            boton.focus({ preventScroll: true });
+        };
+        const confirmar = function () {
+            if (terminado) return;
+            const texto = input.value.trim();
+            const valor = Number(texto.replace(/\./g, ""));
+            if (!/^(\d+|\d{1,3}(\.\d{3})+)$/.test(texto) || !Number.isSafeInteger(valor)) {
+                input.setCustomValidity("Ingresá un entero positivo o cero, por ejemplo 1000 o 1.000.");
+                input.reportValidity();
+                return;
+            }
+            if (valor === necesario) { cancelar(); return; }
+            const cantidad = elaboracionesConIngrediente(currentingrediente, clave, valor);
+            terminado = true;
+            const abiertos = Array.from(document.querySelectorAll(".ingrediente_puro .obtencion[open]"))
+                .map(el => el.closest(".ingrediente_puro").bdoclave);
+            document.getElementById("cantidad").value = cantidad;
+            recalcularTodo();
+            generarListaIngredientes();
+            document.querySelectorAll(".ingrediente_puro").forEach(el => {
+                if (abiertos.includes(el.bdoclave)) el.querySelector(".obtencion").open = true;
+                if (el.bdoclave === clave) {
+                    el.querySelector(".cantidad_puro_editable").focus({ preventScroll: true });
+                    const aviso = document.getElementById("aviso_recalculo_puro");
+                    aviso.textContent = formatearMilesAR(cantidad) + " elaboraciones: se necesitan " +
+                        formatearMilesAR(el.bdonecesario) + " de " + rdata.datos[clave].titulo +
+                        " de las " + formatearMilesAR(valor) + " indicadas.";
+                }
+            });
+        };
+        input.addEventListener("input", () => input.setCustomValidity(""));
+        input.addEventListener("blur", confirmar);
+        input.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === "Escape") {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.key === "Escape") cancelar();
+                else confirmar();
+            }
+        });
+    };
+    boton.addEventListener("dblclick", editar);
+    boton.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); editar(); }
+    });
+    return contenedor;
+}
+
 function crearListaPuros(totalesGlobales, usosGlobales) {
     const ul = document.createElement("ul");
     ul.className = "lista_puros";
@@ -475,7 +579,7 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         span_titulo.innerHTML = `<span class="titing">${rdata["datos"][k]["titulo"]}</span>`;
 
         span_contenedor.append(span_titulo);
-        span_contenedor.append(crearSpanCantidad(necesario, 0));
+        span_contenedor.append(crearCantidadPuro(k, necesario));
         li.append(span_contenedor);
 
         const tengoWrap = document.createElement("span");
@@ -561,6 +665,14 @@ function generarListaIngredientes() {
     /* las dos vistas se arman juntas y se muestra la que esté activa */
     const puros = crearListaPuros(totalesGlobales, usosGlobales);
     ulpuros.append(crearCabeceraProgreso());
+    const ayudaEdicion = document.createElement("li");
+    ayudaEdicion.className = "ayuda_obtencion";
+    ayudaEdicion.textContent = "Doble clic en una cantidad amarilla para recalcular toda la receta con ese ingrediente. Enter aplica y Escape cancela. Lo que ya conseguiste se conserva.";
+    const avisoRecalculo = document.createElement("li");
+    avisoRecalculo.id = "aviso_recalculo_puro";
+    avisoRecalculo.className = "aviso_recalculo_puro";
+    avisoRecalculo.setAttribute("role", "status");
+    ulpuros.append(ayudaEdicion, avisoRecalculo);
     const ayudaObtencion = document.createElement("li");
     ayudaObtencion.className = "ayuda_obtencion";
     ayudaObtencion.textContent = "Cómo conseguirlos · Tocá los íconos para ver detalles y fuentes. Pueden tener varios métodos. Mercado = compra a otros jugadores, según disponibilidad. Los métodos corresponden al ítem indicado; los sustitutos pueden variar.";
