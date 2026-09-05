@@ -7,7 +7,7 @@
     <link rel="icon" href="icono1.svg" type="image/svg+xml">
     <script src="bdoalquimia.js"></script>
 </head>
-<link rel="stylesheet" href="alquimia.css?d=13">
+<link rel="stylesheet" href="alquimia.css?d=14">
 <body>
 
     <div id="consola" aria-hidden="true">
@@ -48,6 +48,20 @@
                 <button type="button" class="tab_btn" id="tab_puros">Ingredientes puros</button>
             </div>
             <input type="search" id="buscador_ingredientes" placeholder="Buscar ingrediente base..." style="display: none;">
+            <div id="filtros_puros" class="oculto">
+                <details id="menu_filtro_puros">
+                    <summary id="resumen_filtro_puros">Filtro · Todos los métodos</summary>
+                    <fieldset>
+                        <legend>Métodos de obtención</legend>
+                        <p>Coincidir con cualquiera de los métodos elegidos. Sin casillas marcadas, se incluyen todos.</p>
+                        <div id="opciones_filtro_puros"></div>
+                    </fieldset>
+                    <label class="opcion_ocultar"><input type="checkbox" id="ocultar_fuera_filtro" checked> Ocultar los que no coinciden</label>
+                    <p class="ayuda_filtro">Si lo destildás, quedan visibles y atenuados. Se combina con la búsqueda por nombre.</p>
+                    <button type="button" id="limpiar_filtro_puros">Limpiar métodos</button>
+                </details>
+                <p id="resultado_filtro_puros" role="status"></p>
+            </div>
             <ul id="ingredientes_base">
                 <li>Sin calcular aún</li>
             </ul>

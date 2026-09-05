@@ -251,6 +251,38 @@ const OBTENCION = {
     mercado: { icono: "⚖", label: "Mercado" }
 };
 
+const metodosFiltroPuros = new Set();
+let ocultarFueraFiltro = true;
+
+function iniciarFiltrosPuros() {
+    const opciones = document.getElementById("opciones_filtro_puros");
+    for (const [tipo, metodo] of Object.entries(OBTENCION)) {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = tipo;
+        checkbox.addEventListener("change", function () {
+            if (this.checked) metodosFiltroPuros.add(tipo);
+            else metodosFiltroPuros.delete(tipo);
+            filtrarIngredientesBase();
+        });
+        const icono = document.createElement("span");
+        icono.setAttribute("aria-hidden", "true");
+        icono.textContent = metodo.icono;
+        label.append(checkbox, icono, document.createTextNode(metodo.label));
+        opciones.append(label);
+    }
+    document.getElementById("ocultar_fuera_filtro").addEventListener("change", function () {
+        ocultarFueraFiltro = this.checked;
+        filtrarIngredientesBase();
+    });
+    document.getElementById("limpiar_filtro_puros").addEventListener("click", function () {
+        metodosFiltroPuros.clear();
+        opciones.querySelectorAll("input").forEach(input => { input.checked = false; });
+        filtrarIngredientesBase();
+    });
+}
+
 function crearIconoObtencion(tipo) {
     const metodo = OBTENCION[tipo];
     const badge = document.createElement("span");
@@ -302,17 +334,33 @@ function cambiarVistaBase(vista) {
 
     document.getElementById("ingredientes_base").classList.toggle("oculto", vista != "arbol");
     document.getElementById("ingredientes_puros").classList.toggle("oculto", vista != "puros");
+    document.getElementById("filtros_puros").classList.toggle("oculto", vista != "puros");
 
     filtrarIngredientesBase();
 }
 
 function filtrarIngredientesPuros(texto) {
-    document.querySelectorAll("#ingredientes_puros .ingrediente_puro").forEach(item => {
+    const items = document.querySelectorAll("#ingredientes_puros .ingrediente_puro");
+    let coincidentes = 0;
+    document.getElementById("resumen_filtro_puros").textContent = metodosFiltroPuros.size
+        ? "Filtro (" + metodosFiltroPuros.size + ") · " + Array.from(metodosFiltroPuros, tipo => OBTENCION[tipo].label).join(", ")
+        : "Filtro · Todos los métodos";
+    items.forEach(item => {
         const spanTitulo = item.querySelector(".titing");
-        const coincide = texto.trim() === "" ||
+        const coincideNombre = texto.trim() === "" ||
             (spanTitulo && spanTitulo.textContent.toLowerCase().includes(texto));
-        item.style.display = coincide ? "" : "none";
+        const metodos = rdata.datos[item.bdoclave].obtencion?.metodos || [];
+        const coincideMetodo = metodosFiltroPuros.size === 0 || metodos.some(tipo => metodosFiltroPuros.has(tipo));
+        const coincide = coincideNombre && coincideMetodo;
+        if (coincide) coincidentes++;
+        item.style.display = !coincide && ocultarFueraFiltro ? "none" : "";
+        item.classList.toggle("fuera_filtro", !coincide && !ocultarFueraFiltro);
+        item.querySelector(".marca_fuera_filtro").hidden = coincide || ocultarFueraFiltro;
     });
+    document.getElementById("resultado_filtro_puros").textContent = items.length
+        ? coincidentes + " de " + items.length + " ingredientes coinciden." +
+            (coincidentes === 0 ? " Cambiá los métodos o la búsqueda para encontrar ingredientes." : "")
+        : "";
 }
 
 function filtrarIngredientesBase() {
@@ -601,6 +649,11 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         tengoWrap.append(nec);
         li.append(tengoWrap);
         li.append(crearObtencion(k));
+        const marcaFiltro = document.createElement("span");
+        marcaFiltro.className = "marca_fuera_filtro";
+        marcaFiltro.textContent = "Fuera del filtro";
+        marcaFiltro.hidden = true;
+        li.append(marcaFiltro);
         chk.setAttribute("aria-label", "Marcar " + rdata.datos[k].titulo + " como conseguido");
         inpTengo.setAttribute("aria-label", "Cantidad conseguida de " + rdata.datos[k].titulo);
 
@@ -679,10 +732,8 @@ function generarListaIngredientes() {
     ulpuros.append(ayudaObtencion);
     ulpuros.append(puros.ul);
     actualizarProgresoPuros();
-
-    if (buscadorIngredientes && buscadorIngredientes.value.trim() !== "") {
-        filtrarIngredientesBase();
-    }
+    filtrarIngredientesPuros(buscadorIngredientes.value.toLowerCase());
+    if (vistaBaseActual === "arbol") filtrarIngredientesBase();
 }
 
 function formatearMilesAR(numero) {
@@ -1265,6 +1316,7 @@ function setAndLoad() {
         if (ul != null) ul.innerHTML = "<li>Sin calcular aún</li>";
     }
     const tabPuros = document.getElementById("tab_puros");
+    document.getElementById("resultado_filtro_puros").textContent = "";
     if (tabPuros != null) tabPuros.innerText = "Ingredientes puros";
     const buscadorIng = document.getElementById("buscador_ingredientes");
     if (buscadorIng != null) { buscadorIng.value = ""; buscadorIng.style.display = "none"; }
@@ -2033,6 +2085,7 @@ window.addEventListener("load", function () {
     lista_recetas_ul = document.getElementById("lista_recetas");
 
     iniciarConsola();
+    iniciarFiltrosPuros();
 
     document.getElementById("tab_arbol").addEventListener("click", function () { cambiarVistaBase("arbol"); });
     document.getElementById("tab_puros").addEventListener("click", function () { cambiarVistaBase("puros"); });

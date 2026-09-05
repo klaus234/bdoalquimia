@@ -1539,6 +1539,29 @@ input.editar_cantidad_puro {
 .aviso_recalculo_puro { color: var(--accent-3); font-size: 13px; margin-bottom: 12px; }
 .aviso_recalculo_puro:empty { margin: 0; }
 
+#filtros_puros { grid-column: 1 / -1; }
+#menu_filtro_puros { max-width: 620px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-0); }
+#menu_filtro_puros > summary { cursor: pointer; padding: 12px 14px; color: var(--text-0); font-weight: 700; overflow-wrap: anywhere; }
+#menu_filtro_puros > summary:focus-visible { outline: 2px solid var(--accent-2); border-radius: var(--radius-sm); }
+#menu_filtro_puros fieldset { min-width: 0; margin: 10px 14px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+#menu_filtro_puros legend { color: var(--text-0); font-weight: 600; }
+#menu_filtro_puros p { color: var(--text-1); font-size: 12px; margin-top: 0; }
+#opciones_filtro_puros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
+#menu_filtro_puros label { display: flex; align-items: center; gap: 8px; padding: 8px 0; cursor: pointer; font-size: 14px; color: var(--text-0); }
+#menu_filtro_puros input[type="checkbox"] { width: 17px; height: 17px; flex-shrink: 0; accent-color: var(--accent-2); }
+#menu_filtro_puros .opcion_ocultar { margin: 0 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+#menu_filtro_puros .ayuda_filtro { margin: 0 14px 12px; }
+#limpiar_filtro_puros { margin: 0 14px 14px; width: auto; background: var(--surface-2); color: var(--text-0); box-shadow: none; }
+#resultado_filtro_puros { color: var(--text-1); font-size: 13px; margin: 8px 0 0; }
+#resultado_filtro_puros:empty { margin: 0; }
+.ingrediente_puro.fuera_filtro { border-style: dashed; background: transparent; }
+.ingrediente_puro.fuera_filtro > :not(.marca_fuera_filtro) { opacity: 0.35; filter: grayscale(0.9); }
+.marca_fuera_filtro { flex-basis: 100%; color: var(--text-1); font-size: 12px; font-style: italic; }
+.marca_fuera_filtro[hidden] { display: none; }
+@media (max-width: 380px) {
+    #opciones_filtro_puros { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 620px) {
     #acciones_estado { flex-direction: column; align-items: stretch; }
     #acciones_estado .estadobtn { width: 100%; }

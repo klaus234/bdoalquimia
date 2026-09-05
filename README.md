@@ -30,6 +30,13 @@ máximas elaboraciones completas posibles respetando los redondeos de cada
 subreceta, y se conservan las cantidades ya conseguidas. Se aceptan enteros
 como `1000` o `1.000`; si sobra material, se informa cuánto se utilizará.
 
+En Ingredientes puros, «Filtro» permite seleccionar métodos de obtención con
+casillas: alcanza con que el ingrediente cumpla uno de los métodos elegidos.
+Sin selección se incluyen todos. «Ocultar los que no coinciden» alterna entre
+ocultar y atenuar los ingredientes fuera del filtro, combinando los métodos
+con la búsqueda por nombre. La selección se mantiene al recalcular y cambiar
+de pestaña durante la sesión; no modifica cantidades ni el progreso global.
+
 Pruebas de catálogo y cálculos: `node --test tests/recetas.test.cjs`.
 Pruebas de navegador: `node tests/interfaz.cjs` (requiere Playwright y Chromium).
 Se pueden configurar `PLAYWRIGHT_MODULE`, `CHROME_PATH` y `SCREENSHOT_DIR` para
