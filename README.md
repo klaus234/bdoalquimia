@@ -30,9 +30,11 @@ máximas elaboraciones completas posibles respetando los redondeos de cada
 subreceta, y se conservan las cantidades ya conseguidas. Se aceptan enteros
 como `1000` o `1.000`; si sobra material, se informa cuánto se utilizará.
 
-En Ingredientes puros, «Filtro» permite seleccionar métodos de obtención con
-casillas: alcanza con que el ingrediente cumpla uno de los métodos elegidos.
-Sin selección se incluyen todos. «Ocultar los que no coinciden» alterna entre
+En Ingredientes puros, «Filtro» permite incluir métodos con clic izquierdo y
+excluirlos con clic derecho (o con el botón −). Repetir el mismo clic vuelve
+al estado sin filtro. Alcanza con cumplir uno de los incluidos, pero no puede
+tener ninguno de los excluidos. Sin métodos incluidos se aceptan todos salvo
+los excluidos. «Ocultar los que no coinciden» alterna entre
 ocultar y atenuar los ingredientes fuera del filtro, combinando los métodos
 con la búsqueda por nombre. La selección se mantiene al recalcular y cambiar
 de pestaña durante la sesión; no modifica cantidades ni el progreso global.

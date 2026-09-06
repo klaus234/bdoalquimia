@@ -252,33 +252,80 @@ const OBTENCION = {
 };
 
 const metodosFiltroPuros = new Set();
+const metodosExcluidosPuros = new Set();
 let ocultarFueraFiltro = true;
+
+function coincideFiltroMetodos(metodos) {
+    return !metodos.some(tipo => metodosExcluidosPuros.has(tipo)) &&
+        (metodosFiltroPuros.size === 0 || metodos.some(tipo => metodosFiltroPuros.has(tipo)));
+}
+
+function actualizarBotonesFiltro() {
+    document.querySelectorAll(".opcion_metodo").forEach(opcion => {
+        const tipo = opcion.dataset.metodo;
+        const incluido = metodosFiltroPuros.has(tipo);
+        const excluido = metodosExcluidosPuros.has(tipo);
+        const estado = excluido ? "Excluir" : incluido ? "Incluir" : "Sin filtro";
+        opcion.classList.toggle("metodo_incluido", incluido);
+        opcion.classList.toggle("metodo_excluido", excluido);
+        opcion.querySelector(".estado_metodo").textContent = (excluido ? "− " : incluido ? "✓ " : "○ ") + estado;
+        const boton = opcion.querySelector(".boton_metodo");
+        boton.setAttribute("aria-label", OBTENCION[tipo].label + ": " + estado);
+        boton.setAttribute("aria-pressed", incluido || excluido ? "true" : "false");
+        opcion.querySelector(".excluir_metodo").setAttribute("aria-pressed", excluido ? "true" : "false");
+    });
+}
+
+function alternarMetodoFiltro(tipo, excluir) {
+    const seleccion = excluir ? metodosExcluidosPuros : metodosFiltroPuros;
+    const contraria = excluir ? metodosFiltroPuros : metodosExcluidosPuros;
+    contraria.delete(tipo);
+    if (seleccion.has(tipo)) seleccion.delete(tipo);
+    else seleccion.add(tipo);
+    actualizarBotonesFiltro();
+    filtrarIngredientesBase();
+}
 
 function iniciarFiltrosPuros() {
     const opciones = document.getElementById("opciones_filtro_puros");
     for (const [tipo, metodo] of Object.entries(OBTENCION)) {
-        const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.value = tipo;
-        checkbox.addEventListener("change", function () {
-            if (this.checked) metodosFiltroPuros.add(tipo);
-            else metodosFiltroPuros.delete(tipo);
-            filtrarIngredientesBase();
+        const opcion = document.createElement("div");
+        opcion.className = "opcion_metodo";
+        opcion.dataset.metodo = tipo;
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.className = "boton_metodo";
+        boton.title = "Clic: incluir. Clic derecho o Mayús + clic: excluir. Repetir desactiva.";
+        boton.addEventListener("click", e => alternarMetodoFiltro(tipo, e.shiftKey));
+        boton.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            alternarMetodoFiltro(tipo, true);
         });
         const icono = document.createElement("span");
         icono.setAttribute("aria-hidden", "true");
         icono.textContent = metodo.icono;
-        label.append(checkbox, icono, document.createTextNode(metodo.label));
-        opciones.append(label);
+        const estado = document.createElement("small");
+        estado.className = "estado_metodo";
+        boton.append(icono, document.createTextNode(metodo.label), estado);
+        const excluir = document.createElement("button");
+        excluir.type = "button";
+        excluir.className = "excluir_metodo";
+        excluir.textContent = "−";
+        excluir.setAttribute("aria-label", "Excluir " + metodo.label);
+        excluir.title = "Excluir " + metodo.label + " (alternativa al clic derecho)";
+        excluir.addEventListener("click", () => alternarMetodoFiltro(tipo, true));
+        opcion.append(boton, excluir);
+        opciones.append(opcion);
     }
+    actualizarBotonesFiltro();
     document.getElementById("ocultar_fuera_filtro").addEventListener("change", function () {
         ocultarFueraFiltro = this.checked;
         filtrarIngredientesBase();
     });
     document.getElementById("limpiar_filtro_puros").addEventListener("click", function () {
         metodosFiltroPuros.clear();
-        opciones.querySelectorAll("input").forEach(input => { input.checked = false; });
+        metodosExcluidosPuros.clear();
+        actualizarBotonesFiltro();
         filtrarIngredientesBase();
     });
 }
@@ -342,15 +389,19 @@ function cambiarVistaBase(vista) {
 function filtrarIngredientesPuros(texto) {
     const items = document.querySelectorAll("#ingredientes_puros .ingrediente_puro");
     let coincidentes = 0;
-    document.getElementById("resumen_filtro_puros").textContent = metodosFiltroPuros.size
-        ? "Filtro (" + metodosFiltroPuros.size + ") · " + Array.from(metodosFiltroPuros, tipo => OBTENCION[tipo].label).join(", ")
+    const criterios = [
+        ...Array.from(metodosFiltroPuros, tipo => "+ " + OBTENCION[tipo].label),
+        ...Array.from(metodosExcluidosPuros, tipo => "NO " + OBTENCION[tipo].label)
+    ];
+    document.getElementById("resumen_filtro_puros").textContent = criterios.length
+        ? "Filtro (" + criterios.length + ") · " + criterios.join(", ")
         : "Filtro · Todos los métodos";
     items.forEach(item => {
         const spanTitulo = item.querySelector(".titing");
         const coincideNombre = texto.trim() === "" ||
             (spanTitulo && spanTitulo.textContent.toLowerCase().includes(texto));
         const metodos = rdata.datos[item.bdoclave].obtencion?.metodos || [];
-        const coincideMetodo = metodosFiltroPuros.size === 0 || metodos.some(tipo => metodosFiltroPuros.has(tipo));
+        const coincideMetodo = coincideFiltroMetodos(metodos);
         const coincide = coincideNombre && coincideMetodo;
         if (coincide) coincidentes++;
         item.style.display = !coincide && ocultarFueraFiltro ? "none" : "";
