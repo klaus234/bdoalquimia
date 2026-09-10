@@ -489,13 +489,8 @@ function crearCabeceraProgreso() {
     btn.title = "Pone en cero lo juntado de todos los ingredientes";
     btn.addEventListener("click", function () {
         tenidos = {};
-        document.querySelectorAll("#ingredientes_puros .ingrediente_puro").forEach(function (el) {
-            el.querySelector(".chk_puro").checked = false;
-            el.querySelector(".inp_tengo").value = 0;
-            el.classList.remove("completado");
-            el.classList.remove("parcial");
-        });
-        actualizarProgresoPuros();
+        /* repinta las dos vistas, no sólo la de puros */
+        refrescarAvance();
     });
 
     li.append(txt);
@@ -655,11 +650,6 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         li.bdoclave = k;
         li.bdonecesario = necesario;
 
-        /* si venía de un estado viejo marcado sólo como "listo", acá se
-           convierte en un número concreto: si no, subir la cantidad a
-           elaborar lo daría por completo para siempre */
-        if (tenidos[k] === COMPLETO_SIN_CANTIDAD) tenidos[k] = necesario;
-
         /* el tilde es el atajo de "ya lo tengo todo"; el input de al lado es
            para ir anotando lo que juntás. Los dos escriben en `tenidos`, que
            es lo único que se guarda. */
@@ -688,7 +678,6 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         inpTengo.type = "number";
         inpTengo.className = "inp_tengo";
         inpTengo.min = 0;
-        inpTengo.value = cantidadTenida(k, necesario);
         /* sin flechitas: acá se escribe el número a mano */
         inpTengo.bdospinner = true;
 
@@ -713,32 +702,8 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
            puede venir de varias ramas, así que van todos sus usos. */
         montarGrupo(span_contenedor, li, k, function () { return usosGlobales[k] || []; });
 
-        const sincronizar = function () {
-            const tengo = cantidadTenida(k, necesario);
-            const completo = necesario > 0 && tengo >= necesario;
-            chk.checked = completo;
-            li.classList.toggle("completado", completo);
-            li.classList.toggle("parcial", !completo && tengo > 0);
-            const falta = Math.max(0, necesario - tengo);
-            inpTengo.title = falta > 0 ? "Faltan " + formatearMilesAR(falta) : "Completo";
-        };
-
-        inpTengo.addEventListener("input", function () {
-            let n = parseInt(this.value, 10);
-            if (!isFinite(n) || n < 0) n = 0;
-            tenidos[k] = n;
-            sincronizar();
-            actualizarProgresoPuros();
-        });
-
-        chk.addEventListener("change", function () {
-            tenidos[k] = this.checked ? necesario : 0;
-            inpTengo.value = tenidos[k];
-            sincronizar();
-            actualizarProgresoPuros();
-        });
-
-        sincronizar();
+        /* mismo sistema que los nodos del árbol: editar acá repinta allá */
+        registrarAvance(k, necesario, li, chk, inpTengo);
         ul.append(li);
     }
 
@@ -750,6 +715,7 @@ function generarListaIngredientes() {
     const ulpuros = document.getElementById("ingredientes_puros");
     ulingredientes.innerHTML = "";
     ulpuros.innerHTML = "";
+    controlesAvance = [];
 
     const buscadorIngredientes = document.getElementById("buscador_ingredientes");
     if (buscadorIngredientes) {
@@ -847,13 +813,113 @@ function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales, usosGl
     }
 }
 
-function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales) {
+/* -----------------------------------------------------------------
+   Editar la cantidad de un nodo del árbol (doble clic)
+   -----------------------------------------------------------------
+   `camino` son las recetas desde la raíz hasta la que contiene al nodo.
+   Con eso se puede recorrer la cadena en los dos sentidos: calcular cuánto
+   da un nodo para una cantidad principal dada, y —al revés— qué cantidad
+   principal hace falta para que ese nodo llegue a lo que pediste.
+   ----------------------------------------------------------------- */
+
+function cantidadEnCamino(cantidadPrincipal, camino, ingId) {
+    let veces = cantidadPrincipal;
+    for (let i = 0; i < camino.length; i++) {
+        const receta = camino[i];
+        const siguiente = (i + 1 < camino.length) ? camino[i + 1] : ingId;
+        const ing = ingredientesDe(receta)[siguiente];
+        if (ing == undefined) return 0;
+        const cant = Math.ceil(veces * Number(ing));
+        if (i + 1 >= camino.length) return cant;
+        veces = Math.ceil(cant / ratioDeReceta(siguiente));
+    }
+    return 0;
+}
+
+/* La cadena tiene un ceil por escalón, así que no siempre existe una cantidad
+   principal que dé el objetivo exacto: se busca la más chica que lo alcance. */
+function cantidadPrincipalPara(camino, ingId, objetivo) {
+    if (objetivo <= 0) return 0;
+
+    let hi = 1;
+    while (cantidadEnCamino(hi, camino, ingId) < objetivo) {
+        hi *= 2;
+        if (hi > 1e9) return hi;      // ingrediente con cantidad ínfima: se corta
+    }
+    let lo = 1;
+    while (lo < hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        if (cantidadEnCamino(mid, camino, ingId) >= objetivo) hi = mid;
+        else lo = mid + 1;
+    }
+    return lo;
+}
+
+function aplicarCantidadNodo(camino, ingId, objetivo) {
+    const nueva = cantidadPrincipalPara(camino, ingId, objetivo);
+    const inp = document.getElementById("cantidad");
+    if (inp == null) return;
+    inp.value = nueva;
+    inp.dispatchEvent(new Event("input"));
+    generarListaIngredientes();
+}
+
+/* Convierte el "x1.000" del nodo en un input al hacerle doble clic. */
+function hacerCantidadEditable(spanLocal, camino, ingId) {
+    spanLocal.classList.add("cant_editable");
+    spanLocal.title = "Doble clic para cambiar esta cantidad";
+
+    spanLocal.addEventListener("dblclick", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (spanLocal.querySelector("input") != null) return;
+
+        const actual = Number(spanLocal.textContent.replace(/[^0-9]/g, "")) || 0;
+        const previo = spanLocal.textContent;
+        spanLocal.textContent = "";
+
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.className = "inp_cant_nodo";
+        inp.min = 1;
+        inp.value = actual;
+        inp.bdospinner = true;
+        spanLocal.append(inp);
+        inp.focus();
+        inp.select();
+
+        let cerrado = false;
+        const cancelar = function () {
+            if (cerrado) return;
+            cerrado = true;
+            spanLocal.textContent = previo;
+        };
+        const confirmar = function () {
+            if (cerrado) return;
+            cerrado = true;
+            const n = parseInt(inp.value, 10);
+            if (!isFinite(n) || n <= 0 || n === actual) { spanLocal.textContent = previo; return; }
+            aplicarCantidadNodo(camino, ingId, n);
+        };
+
+        inp.addEventListener("keydown", function (ev) {
+            ev.stopPropagation();
+            if (ev.key === "Enter") { ev.preventDefault(); confirmar(); }
+            else if (ev.key === "Escape") { ev.preventDefault(); cancelar(); }
+        });
+        inp.addEventListener("blur", confirmar);
+        inp.addEventListener("dblclick", function (ev) { ev.stopPropagation(); });
+    });
+}
+
+function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, camino) {
     const ul = document.createElement("ul");
     ul.className = "ingredientes_arbol nivel_" + nivel;
 
     const ingredientes = ingredientesDe(recetaId);
     const keysLista = Object.keys(ingredientes).sort();
     const veces = elaboracionesNecesarias(recetaId, cantidad, nivel);
+    const caminoAca = (camino || []).concat([recetaId]);
 
     for (let ingId of keysLista) {
         const li = document.createElement("li");
@@ -877,11 +943,17 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales) {
             const divContenedor = document.createElement("div");
             divContenedor.className = "ing_wrapper";
 
-            const span_titulo = document.createElement("span");
+            /* las sub-recetas se abren en otra pestaña con el total de TODO el
+               árbol, que es lo que hay que fabricar sumando todas las ramas */
+            const span_titulo = document.createElement("a");
             span_titulo.className = "ing_titulo_receta";
+            span_titulo.href = enlaceReceta(ingId, cantidad_total_global);
+            span_titulo.target = "_blank";
+            span_titulo.title = "Abrir " + rdata["datos"][ingId]["titulo"] + " en otra pestaña";
             span_titulo.innerHTML = `<span class="titing">${rdata["datos"][ingId]["titulo"]}</span>`;
 
             const span_cant = crearSpanCantidad(cantidad_ing, cantidad_total_global);
+            hacerCantidadEditable(span_cant.querySelector(".cantcing_local"), caminoAca, ingId);
 
             btnExpand.addEventListener("click", function (e) {
                 e.preventDefault();
@@ -905,7 +977,7 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales) {
             span_contenedor.append(span_cant);
             span_contenedor.append(crearBadgeTipo(ingId));
 
-            const subArbol = crearArbolIngredientes(ingId, cantidad_ing, nivel + 1, totalesGlobales);
+            const subArbol = crearArbolIngredientes(ingId, cantidad_ing, nivel + 1, totalesGlobales, caminoAca);
 
             divContenedor.append(span_contenedor);
             divContenedor.append(subArbol);
@@ -917,6 +989,7 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales) {
             span_titulo.innerHTML = `<span class="titing">${rdata["datos"][ingId]["titulo"]}</span>`;
 
             const span_cant = crearSpanCantidad(cantidad_ing, cantidad_total_global);
+            hacerCantidadEditable(span_cant.querySelector(".cantcing_local"), caminoAca, ingId);
 
             span_contenedor.append(span_titulo);
             span_contenedor.append(span_cant);
@@ -1168,6 +1241,69 @@ function cantidadTenida(clave, necesario) {
     if (t === COMPLETO_SIN_CANTIDAD) return necesario;
     return t > 0 ? t : 0;
 }
+
+/* -----------------------------------------------------------------
+   Control de avance (tilde + cuánto tengo)
+   -----------------------------------------------------------------
+   Se usa igual en la pestaña de puros y en cada nodo del árbol. Como un
+   mismo ítem aparece en varias ramas, todos los controles de una misma
+   clave comparten el valor y se comparan contra el TOTAL del árbol, no
+   contra la cantidad local del nodo: lo que tenés está en la bolsa, no
+   repartido por rama. Por eso editar uno repinta a todos.
+   ----------------------------------------------------------------- */
+let controlesAvance = [];
+
+/* Toma un tilde y un input ya construidos y los ata al avance de `clave`:
+   escriben en `tenidos` y, al cambiar, repintan a todos los controles del
+   mismo ítem, estén en el árbol o en la pestaña de puros.
+   `destino` es el elemento que recibe las clases completado/parcial. */
+function registrarAvance(clave, necesario, destino, chk, inp) {
+    /* un estado viejo marcado sólo como "listo" se vuelve un número concreto */
+    if (tenidos[clave] === COMPLETO_SIN_CANTIDAD) tenidos[clave] = necesario;
+
+    const ctrl = { "clave": clave, "necesario": necesario, "destino": destino, "chk": chk, "inp": inp };
+
+    chk.addEventListener("change", function () {
+        tenidos[clave] = this.checked ? necesario : 0;
+        refrescarAvance(clave);
+    });
+
+    inp.addEventListener("input", function () {
+        let n = parseInt(this.value, 10);
+        if (!isFinite(n) || n < 0) n = 0;
+        tenidos[clave] = n;
+        refrescarAvance(clave);
+    });
+
+    controlesAvance.push(ctrl);
+    pintarAvance(ctrl);
+    return ctrl;
+}
+
+function pintarAvance(c) {
+    const tengo = cantidadTenida(c["clave"], c["necesario"]);
+    const completo = c["necesario"] > 0 && tengo >= c["necesario"];
+
+    c["chk"].checked = completo;
+    /* no pisar el número mientras lo estás escribiendo */
+    if (document.activeElement !== c["inp"]) c["inp"].value = tengo;
+
+    const falta = Math.max(0, c["necesario"] - tengo);
+    c["inp"].title = falta > 0 ? "Faltan " + formatearMilesAR(falta) : "Completo";
+
+    if (c["destino"] != null) {
+        c["destino"].classList.toggle("completado", completo);
+        c["destino"].classList.toggle("parcial", !completo && tengo > 0);
+    }
+}
+
+function refrescarAvance(clave) {
+    for (let c of controlesAvance) {
+        if (clave == undefined || c["clave"] === clave) pintarAvance(c);
+    }
+    actualizarProgresoPuros();
+}
+
 
 function leerEstados() {
     const p = localStorage.getItem(CLAVE_ESTADO);
