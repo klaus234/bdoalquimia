@@ -45,7 +45,6 @@
                 "aguapurificada": "1"
             }
         },
-        
         "perfumederapidez": {
             "tipo": "alquimia",
             "ing": {
@@ -447,6 +446,131 @@
                 "elixirdevoluntad": "3",
                 "reactivodeliquidoazul": "1"
             }
+        },
+        "frascodelasolasazules": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/item/767695/",
+            "ing": {
+                "esenciadelasolas": "1",
+                "frascodelasolas": "4"
+            }
+        },
+        "frascodelasolasazulescristalinas": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/item/767695/",
+            "ing": {
+                "esenciadelasolas": "1",
+                "frascodelasolascristalinas": "2"
+            }
+        },
+        "frascodelasolas": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/item/767693/",
+            "ing": {
+                "elixirdelpescador": "36",
+                "elixirdetiempo": "36",
+                "elixirdelexperto": "36",
+                "lagrimasdelaluna": "10"
+            }
+        },
+        "frascodelasolascristalinas": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/item/767694/",
+            "ing": {
+                "elixirdelpescador": "72",
+                "elixirdetiempo": "72",
+                "elixirdelexperto": "72",
+                "lagrimasdelaluna": "20",
+                "fragmentodevientoondulado": "1"
+            }
+        },
+        "frascodeloceanoextenso": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/item/890074/",
+            "ing": {
+                "esenciadeloceano": "1",
+                "frascodeloceano": "4"
+            }
+        },
+        "frascodeloceanoextensoamplio": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/item/890074/",
+            "ing": {
+                "esenciadeloceano": "1",
+                "frascodeloceanoamplio": "2"
+            }
+        },
+        "frascodeloceano": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/item/890072/",
+            "ing": {
+                "elixirdelexperto": "36",
+                "elixirdetiempo": "36",
+                "elixirdeamistad": "36",
+                "lagrimasdelaluna": "10"
+            }
+        },
+        "frascodeloceanoamplio": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/item/890073/",
+            "ing": {
+                "elixirdelexperto": "72",
+                "elixirdetiempo": "72",
+                "elixirdeamistad": "72",
+                "lagrimasdelaluna": "20",
+                "fragmentodevientoondulado": "1"
+            }
+        },
+        "elixirdelpescador": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelhombresabio": "1",
+                "hierbaluzdelatardecer": "6",
+                "saviadeabeto": "3",
+                "polvodefuego": "2"
+            }
+        },
+        "elixirdetiempo": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelhombresabio": "1",
+                "florescamadefuego": "6",
+                "polvodetiempo": "2",
+                "saviadearboldearce": "5"
+            }
+        },
+        "elixirdelexperto": {
+            "tipo": "alquimia",
+            "ing": {
+                "aceitedetranquilidad": "2",
+                "reactivodedelotiapurificada": "3",
+                "saviadearboldeespinas": "5",
+                "hierbademilanos": "5",
+                "rastrodelanaturaleza": "2"
+            }
+        },
+        "elixirdeamistad": {
+            "tipo": "alquimia",
+            "ing": {
+                "sangredelabestiadivina": "1",
+                "florescamadefuego": "5",
+                "saviadefresno": "6",
+                "polvodepiedranegra": "3"
+            }
+        },
+        "reactivodedelotiapurificada": {
+            "tipo": "alquimia",
+            "ing": {
+                "polvodedelotia": "3",
+                "reactivodeliquidoclaro": "1",
+                "reactivodepolvopuro": "1"
+            }
+        },
+        "polvodedelotia": {
+            "tipo": "moler",
+            "ing": {
+                "delotia": "3"
+            }
         }
     },
     "datos": {
@@ -792,6 +916,82 @@
             "plata": "0",
             "nomejorable": true
         },
+        "frascodelasolasazules": {
+            "titulo": "Frasco de las Olas Azules",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodelasolasazulescristalinas": {
+            "titulo": "Frasco de las Olas Azules (con Cristalinas)",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodelasolas": {
+            "titulo": "Frasco de las Olas",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodelasolascristalinas": {
+            "titulo": "Frasco de las Olas Cristalinas",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodeloceanoextenso": {
+            "titulo": "Frasco del Océano Extenso",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodeloceanoextensoamplio": {
+            "titulo": "Frasco del Océano Extenso (con Amplio)",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodeloceano": {
+            "titulo": "Frasco del Océano",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "frascodeloceanoamplio": {
+            "titulo": "Frasco del Océano Amplio",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "elixirdelpescador": {
+            "titulo": "Elixir del Pescador",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdetiempo": {
+            "titulo": "Elixir de Tiempo",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
+        "elixirdelexperto": {
+            "titulo": "Elixir del Experto",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "elixirdeamistad": {
+            "titulo": "Elixir de Amistad",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Aprendiz Nv. 1"
+        },
         "polvodelaoscuridad": {
             "titulo": "Polvo de la Oscuridad",
             "peso": "0.10",
@@ -885,6 +1085,22 @@
                     "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
                 ],
                 "verificado": "2026-09-05"
+            }
+        },
+        "polvodepiedranegra": {
+            "titulo": "Polvo de Piedra Negra",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "mercado"
+                ],
+                "detalle": "Moler Piedras Negras o ciertos cristales en Procesamiento, o fabricarlo en la Refinería.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/4901/"
+                ],
+                "verificado": "2026-10-04"
             }
         },
         "reactivodeliquidoazul": {
@@ -1107,6 +1323,40 @@
                 "verificado": "2026-09-05"
             }
         },
+        "saviadeabeto": {
+            "titulo": "Savia de Abeto",
+            "peso": "0.10",
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos de un abeto o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5009/"
+                ],
+                "verificado": "2026-10-04"
+            }
+        },
+        "saviadearboldeespinas": {
+            "titulo": "Savia de Árbol de Espinas",
+            "peso": "0.10",
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "nodos",
+                    "mercado"
+                ],
+                "detalle": "Extraer fluidos de un Árbol de Espinas o enviar trabajadores a sus nodos de leña.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5023/"
+                ],
+                "verificado": "2026-10-04"
+            }
+        },
         "frutadelanaturaleza": {
             "titulo": "Fruta de la Naturaleza",
             "peso": "0.10",
@@ -1124,6 +1374,22 @@
                 "verificado": "2026-09-05"
             }
         },
+        "delotia": {
+            "titulo": "Delotia",
+            "peso": "0.10",
+            "plata": "0",
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "cultivo"
+                ],
+                "detalle": "Recolectar con las manos o con una azada, o cultivarla en un huerto. No figura en el Mercado de SA.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5538/"
+                ],
+                "verificado": "2026-10-04"
+            }
+        },
         "reactivodeliquidoclaro": {
             "titulo": "Reactivo de Líquido Claro",
             "peso": "0.10",
@@ -1137,6 +1403,19 @@
             "plata": "0",
             "nomejorable": true,
             "nivel": "Principiante Nv. 1"
+        },
+        "reactivodedelotiapurificada": {
+            "titulo": "Reactivo de Delotia Purificada",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Hábil Nv. 1"
+        },
+        "polvodedelotia": {
+            "titulo": "Polvo de Delotia",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true
         },
         "hierbaluzdelatardecer": {
             "titulo": "Hierba Luz del Atardecer",
@@ -2232,6 +2511,72 @@
                     "https://bdocodex.com/sp/item/820936/"
                 ],
                 "verificado": "2026-09-05"
+            }
+        },
+        "lagrimasdelaluna": {
+            "titulo": "Lágrimas de la Luna",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "npc"
+                ],
+                "detalle": "Comprar al Encargado del Gremio Luna Vieja.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/4925/"
+                ],
+                "verificado": "2026-10-04"
+            }
+        },
+        "fragmentodevientoondulado": {
+            "titulo": "Fragmento de Viento Ondulado",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "intercambio",
+                    "botin"
+                ],
+                "detalle": "Se canjea por 2 Sellos de Carrera de Caballo o 1 Sello de Recompensa Dorado [Entrenamiento Imperial] guardados en la Riqueza Integrada; también es botín poco frecuente de los Fadus de Kamasilvia.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/50802/"
+                ],
+                "verificado": "2026-10-04"
+            }
+        },
+        "esenciadelasolas": {
+            "titulo": "Esencia de las Olas",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recompensa"
+                ],
+                "detalle": "Sale de las cajas de recompensa del Concurso Semanal de Pesca (Cajas con las Olas).",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/767696/"
+                ],
+                "verificado": "2026-10-04"
+            }
+        },
+        "esenciadeloceano": {
+            "titulo": "Esencia del Océano",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "botin",
+                    "recompensa"
+                ],
+                "detalle": "Botín de Mareta del Vacío y recompensa de una misión semanal sobre Lyngbakr en la Isla Cheongsa.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/821467/"
+                ],
+                "verificado": "2026-10-04"
             }
         }
     }

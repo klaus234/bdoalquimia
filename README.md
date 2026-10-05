@@ -12,6 +12,13 @@ Perfume de Anhelo está disponible con su receta de Alquimia y su variante
 de Alquimia Simple. Fuentes: [BDO Codex](https://bdocodex.com/sp/item/1411/)
 y [notas oficiales de SA del 21/08/2025](https://www.sa.playblackdesert.com/es-MX/News/Detail?countryType=es-MX&groupContentNo=6639).
 
+Frasco de las Olas Azules y Frasco del Océano Extenso tienen sus dos recetas
+de Alquimia Simple: con 4 frascos comunes o con 2 Cristalinas/Amplio (variante
+«con Cristalinas» / «con Amplio»). Los frascos intermedios usan la variante con
+elixires comunes; el reemplazo 1:3 por elixires mejorados no está modelado.
+Fuentes: [Olas Azules](https://bdocodex.com/sp/item/767695/) y
+[Océano Extenso](https://bdocodex.com/sp/item/890074/).
+
 Los ingredientes puros incluyen métodos de obtención, detalles, fuentes y fecha
 de verificación en `datosv1.json` → `datos` → `obtencion`. Se muestran varios
 métodos cuando están verificados; no es una lista exhaustiva de recompensas o
@@ -29,6 +36,12 @@ cancela. También se puede abrir el editor con Tab y Enter. Se calculan las
 máximas elaboraciones completas posibles respetando los redondeos de cada
 subreceta, y se conservan las cantidades ya conseguidas. Se aceptan enteros
 como `1000` o `1.000`; si sobra material, se informa cuánto se utilizará.
+
+En el Árbol de ingredientes, doble clic en la cantidad amarilla (`x…`) de un
+nodo ajusta la receta para que esa rama llegue al número indicado. Doble clic
+en el `(… total)` celeste hace lo mismo con el total del ingrediente, sumando
+todas las ramas. En los dos casos se usa la menor cantidad de elaboraciones que
+alcance el objetivo.
 
 En Ingredientes puros, «Filtro» permite incluir métodos con clic izquierdo y
 excluirlos con clic derecho (o con el botón −). Repetir el mismo clic vuelve

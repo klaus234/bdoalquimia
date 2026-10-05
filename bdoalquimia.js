@@ -248,6 +248,7 @@ const OBTENCION = {
     caza: { icono: "🏹", label: "Caza" },
     alquimia: { icono: "⚗", label: "Subproducto" },
     intercambio: { icono: "⇄", label: "Intercambio" },
+    recompensa: { icono: "🎁", label: "Recompensa" },
     mercado: { icono: "⚖", label: "Mercado" }
 };
 
@@ -770,8 +771,9 @@ function crearSpanCantidad(cantidadLocal, cantidadTotalGlobal) {
     if (cantidadTotalGlobal > cantidadLocal) {
         const spanTotal = document.createElement("span");
         spanTotal.className = "cantcing_total";
-        spanTotal.textContent = " (" + formatearMilesAR(cantidadTotalGlobal) + " total)";
-        spanCant.append(spanTotal);
+        spanTotal.textContent = "(" + formatearMilesAR(cantidadTotalGlobal) + " total)";
+        /* el espacio va afuera para que no quede subrayado al ser editable */
+        spanCant.append(" ", spanTotal);
     }
 
     return spanCant;
@@ -820,6 +822,7 @@ function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales, usosGl
    Con eso se puede recorrer la cadena en los dos sentidos: calcular cuánto
    da un nodo para una cantidad principal dada, y —al revés— qué cantidad
    principal hace falta para que ese nodo llegue a lo que pediste.
+   El "(N total)" funciona igual, pero sumando todas las ramas del árbol.
    ----------------------------------------------------------------- */
 
 function cantidadEnCamino(cantidadPrincipal, camino, ingId) {
@@ -836,27 +839,35 @@ function cantidadEnCamino(cantidadPrincipal, camino, ingId) {
     return 0;
 }
 
+/* Lo mismo que muestra el "(N total)": `ingId` sumado en todas las ramas. */
+function totalEnArbol(cantidadPrincipal, raiz, ingId) {
+    const totales = {};
+    acumularTotalesArbol(raiz, cantidadPrincipal, 0, totales);
+    return Math.ceil(totales[ingId] || 0);
+}
+
 /* La cadena tiene un ceil por escalón, así que no siempre existe una cantidad
-   principal que dé el objetivo exacto: se busca la más chica que lo alcance. */
-function cantidadPrincipalPara(camino, ingId, objetivo) {
+   principal que dé el objetivo exacto: se busca la más chica que lo alcance.
+   `cantidadPara(n)` dice cuánto da el nodo con n elaboraciones principales. */
+function cantidadPrincipalPara(cantidadPara, objetivo) {
     if (objetivo <= 0) return 0;
 
     let hi = 1;
-    while (cantidadEnCamino(hi, camino, ingId) < objetivo) {
+    while (cantidadPara(hi) < objetivo) {
         hi *= 2;
         if (hi > 1e9) return hi;      // ingrediente con cantidad ínfima: se corta
     }
     let lo = 1;
     while (lo < hi) {
         const mid = Math.floor((lo + hi) / 2);
-        if (cantidadEnCamino(mid, camino, ingId) >= objetivo) hi = mid;
+        if (cantidadPara(mid) >= objetivo) hi = mid;
         else lo = mid + 1;
     }
     return lo;
 }
 
-function aplicarCantidadNodo(camino, ingId, objetivo) {
-    const nueva = cantidadPrincipalPara(camino, ingId, objetivo);
+function aplicarCantidadNodo(cantidadPara, objetivo) {
+    const nueva = cantidadPrincipalPara(cantidadPara, objetivo);
     const inp = document.getElementById("cantidad");
     if (inp == null) return;
     inp.value = nueva;
@@ -864,10 +875,22 @@ function aplicarCantidadNodo(camino, ingId, objetivo) {
     generarListaIngredientes();
 }
 
-/* Convierte el "x1.000" del nodo en un input al hacerle doble clic. */
-function hacerCantidadEditable(spanLocal, camino, ingId) {
+/* El "x1.000" sigue a la rama del nodo; el "(N total)", a todo el árbol. */
+function hacerCantidadesEditables(spanCant, camino, ingId) {
+    hacerCantidadEditable(spanCant.querySelector(".cantcing_local"),
+        n => cantidadEnCamino(n, camino, ingId),
+        "Doble clic para cambiar esta cantidad");
+    const spanTotal = spanCant.querySelector(".cantcing_total");
+    if (spanTotal != null)
+        hacerCantidadEditable(spanTotal,
+            n => totalEnArbol(n, camino[0], ingId),
+            "Doble clic para cambiar el total, sumando todas las ramas");
+}
+
+/* Convierte la cantidad del nodo en un input al hacerle doble clic. */
+function hacerCantidadEditable(spanLocal, cantidadPara, titulo) {
     spanLocal.classList.add("cant_editable");
-    spanLocal.title = "Doble clic para cambiar esta cantidad";
+    spanLocal.title = titulo;
 
     spanLocal.addEventListener("dblclick", function (e) {
         e.preventDefault();
@@ -899,7 +922,7 @@ function hacerCantidadEditable(spanLocal, camino, ingId) {
             cerrado = true;
             const n = parseInt(inp.value, 10);
             if (!isFinite(n) || n <= 0 || n === actual) { spanLocal.textContent = previo; return; }
-            aplicarCantidadNodo(camino, ingId, n);
+            aplicarCantidadNodo(cantidadPara, n);
         };
 
         inp.addEventListener("keydown", function (ev) {
@@ -953,7 +976,7 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             span_titulo.innerHTML = `<span class="titing">${rdata["datos"][ingId]["titulo"]}</span>`;
 
             const span_cant = crearSpanCantidad(cantidad_ing, cantidad_total_global);
-            hacerCantidadEditable(span_cant.querySelector(".cantcing_local"), caminoAca, ingId);
+            hacerCantidadesEditables(span_cant, caminoAca, ingId);
 
             btnExpand.addEventListener("click", function (e) {
                 e.preventDefault();
@@ -989,7 +1012,7 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             span_titulo.innerHTML = `<span class="titing">${rdata["datos"][ingId]["titulo"]}</span>`;
 
             const span_cant = crearSpanCantidad(cantidad_ing, cantidad_total_global);
-            hacerCantidadEditable(span_cant.querySelector(".cantcing_local"), caminoAca, ingId);
+            hacerCantidadesEditables(span_cant, caminoAca, ingId);
 
             span_contenedor.append(span_titulo);
             span_contenedor.append(span_cant);

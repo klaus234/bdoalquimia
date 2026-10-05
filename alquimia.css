@@ -1621,3 +1621,22 @@ input[type="number"].inp_cant_nodo {
 input[type="number"].inp_cant_nodo:focus {
     box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.18);
 }
+
+/* el "(N total)" usa su propio celeste */
+.cantcing_total.cant_editable {
+    border-bottom-color: rgba(125, 217, 255, 0.45);
+}
+
+.cantcing_total.cant_editable:hover {
+    background: rgba(125, 217, 255, 0.14);
+    border-bottom-color: #7dd9ff;
+}
+
+.cantcing_total input[type="number"].inp_cant_nodo {
+    color: #7dd9ff;
+    border-color: #7dd9ff;
+}
+
+.cantcing_total input[type="number"].inp_cant_nodo:focus {
+    box-shadow: 0 0 0 3px rgba(125, 217, 255, 0.18);
+}
