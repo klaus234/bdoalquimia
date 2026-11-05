@@ -20,6 +20,22 @@
     --line: rgba(196, 172, 244, 0.18);
 }
 
+body:has(.aviso_consentimiento[open]) { overflow: hidden; }
+.aviso_consentimiento { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; padding: clamp(20px, 4vw, 30px); border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--bg-1); color: var(--text-0); box-shadow: var(--shadow); }
+.aviso_consentimiento::backdrop { background: rgba(4, 6, 12, 0.8); }
+.aviso_consentimiento h2 { margin: 0 0 18px; font-size: 23px; line-height: 1.25; }
+.aviso_consentimiento h2:focus { outline: none; }
+.aviso_consentimiento p { color: var(--text-1); font-size: 15px; line-height: 1.6; }
+.aviso_consentimiento a { color: var(--accent-2); overflow-wrap: anywhere; }
+.aviso_consentimiento .nota_consentimiento { font-size: 13px; }
+.acciones_consentimiento { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.acciones_consentimiento button { flex: 1 1 120px; min-height: 44px; margin: 0; background: var(--surface-2); color: var(--text-0); border: 1px solid var(--line); box-shadow: none; }
+.acciones_consentimiento button:hover { background: var(--bg-2); border-color: var(--accent-2); }
+.acciones_consentimiento button:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; }
+button.savebtn:disabled, button.estadobtn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+#aviso_almacenamiento_no_disponible { padding: 12px; border: 1px solid var(--accent-3); border-radius: var(--radius-sm); color: var(--accent-3); font-size: 13px; }
+#atribucion_imagenes { margin: 12px 0 0; color: var(--text-1); font-size: 11px; }
+
 * {
     box-sizing: border-box;
 }
@@ -1502,6 +1518,11 @@ input[type="number"].inp_tengo {
 .obtencion summary:focus-visible, #ajustes_generales summary:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 4px; }
 .obtencion p { margin: 10px 0; line-height: 1.5; }
 .obtencion a { display: inline-block; color: var(--accent-2); margin: 0 10px 5px 0; }
+.usos_puro { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.usos_puro ul { margin: 6px 0 0; padding-left: 18px; }
+.usos_puro li { margin: 4px 0; line-height: 1.5; overflow-wrap: anywhere; }
+.usos_puro a { display: inline; margin: 0; }
+.uso_cantidad { color: var(--accent-3); white-space: nowrap; }
 .badge_obtencion { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; font-size: 11px; line-height: 1.4; background: rgba(195, 182, 221, 0.06); }
 .badge_obtencion > span { font-size: 14px; }
 .obtencion_recoleccion, .obtencion_cultivo { color: #a8e9bc; }
@@ -1540,6 +1561,8 @@ input.editar_cantidad_puro {
 .aviso_recalculo_puro:empty { margin: 0; }
 
 #filtros_puros { grid-column: 1 / -1; }
+.opcion_completados { display: flex; align-items: center; gap: 8px; width: fit-content; margin-bottom: 12px; cursor: pointer; color: var(--text-0); font-size: 14px; }
+.opcion_completados input { width: 17px; height: 17px; accent-color: var(--accent-2); }
 #menu_filtro_puros { max-width: 620px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-0); }
 #menu_filtro_puros > summary { cursor: pointer; padding: 12px 14px; color: var(--text-0); font-weight: 700; overflow-wrap: anywhere; }
 #menu_filtro_puros > summary:focus-visible { outline: 2px solid var(--accent-2); border-radius: var(--radius-sm); }
@@ -1639,4 +1662,39 @@ input[type="number"].inp_cant_nodo:focus {
 
 .cantcing_total input[type="number"].inp_cant_nodo:focus {
     box-shadow: 0 0 0 3px rgba(125, 217, 255, 0.18);
+}
+
+/* ---------------------------------------------------------------
+   Íconos de ítems (extimg/, con inicial de respaldo)
+   --------------------------------------------------------------- */
+.icono_item {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    object-fit: contain;
+    vertical-align: middle;
+    background: rgba(8, 5, 16, 0.55);
+}
+
+.icono_vacio {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    background: rgba(195, 182, 221, 0.08);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+#resultbox li .icono_item {
+    margin-right: 8px;
+}
+
+.icono_item.icono_receta {
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
 }

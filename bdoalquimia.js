@@ -95,6 +95,118 @@ function ratioDeReceta(id) {
     return obtenerRatio(grupoDe(id));
 }
 
+/* Las decisiones se recuerdan incluso si se rechaza guardar el seguimiento.
+   Hasta recibir una aceptación explícita, no se usan datos guardados ni imágenes. */
+const CLAVE_CONSENTIMIENTOS = "consentimientos_alquimia";
+const consentimientos = { almacenamiento: null, imagenes: null };
+let almacenamientoDisponible = true;
+
+function puedeGuardar() {
+    return consentimientos.almacenamiento === true && almacenamientoDisponible;
+}
+
+function avisarAlmacenamientoNoDisponible() {
+    almacenamientoDisponible = false;
+    document.getElementById("aviso_almacenamiento_no_disponible").hidden = false;
+    document.querySelectorAll(".savebtn, .estadobtn").forEach(boton => {
+        boton.disabled = true;
+        boton.title = "El navegador no permite guardar los datos.";
+    });
+}
+
+function leerObjetoLocal(clave) {
+    let texto;
+    try {
+        texto = localStorage.getItem(clave);
+    } catch (e) {
+        avisarAlmacenamientoNoDisponible();
+        return {};
+    }
+    try {
+        const datos = JSON.parse(texto);
+        return datos && typeof datos === "object" && !Array.isArray(datos) ? datos : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function escribirObjetoLocal(clave, datos) {
+    try {
+        localStorage.setItem(clave, JSON.stringify(datos));
+        return true;
+    } catch (e) {
+        avisarAlmacenamientoNoDisponible();
+        return false;
+    }
+}
+
+function pedirConsentimiento(id) {
+    const dialogo = document.getElementById(id);
+    return new Promise(resolve => {
+        const cancelar = event => event.preventDefault();
+        const elegir = event => {
+            const boton = event.target.closest("button[data-decision]");
+            if (!boton) return;
+            dialogo.removeEventListener("click", elegir);
+            dialogo.removeEventListener("cancel", cancelar);
+            dialogo.close();
+            resolve(boton.dataset.decision === "aceptar");
+        };
+        dialogo.addEventListener("cancel", cancelar);
+        dialogo.addEventListener("click", elegir);
+        dialogo.showModal();
+        dialogo.querySelector("h2").focus();
+    });
+}
+
+async function iniciarConsentimientos() {
+    const guardados = leerObjetoLocal(CLAVE_CONSENTIMIENTOS);
+    for (const tipo of ["almacenamiento", "imagenes"]) {
+        consentimientos[tipo] = typeof guardados[tipo] === "boolean" ? guardados[tipo] : null;
+    }
+    for (const tipo of ["almacenamiento", "imagenes"]) {
+        if (consentimientos[tipo] === null) {
+            consentimientos[tipo] = await pedirConsentimiento("aviso_" + tipo);
+            escribirObjetoLocal(CLAVE_CONSENTIMIENTOS, consentimientos);
+        }
+    }
+    document.getElementById("atribucion_imagenes").hidden = consentimientos.imagenes !== true;
+}
+
+/* -----------------------------------------------------------------
+   Íconos
+   -----------------------------------------------------------------
+   Salen de bdocodex y se guardan en extimg/<clave>.webp, que no se
+   publica: si el archivo no está, se muestra la inicial del ítem. Las
+   claves que ya fallaron no se vuelven a pedir en cada recálculo.
+   ----------------------------------------------------------------- */
+const iconosFallidos = new Set();
+
+function crearPlaceholderIcono(clave) {
+    const ph = document.createElement("span");
+    ph.className = "icono_item icono_vacio";
+    ph.setAttribute("aria-hidden", "true");
+    ph.textContent = rdata["datos"][clave]["titulo"].charAt(0);
+    return ph;
+}
+
+function crearIcono(clave) {
+    if (consentimientos.imagenes !== true || iconosFallidos.has(clave))
+        return crearPlaceholderIcono(clave);
+    const img = document.createElement("img");
+    img.className = "icono_item";
+    img.src = "extimg/" + clave + ".webp";
+    img.alt = "";
+    img.width = 24;
+    img.height = 24;
+    img.loading = "lazy";
+    img.addEventListener("error", function () {
+        iconosFallidos.add(clave);
+        img.replaceWith(crearPlaceholderIcono(clave));
+    }, { once: true });
+    return img;
+}
+
 function crearBadgeTipo(id) {
     const t = TIPOS[tipoDe(id)];
     const b = document.createElement("span");
@@ -255,6 +367,7 @@ const OBTENCION = {
 const metodosFiltroPuros = new Set();
 const metodosExcluidosPuros = new Set();
 let ocultarFueraFiltro = true;
+let ocultarCompletadosPuros = false;
 
 function coincideFiltroMetodos(metodos) {
     return !metodos.some(tipo => metodosExcluidosPuros.has(tipo)) &&
@@ -319,6 +432,10 @@ function iniciarFiltrosPuros() {
         opciones.append(opcion);
     }
     actualizarBotonesFiltro();
+    document.getElementById("ocultar_completados_puros").addEventListener("change", function () {
+        ocultarCompletadosPuros = this.checked;
+        filtrarIngredientesBase();
+    });
     document.getElementById("ocultar_fuera_filtro").addEventListener("change", function () {
         ocultarFueraFiltro = this.checked;
         filtrarIngredientesBase();
@@ -343,14 +460,42 @@ function crearIconoObtencion(tipo) {
     return badge;
 }
 
-function crearObtencion(clave) {
+function crearUsosPuro(usos) {
+    const porReceta = new Map();
+    for (const uso of usos) {
+        porReceta.set(uso.recetaId, (porReceta.get(uso.recetaId) || 0) + Math.ceil(uso.q * uso.veces));
+    }
+    const seccion = document.createElement("div");
+    seccion.className = "usos_puro";
+    const titulo = document.createElement("strong");
+    titulo.textContent = "Se usa en esta preparación:";
+    const lista = document.createElement("ul");
+    for (const [recetaId, cantidad] of porReceta) {
+        const item = document.createElement("li");
+        const enlace = document.createElement("a");
+        enlace.href = enlaceReceta(recetaId);
+        enlace.target = "_blank";
+        enlace.rel = "noopener noreferrer";
+        enlace.textContent = rdata.datos[recetaId].titulo + " ↗";
+        enlace.title = "Abrir receta en otra pestaña";
+        const total = document.createElement("span");
+        total.className = "uso_cantidad";
+        total.textContent = " · x" + formatearMilesAR(cantidad);
+        item.append(enlace, total);
+        lista.append(item);
+    }
+    seccion.append(titulo, lista);
+    return seccion;
+}
+
+function crearObtencion(clave, usos) {
     const dato = rdata.datos[clave];
     const info = dato.obtencion;
     const detalles = document.createElement("details");
     detalles.className = "obtencion";
     const resumen = document.createElement("summary");
-    resumen.setAttribute("aria-label", "Cómo obtener " + dato.titulo);
-    resumen.title = "Ver métodos de obtención y fuentes de " + dato.titulo;
+    resumen.setAttribute("aria-label", "Ver obtención y recetas de " + dato.titulo);
+    resumen.title = "Ver métodos de obtención, recetas y fuentes de " + dato.titulo;
     if (info && info.metodos.length) {
         for (const tipo of info.metodos) resumen.append(crearIconoObtencion(tipo));
     } else {
@@ -358,7 +503,7 @@ function crearObtencion(clave) {
     }
     const texto = document.createElement("p");
     texto.textContent = info ? info.detalle : "Todavía no hay métodos verificados para este ingrediente.";
-    detalles.append(resumen, texto);
+    detalles.append(resumen, crearUsosPuro(usos), texto);
     if (info) {
         for (const fuente of info.fuentes) {
             const enlace = document.createElement("a");
@@ -390,6 +535,7 @@ function cambiarVistaBase(vista) {
 function filtrarIngredientesPuros(texto) {
     const items = document.querySelectorAll("#ingredientes_puros .ingrediente_puro");
     let coincidentes = 0;
+    let completadosOcultos = 0;
     const criterios = [
         ...Array.from(metodosFiltroPuros, tipo => "+ " + OBTENCION[tipo].label),
         ...Array.from(metodosExcluidosPuros, tipo => "NO " + OBTENCION[tipo].label)
@@ -404,14 +550,19 @@ function filtrarIngredientesPuros(texto) {
         const metodos = rdata.datos[item.bdoclave].obtencion?.metodos || [];
         const coincideMetodo = coincideFiltroMetodos(metodos);
         const coincide = coincideNombre && coincideMetodo;
-        if (coincide) coincidentes++;
-        item.style.display = !coincide && ocultarFueraFiltro ? "none" : "";
+        const ocultoCompletado = ocultarCompletadosPuros && item.classList.contains("completado");
+        if (ocultoCompletado) completadosOcultos++;
+        if (coincide && !ocultoCompletado) coincidentes++;
+        item.style.display = ocultoCompletado || (!coincide && ocultarFueraFiltro) ? "none" : "";
         item.classList.toggle("fuera_filtro", !coincide && !ocultarFueraFiltro);
         item.querySelector(".marca_fuera_filtro").hidden = coincide || ocultarFueraFiltro;
     });
     document.getElementById("resultado_filtro_puros").textContent = items.length
         ? coincidentes + " de " + items.length + " ingredientes coinciden." +
-            (coincidentes === 0 ? " Cambiá los métodos o la búsqueda para encontrar ingredientes." : "")
+            (completadosOcultos > 0 ? " " + completadosOcultos + " completados ocultos." : "") +
+            (completadosOcultos === items.length
+                ? " Todos los ingredientes están completos. Destildá «Ocultar completados» para verlos."
+                : coincidentes === 0 ? " Cambiá los métodos o la búsqueda para encontrar ingredientes." : "")
         : "";
 }
 
@@ -668,6 +819,7 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         span_titulo.className = "ing_titulo_ingrediente";
         span_titulo.innerHTML = `<span class="titing">${rdata["datos"][k]["titulo"]}</span>`;
 
+        span_contenedor.append(crearIcono(k));
         span_contenedor.append(span_titulo);
         span_contenedor.append(crearCantidadPuro(k, necesario));
         li.append(span_contenedor);
@@ -689,7 +841,7 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         tengoWrap.append(inpTengo);
         tengoWrap.append(nec);
         li.append(tengoWrap);
-        li.append(crearObtencion(k));
+        li.append(crearObtencion(k, usosGlobales[k] || []));
         const marcaFiltro = document.createElement("span");
         marcaFiltro.className = "marca_fuera_filtro";
         marcaFiltro.textContent = "Fuera del filtro";
@@ -746,7 +898,7 @@ function generarListaIngredientes() {
     ulpuros.append(ayudaEdicion, avisoRecalculo);
     const ayudaObtencion = document.createElement("li");
     ayudaObtencion.className = "ayuda_obtencion";
-    ayudaObtencion.textContent = "Cómo conseguirlos · Tocá los íconos para ver detalles y fuentes. Pueden tener varios métodos. Mercado = compra a otros jugadores, según disponibilidad. Los métodos corresponden al ítem indicado; los sustitutos pueden variar.";
+    ayudaObtencion.textContent = "Tocá los íconos para ver en qué recetas de esta preparación se usa cada ingrediente, cómo conseguirlo y sus fuentes. Pueden tener varios métodos. Mercado = compra a otros jugadores, según disponibilidad. Los métodos corresponden al ítem indicado; los sustitutos pueden variar.";
     ulpuros.append(ayudaObtencion);
     ulpuros.append(puros.ul);
     actualizarProgresoPuros();
@@ -787,7 +939,7 @@ function elaboracionesNecesarias(recetaId, cantidad, nivel) {
     return Math.ceil(cantidad / ratioDeReceta(recetaId));
 }
 
-/* Además del total, anota cada "uso": cuántas unidades pide la receta por
+/* Además del total, anota cada "uso": qué receta lo pide, cuántas unidades por
    elaboración y cuántas veces se elabora. Un mismo ingrediente puede entrar
    por varias ramas con cantidades distintas, y los sustitutos de grupo se
    calculan por elaboración, no sobre el total. */
@@ -806,7 +958,7 @@ function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales, usosGl
 
         if (usosGlobales != undefined) {
             if (!usosGlobales[ingId]) usosGlobales[ingId] = [];
-            usosGlobales[ingId].push({ "q": porElaboracion, "veces": veces });
+            usosGlobales[ingId].push({ "recetaId": recetaId, "q": porElaboracion, "veces": veces });
         }
 
         if (esReceta(ingId)) {
@@ -996,6 +1148,7 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             });
 
             span_contenedor.append(btnExpand);
+            span_contenedor.append(crearIcono(ingId));
             span_contenedor.append(span_titulo);
             span_contenedor.append(span_cant);
             span_contenedor.append(crearBadgeTipo(ingId));
@@ -1014,6 +1167,7 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             const span_cant = crearSpanCantidad(cantidad_ing, cantidad_total_global);
             hacerCantidadesEditables(span_cant, caminoAca, ingId);
 
+            span_contenedor.append(crearIcono(ingId));
             span_contenedor.append(span_titulo);
             span_contenedor.append(span_cant);
             li.append(span_contenedor);
@@ -1216,13 +1370,11 @@ function updatePeso() {
 }
 
 function guardarPreferencias() {
+    if (!puedeGuardar()) return;
     const ratio = document.getElementById("ratio");
     const ratio_proc = document.getElementById("ratio_proc");
     const pesomax = document.getElementById("pesomax").value;
     const mipeso = document.getElementById("mipeso").value;
-    this.disabled = true;
-    this.style = "opacity: 0.5;"
-    this.innerText = "Guardando...";
     const dictSave =
     {
         "ratio": ratio != null ? ratio.value : "2.5",
@@ -1230,14 +1382,15 @@ function guardarPreferencias() {
         "pesomax": pesomax,
         "mipeso": mipeso
     }
-    localStorage.setItem("preferencias_alquimia", JSON.stringify(dictSave));
-    setTimeout(function () { this.disabled = false; this.style = ""; this.innerText = "Guardar preferencias" }.bind(this), 300);
+    if (!escribirObjetoLocal("preferencias_alquimia", dictSave)) return;
+    this.disabled = true;
+    this.style = "opacity: 0.5;";
+    this.innerText = "Guardando...";
+    setTimeout(function () { this.disabled = !puedeGuardar(); this.style = ""; this.innerText = "Guardar preferencias" }.bind(this), 300);
 }
 
 function leerPreferencias() {
-    const p = localStorage.getItem("preferencias_alquimia");
-    if (p == null || p == "") return {};
-    try { return JSON.parse(p); } catch (e) { return {}; }
+    return puedeGuardar() ? leerObjetoLocal("preferencias_alquimia") : {};
 }
 
 /* -----------------------------------------------------------------
@@ -1325,13 +1478,12 @@ function refrescarAvance(clave) {
         if (clave == undefined || c["clave"] === clave) pintarAvance(c);
     }
     actualizarProgresoPuros();
+    filtrarIngredientesPuros(document.getElementById("buscador_ingredientes").value.toLowerCase());
 }
 
 
 function leerEstados() {
-    const p = localStorage.getItem(CLAVE_ESTADO);
-    if (p == null || p == "") return {};
-    try { return JSON.parse(p) || {}; } catch (e) { return {}; }
+    return puedeGuardar() ? leerObjetoLocal(CLAVE_ESTADO) : {};
 }
 
 function valorDe(id) {
@@ -1345,6 +1497,7 @@ function ponerValor(id, valor) {
 }
 
 function guardarEstado() {
+    if (!puedeGuardar()) return;
     const est = {
         "v": 1,
         "fecha": Date.now(),
@@ -1379,20 +1532,21 @@ function guardarEstado() {
 
     const todos = leerEstados();
     todos[currentingrediente] = est;
-    localStorage.setItem(CLAVE_ESTADO, JSON.stringify(todos));
+    if (!escribirObjetoLocal(CLAVE_ESTADO, todos)) return;
 
     this.disabled = true;
     this.style = "opacity: 0.5;";
     this.innerText = "Guardando...";
     setTimeout(function () {
-        this.disabled = false; this.style = ""; this.innerText = "Guardar estado";
+        this.disabled = !puedeGuardar(); this.style = ""; this.innerText = "Guardar estado";
     }.bind(this), 300);
 }
 
 function borrarEstado(recetaId) {
+    if (!puedeGuardar()) return;
     const todos = leerEstados();
     delete todos[recetaId];
-    localStorage.setItem(CLAVE_ESTADO, JSON.stringify(todos));
+    escribirObjetoLocal(CLAVE_ESTADO, todos);
 }
 
 function fechaCorta(ms) {
@@ -1485,6 +1639,9 @@ function construirCabecera(id) {
     const nombre = document.createElement("span");
     nombre.className = "nombre_receta";
     nombre.innerText = rdata["datos"][id]["titulo"];
+    const icono = crearIcono(id);
+    icono.classList.add("icono_receta");
+    cab.append(icono);
     cab.append(nombre);
     cab.append(crearBadgeTipo(id));
 
@@ -1638,6 +1795,7 @@ function setAndLoad() {
            de cantidad se vayan a una línea nueva. */
         let cabeza = document.createElement("span");
         cabeza.className = "ing_cabeza";
+        cabeza.append(crearIcono(ird));
         cabeza.append(spantitle);
         if (isLink)
             cabeza.append(crearBadgeTipo(ird));
@@ -1734,6 +1892,11 @@ function setAndLoad() {
     botonsave.classList.add("savebtn");
     botonsave.title = "Ratios y peso, para todas las recetas";
     botonsave.onclick = guardarPreferencias;
+    botonsave.disabled = !puedeGuardar();
+    if (botonsave.disabled) {
+        botonsave.title = "Guardado deshabilitado: no se autorizó el almacenamiento o no está disponible.";
+        ayudaAjustes.textContent = "Podés ajustar ratios y peso durante esta visita. El guardado de preferencias está deshabilitado.";
+    }
 
     /* el avance de ESTA receta, aparte de las preferencias generales */
     let botonestado = document.createElement("button");
@@ -1741,6 +1904,9 @@ function setAndLoad() {
     botonestado.classList.add("estadobtn");
     botonestado.title = "Cantidad, precios, calidades y lo ya conseguido de esta receta";
     botonestado.onclick = guardarEstado;
+    botonestado.disabled = !puedeGuardar();
+    if (botonestado.disabled)
+        botonestado.title = botonsave.title;
 
     boton.innerText = "Calcular Ingredientes";
     boton.addEventListener("click", generarListaIngredientes);
@@ -1760,7 +1926,9 @@ function setAndLoad() {
     tituloEstado.textContent = "Avance de esta receta";
     const detalleEstado = document.createElement("p");
     detalleEstado.className = "ayuda_guardado";
-    detalleEstado.textContent = "Guardá cantidades, precios, calidades e ingredientes conseguidos. Se restaura al volver a abrirla.";
+    detalleEstado.textContent = puedeGuardar()
+        ? "Guardá cantidades, precios, calidades e ingredientes conseguidos. Se restaura al volver a abrirla."
+        : "El guardado está deshabilitado. Podés llevar el seguimiento durante esta visita; no se restaurará al volver.";
     ayudaEstado.append(tituloEstado, detalleEstado);
     avance.append(ayudaEstado, botonestado);
 
@@ -2277,6 +2445,7 @@ function crearItemLista(k, contador) {
     nli.id = k;
     nli.contador = contador;
     nli.innerText = rdata["datos"][k]["titulo"];
+    nli.prepend(crearIcono(k));
     nli.append(crearBadgeTipo(k));
     nli.addEventListener("click", setAndLoad);
     nli.addEventListener("mouseover", seleccionarItem);
@@ -2285,7 +2454,8 @@ function crearItemLista(k, contador) {
 
 let ratioget;
 let ratioprocget;
-window.addEventListener("load", function () {
+window.addEventListener("load", async function () {
+    await iniciarConsentimientos();
     const buscador = document.getElementById("buscador");
     const lista_recetas = document.getElementById("lista_recetas");
     let idresget = findGetParameter("id");
@@ -2319,9 +2489,11 @@ window.addEventListener("load", function () {
                 tempObj.setAndLoad = setAndLoad;
                 tempObj.setAndLoad();
             }
+            buscador.disabled = false;
         });
 
     buscador.addEventListener("input", function () {
+        if (!rdata) return;
         lista_recetas.style = "display: block";
         let v = normalizarBusqueda(this.value);
         modoseleccion = true;
@@ -2351,6 +2523,7 @@ window.addEventListener("load", function () {
 });
 
 window.onpopstate = function (event) {
+    if (!rdata) return;
     let idresget = findGetParameter("id");
     if (idresget == null || rdata["datos"][idresget] == undefined) return;
     let tempObj = { "id": idresget };

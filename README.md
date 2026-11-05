@@ -30,6 +30,20 @@ Los métodos corresponden al ingrediente mostrado, no a todos sus sustitutos.
 «Guardar estado» está junto a la lista de ingredientes y conserva el avance de
 cada receta. Los datos existentes en el almacenamiento local siguen siendo compatibles.
 
+Al entrar por primera vez se muestran dos avisos independientes, con «Aceptar»
+y «Rechazar». El primero autoriza el almacenamiento de preferencias y del
+seguimiento: al rechazarlo, no se leen ni restauran esos datos y se deshabilitan
+ambos botones de guardado. El seguimiento sigue disponible durante la visita.
+El segundo permite mostrar los íconos de Black Desert: solo se cargan al
+aceptarlo; al rechazarlo, se muestran iniciales. Incluye la atribución a Pearl
+Abyss y un enlace a su política de contenido de fans.
+
+Ambas decisiones, incluso los rechazos, se recuerdan por separado en
+`localStorage` → `consentimientos_alquimia`. Esta es la única información que
+se guarda al rechazar el almacenamiento del seguimiento. Los avisos no vuelven
+a aparecer mientras el navegador conserve las decisiones. Si el almacenamiento
+está bloqueado, se informa y se continúa durante la visita sin guardado.
+
 Doble clic en la cantidad amarilla de un ingrediente puro permite ajustar toda
 la receta a esa cantidad disponible. Enter o salir del campo aplica; Escape
 cancela. También se puede abrir el editor con Tab y Enter. Se calculan las
@@ -52,7 +66,16 @@ ocultar y atenuar los ingredientes fuera del filtro, combinando los métodos
 con la búsqueda por nombre. La selección se mantiene al recalcular y cambiar
 de pestaña durante la sesión; no modifica cantidades ni el progreso global.
 
+«Ocultar completados», junto al filtro de Ingredientes puros, oculta los que ya
+tenés completos y se actualiza al marcar el avance o recalcular cantidades.
+Se combina con los demás filtros y mantiene la selección durante la
+sesión. El progreso sigue contando todos los ingredientes.
+Al desplegar los detalles de un ingrediente puro se muestran las recetas de la
+preparación actual que lo usan, con la cantidad destinada a cada una. Si una
+receta aparece en varias ramas, sus cantidades se suman respetando los redondeos.
+
 Pruebas de catálogo y cálculos: `node --test tests/recetas.test.cjs`.
 Pruebas de navegador: `node tests/interfaz.cjs` (requiere Playwright y Chromium).
+Pruebas de los avisos y decisiones: `node tests/consentimientos.cjs`.
 Se pueden configurar `PLAYWRIGHT_MODULE`, `CHROME_PATH` y `SCREENSHOT_DIR` para
 usar una instalación existente y guardar capturas de escritorio/móvil.
