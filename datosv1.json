@@ -103,7 +103,16 @@
             }
         },
         "elixirdedeliriosinfin": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/mrecipe/1091/",
+            "ing": {
+                "elixirdedelirio": "3",
+                "reactivodeliquidoazul": "1"
+            }
+        },
+        "elixirdedelirio": {
             "tipo": "alquimia",
+            "fuente": "https://bdocodex.com/sp/item/672/",
             "ing": {
                 "aceitederegeneracion": "1",
                 "reactivodeliquidoclaro": "5",
@@ -696,6 +705,12 @@
         },
         "elixirdedeliriosinfin": {
             "titulo": "Elixir de Delirio sin Fin",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "elixirdedelirio": {
+            "titulo": "Elixir de Delirio",
             "peso": "0.20",
             "plata": "0",
             "nomejorable": true,

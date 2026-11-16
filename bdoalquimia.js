@@ -724,10 +724,9 @@ function crearCantidadPuro(clave, necesario) {
     const editar = function () {
         if (contenedor.querySelector("input")) return;
         const input = document.createElement("input");
-        input.type = "text";
-        input.inputMode = "numeric";
         input.className = "editar_cantidad_puro";
-        input.value = necesario;
+        prepararInputMiles(input);
+        input.value = formatearMilesAR(necesario);
         input.setAttribute("aria-label", "Cantidad para recalcular con " + rdata.datos[clave].titulo);
         input.title = "Enter o salir del campo: aplicar. Escape: cancelar. Se usan elaboraciones completas.";
         boton.hidden = true;
@@ -828,18 +827,23 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         tengoWrap.className = "tengo_wrap";
 
         const inpTengo = document.createElement("input");
-        inpTengo.type = "number";
         inpTengo.className = "inp_tengo";
-        inpTengo.min = 0;
-        /* sin flechitas: acá se escribe el número a mano */
+        /* con puntos de miles; sin flechitas: acá se escribe el número a mano */
+        prepararInputMiles(inpTengo);
         inpTengo.bdospinner = true;
 
         const nec = document.createElement("span");
         nec.className = "nec_txt";
         nec.innerText = "/ " + formatearMilesAR(necesario);
 
+        /* lo que queda por juntar; pintarAvance lo mantiene al día */
+        const falta = document.createElement("span");
+        falta.className = "falta_txt";
+        falta.setAttribute("aria-live", "polite");
+
         tengoWrap.append(inpTengo);
         tengoWrap.append(nec);
+        tengoWrap.append(falta);
         li.append(tengoWrap);
         li.append(crearObtencion(k, usosGlobales[k] || []));
         const marcaFiltro = document.createElement("span");
@@ -909,6 +913,39 @@ function generarListaIngredientes() {
 function formatearMilesAR(numero) {
     const valor = Math.floor(Number(numero) || 0);
     return valor.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/* Lee un entero de un input con separador de miles ("1.234" -> 1234). */
+function enteroDeTexto(texto) {
+    const n = parseInt(String(texto).replace(/\D/g, ""), 10);
+    return isFinite(n) ? n : 0;
+}
+
+/* Reescribe el valor de un input de texto con puntos de miles mientras se
+   escribe, sin que el cursor salte al final: se cuenta cuántos dígitos había
+   antes del cursor y se lo vuelve a poner después del mismo dígito. */
+function formatearInputMiles(inp) {
+    const pos = inp.selectionStart == null ? inp.value.length : inp.selectionStart;
+    const digitosAntes = inp.value.slice(0, pos).replace(/\D/g, "").length;
+    const digitos = inp.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+    const nuevo = digitos.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    if (nuevo === inp.value) return;
+    inp.value = nuevo;
+    if (document.activeElement !== inp) return;
+    let i = 0;
+    for (let vistos = 0; i < nuevo.length && vistos < digitosAntes; i++)
+        if (nuevo[i] !== ".") vistos++;
+    inp.setSelectionRange(i, i);
+}
+
+/* Input de texto para cantidades enteras con separador de miles. Se usa
+   texto y no type=number porque éste no acepta los puntos. */
+function prepararInputMiles(inp) {
+    inp.type = "text";
+    inp.inputMode = "numeric";
+    inp.autocomplete = "off";
+    inp.spellcheck = false;
+    inp.addEventListener("input", function () { formatearInputMiles(inp); });
 }
 
 function crearSpanCantidad(cantidadLocal, cantidadTotalGlobal) {
@@ -1054,10 +1091,9 @@ function hacerCantidadEditable(spanLocal, cantidadPara, titulo) {
         spanLocal.textContent = "";
 
         const inp = document.createElement("input");
-        inp.type = "number";
         inp.className = "inp_cant_nodo";
-        inp.min = 1;
-        inp.value = actual;
+        prepararInputMiles(inp);
+        inp.value = formatearMilesAR(actual);
         inp.bdospinner = true;
         spanLocal.append(inp);
         inp.focus();
@@ -1072,8 +1108,8 @@ function hacerCantidadEditable(spanLocal, cantidadPara, titulo) {
         const confirmar = function () {
             if (cerrado) return;
             cerrado = true;
-            const n = parseInt(inp.value, 10);
-            if (!isFinite(n) || n <= 0 || n === actual) { spanLocal.textContent = previo; return; }
+            const n = enteroDeTexto(inp.value);
+            if (n <= 0 || n === actual) { spanLocal.textContent = previo; return; }
             aplicarCantidadNodo(cantidadPara, n);
         };
 
@@ -1445,11 +1481,11 @@ function registrarAvance(clave, necesario, destino, chk, inp) {
     });
 
     inp.addEventListener("input", function () {
-        let n = parseInt(this.value, 10);
-        if (!isFinite(n) || n < 0) n = 0;
-        tenidos[clave] = n;
+        tenidos[clave] = enteroDeTexto(this.value);
         refrescarAvance(clave);
     });
+    /* al salir, un campo vacío vuelve a mostrar 0 */
+    inp.addEventListener("blur", function () { pintarAvance(ctrl); });
 
     controlesAvance.push(ctrl);
     pintarAvance(ctrl);
@@ -1462,10 +1498,19 @@ function pintarAvance(c) {
 
     c["chk"].checked = completo;
     /* no pisar el número mientras lo estás escribiendo */
-    if (document.activeElement !== c["inp"]) c["inp"].value = tengo;
+    if (document.activeElement !== c["inp"]) c["inp"].value = formatearMilesAR(tengo);
 
     const falta = Math.max(0, c["necesario"] - tengo);
     c["inp"].title = falta > 0 ? "Faltan " + formatearMilesAR(falta) : "Completo";
+
+    const txtFalta = c["destino"] != null ? c["destino"].querySelector(".falta_txt") : null;
+    if (txtFalta != null) {
+        const sobra = tengo - c["necesario"];
+        txtFalta.textContent = falta > 0
+            ? "Faltan " + formatearMilesAR(falta)
+            : (sobra > 0 ? "✓ Completo · sobran " + formatearMilesAR(sobra) : "✓ Completo");
+        txtFalta.classList.toggle("ok", falta === 0);
+    }
 
     if (c["destino"] != null) {
         c["destino"].classList.toggle("completado", completo);
@@ -1594,7 +1639,9 @@ function aplicarEstado(est) {
     }
 
     const pre = est["precios"] || {};
-    for (let ing in pre) ponerValor("inpplata_" + ing, pre[ing]);
+    for (let ing in pre)
+        if (pre[ing] !== "" && pre[ing] != null)
+            ponerValor("inpplata_" + ing, formatearMilesAR(enteroDeTexto(pre[ing])));
 
     for (let ing of (est["gastos"] || [])) {
         const b = document.getElementById("actplata_" + ing);
@@ -1722,6 +1769,12 @@ function setAndLoad() {
         spancash.innerText = "$";
         spancash.id = "actplata_" + ird;
         spancash.bdoing = ird;
+        spancash.tabIndex = 0;
+        spancash.setAttribute("role", "button");
+        spancash.title = "Sumar este ingrediente al gasto";
+        spancash.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.click(); }
+        });
 
         spancash.addEventListener("click", function () {
             if (!gastoIngCalculados[this.bdoing]) {
@@ -1742,28 +1795,31 @@ function setAndLoad() {
 
         let inputplata = document.createElement("input");
         inputplata.id = "inpplata_" + ird;
-        inputplata.value = rdata["datos"][ird]["plata"];
-        inputplata.addEventListener("input", function () {
-            const original = this.value.replace(/\./g, "");
-            this.value = original.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            recalcularTodo();
-        });
+        inputplata.className = "inp_plata";
+        prepararInputMiles(inputplata);
+        inputplata.value = formatearMilesAR(rdata["datos"][ird]["plata"]);
+        inputplata.setAttribute("aria-label", "Precio unitario de " + rdata["datos"][ird]["titulo"]);
+        inputplata.addEventListener("input", recalcularTodo);
 
         spanplatainput.append(inputplata);
 
-        let spanbotonplata = document.createElement("span");
-        spanbotonplata.innerText = "+";
-        spanbotonplata.ingid = ird;
+        /* botón de verdad (y no un span con un "+") para que el área de clic
+           sea cómoda y se pueda usar con teclado */
+        let spanbotonplata = document.createElement("button");
+        spanbotonplata.type = "button";
+        spanbotonplata.className = "btn_plata";
+        spanbotonplata.textContent = "+";
+        spanbotonplata.title = "Editar precio unitario";
+        spanbotonplata.setAttribute("aria-expanded", "false");
+        spanbotonplata.setAttribute("aria-controls", "expplata_" + ird);
         spanbotonplata.addEventListener("click", function () {
-            const spaninput = document.getElementById("expplata_" + this.ingid);
-            if (this.innerText == "+")
-                this.innerText = " - ";
-            else
-                this.innerText = " + ";
-            if (spaninput.className == "oculto")
-                spaninput.className = "normal";
-            else
-                spaninput.className = "oculto";
+            const abrir = spanplatainput.classList.contains("oculto");
+            spanplatainput.className = abrir ? "normal" : "oculto";
+            this.textContent = abrir ? "−" : "+";
+            this.title = abrir ? "Ocultar precio" : "Editar precio unitario";
+            this.setAttribute("aria-expanded", String(abrir));
+            lix.classList.toggle("plata_abierta", abrir);
+            if (abrir) { inputplata.focus(); inputplata.select(); }
         });
 
         spanmas.append(spanplatainput);
