@@ -207,6 +207,58 @@ function crearIcono(clave) {
     return img;
 }
 
+function iniciarVistaIcono() {
+    const vista = document.getElementById("vista_icono");
+    let activo = null;
+    const ocultar = () => {
+        activo = null;
+        vista.hidden = true;
+    };
+
+    const posicionar = () => {
+        if (vista.hidden) return;
+        if (!activo.matches(":hover")) {
+            ocultar();
+            return;
+        }
+        const margen = 8;
+        const rect = activo.getBoundingClientRect();
+        const ancho = vista.offsetWidth;
+        const alto = vista.offsetHeight;
+        const { clientWidth, clientHeight } = document.documentElement;
+        const centro = rect.left + (rect.width - ancho) / 2;
+        const debajo = rect.bottom + margen;
+        const arriba = rect.top - alto - margen;
+        vista.style.left = Math.max(margen, Math.min(centro, clientWidth - ancho - margen)) + "px";
+        vista.style.top = Math.max(margen, debajo + alto + margen <= clientHeight ? debajo : arriba) + "px";
+    };
+
+    const mostrar = () => {
+        if (!activo.naturalWidth) return;
+        vista.src = activo.currentSrc;
+        vista.hidden = false;
+        posicionar();
+    };
+
+    document.addEventListener("pointerover", function (e) {
+        if (e.pointerType === "touch" || !e.target.matches("img.icono_item")) return;
+        activo = e.target;
+        mostrar();
+    });
+
+    document.addEventListener("pointerout", function (e) {
+        if (e.target === activo) ocultar();
+    });
+    document.addEventListener("load", function (e) {
+        if (e.target === activo) mostrar();
+    }, true);
+    document.addEventListener("scroll", posicionar, { capture: true, passive: true });
+    window.addEventListener("resize", posicionar);
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") ocultar();
+    });
+}
+
 function crearBadgeTipo(id) {
     const t = TIPOS[tipoDe(id)];
     const b = document.createElement("span");
@@ -286,7 +338,7 @@ function llenarPanelGrupo(panel) {
 
         const cant = document.createElement("span");
         cant.className = "mg_cant";
-        cant.innerText = "x" + formatearMilesAR(unidadesSustituto(usos, propio["v"], m["v"]));
+        pintarCantidad(cant, unidadesSustituto(usos, propio["v"], m["v"]));
         cant.title = m["v"] > propio["v"]
             ? "Vale " + m["v"] + ": cubre una elaboración entera y lo que sobra se pierde"
             : "Vale " + m["v"];
@@ -480,7 +532,9 @@ function crearUsosPuro(usos) {
         enlace.title = "Abrir receta en otra pestaña";
         const total = document.createElement("span");
         total.className = "uso_cantidad";
-        total.textContent = " · x" + formatearMilesAR(cantidad);
+        const badge = document.createElement("span");
+        pintarCantidad(badge, cantidad);
+        total.append(" · ", badge);
         item.append(enlace, total);
         lista.append(item);
     }
@@ -717,7 +771,7 @@ function crearCantidadPuro(clave, necesario) {
     const boton = document.createElement("button");
     boton.type = "button";
     boton.className = "cantcing_local cantidad_puro_editable";
-    boton.textContent = "x" + formatearMilesAR(necesario);
+    pintarCantidad(boton, necesario);
     boton.title = "Doble clic para ajustar toda la receta usando esta cantidad";
     boton.setAttribute("aria-label", "Ajustar receta según " + rdata.datos[clave].titulo + ": " + necesario);
     contenedor.append(boton);
@@ -948,13 +1002,19 @@ function prepararInputMiles(inp) {
     inp.addEventListener("input", function () { formatearInputMiles(inp); });
 }
 
+function pintarCantidad(elemento, cantidad) {
+    elemento.classList.add("badge_cantidad");
+    elemento.dataset.cantidad = cantidad;
+    elemento.textContent = "x" + formatearMilesAR(cantidad);
+}
+
 function crearSpanCantidad(cantidadLocal, cantidadTotalGlobal) {
     const spanCant = document.createElement("span");
     spanCant.className = "cantcing";
 
     const spanLocal = document.createElement("span");
     spanLocal.className = "cantcing_local";
-    spanLocal.textContent = "x" + formatearMilesAR(cantidadLocal);
+    pintarCantidad(spanLocal, cantidadLocal);
     spanCant.append(spanLocal);
 
     if (cantidadTotalGlobal > cantidadLocal) {
@@ -1352,7 +1412,7 @@ function seleccionarCaja() {
         const titulospan = document.getElementById("titulo_" + datos[1]);
 
         const inputx = document.getElementById(datos[1] + "_cant");
-        titulospan.innerText = rdata["datos"][datos[1]]["titulo"] + " x" + Math.ceil(inputx.bdocant / calidad_ing[calidades[datos[2]]]);
+        pintarCantidad(titulospan.querySelector(".badge_cantidad"), Math.ceil(inputx.bdocant / calidad_ing[calidades[datos[2]]]));
         document.getElementById(datos[1] + "_cant").bdogrado = datos[2];
         const e = new Event("input");
         inputx.dispatchEvent(e);
@@ -1833,7 +1893,9 @@ function setAndLoad() {
         let tipoing = isLink ? "a" : "span";
 
         let spantitle = document.createElement(tipoing);
-        spantitle.innerText = rdata["datos"][ird]["titulo"] + " x" + ingredientes[ird] + " "
+        const badgeCantidad = document.createElement("span");
+        pintarCantidad(badgeCantidad, ingredientes[ird]);
+        spantitle.append(rdata["datos"][ird]["titulo"] + " ", badgeCantidad);
         spantitle.className = "titulo";
         spantitle.id = "titulo_" + ird;
         if (isLink) {
@@ -2511,6 +2573,7 @@ function crearItemLista(k, contador) {
 let ratioget;
 let ratioprocget;
 window.addEventListener("load", async function () {
+    iniciarVistaIcono();
     await iniciarConsentimientos();
     const buscador = document.getElementById("buscador");
     const lista_recetas = document.getElementById("lista_recetas");

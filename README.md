@@ -44,14 +44,14 @@ se guarda al rechazar el almacenamiento del seguimiento. Los avisos no vuelven
 a aparecer mientras el navegador conserve las decisiones. Si el almacenamiento
 está bloqueado, se informa y se continúa durante la visita sin guardado.
 
-Doble clic en la cantidad amarilla de un ingrediente puro permite ajustar toda
+Doble clic en la cantidad (`x…`) de un ingrediente puro permite ajustar toda
 la receta a esa cantidad disponible. Enter o salir del campo aplica; Escape
 cancela. También se puede abrir el editor con Tab y Enter. Se calculan las
 máximas elaboraciones completas posibles respetando los redondeos de cada
 subreceta, y se conservan las cantidades ya conseguidas. Se aceptan enteros
 como `1000` o `1.000`; si sobra material, se informa cuánto se utilizará.
 
-En el Árbol de ingredientes, doble clic en la cantidad amarilla (`x…`) de un
+En el Árbol de ingredientes, doble clic en la cantidad (`x…`) de un
 nodo ajusta la receta para que esa rama llegue al número indicado. Doble clic
 en el `(… total)` celeste hace lo mismo con el total del ingrediente, sumando
 todas las ramas. En los dos casos se usa la menor cantidad de elaboraciones que

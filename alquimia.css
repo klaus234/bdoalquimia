@@ -577,9 +577,22 @@ button.btn_plata:focus-visible,
     white-space: nowrap;
 }
 
-.cantcing_local {
-    color: #ffd166;
+.badge_cantidad {
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 5px;
+    background: var(--fondo-cantidad, #39334d);
+    color: var(--texto-cantidad, #e5def6);
+    font-weight: 800;
+    line-height: 1.15;
+    white-space: nowrap;
 }
+
+.badge_cantidad[data-cantidad="1"] { --fondo-cantidad: #1b473d; --texto-cantidad: #a7f3d0; }
+.badge_cantidad[data-cantidad="2"] { --fondo-cantidad: #203f5f; --texto-cantidad: #b6e2ff; }
+.badge_cantidad[data-cantidad="3"] { --fondo-cantidad: #554018; --texto-cantidad: #ffe198; }
+.badge_cantidad[data-cantidad="4"] { --fondo-cantidad: #492d67; --texto-cantidad: #e6caff; }
+.badge_cantidad[data-cantidad="5"] { --fondo-cantidad: #612e46; --texto-cantidad: #ffc5d8; }
 
 .cantcing_total {
     color: #7dd9ff;
@@ -792,7 +805,7 @@ button.btn_plata:focus-visible,
         font-size: 23px;
     }
 
-    img {
+    #contenido img {
         width: 38px !important;
         height: 38px !important;
     }
@@ -1138,12 +1151,6 @@ button.btn_plata:focus-visible,
 .panel_grupo li.propio .mg_nombre {
     color: #c9fbe6;
     font-weight: 700;
-}
-
-.mg_cant {
-    font-weight: 800;
-    color: var(--accent-3);
-    white-space: nowrap;
 }
 
 /* ---------------------------------------------------------------
@@ -1501,7 +1508,7 @@ input[type="number"]::-webkit-inner-spin-button {
     grid-template-columns: auto auto;
     align-items: center;
     column-gap: 6px;
-    row-gap: 3px;
+    row-gap: 8px;
     flex: 0 0 auto;
 }
 
@@ -1636,7 +1643,7 @@ input.inp_tengo {
 .usos_puro ul { margin: 6px 0 0; padding-left: 18px; }
 .usos_puro li { margin: 4px 0; line-height: 1.5; overflow-wrap: anywhere; }
 .usos_puro a { display: inline; margin: 0; }
-.uso_cantidad { color: var(--accent-3); white-space: nowrap; }
+.uso_cantidad { white-space: nowrap; }
 .badge_obtencion { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; font-size: 11px; line-height: 1.4; background: rgba(195, 182, 221, 0.06); }
 .badge_obtencion > span { font-size: 14px; }
 .obtencion_recoleccion, .obtencion_cultivo { color: #a8e9bc; }
@@ -1647,18 +1654,14 @@ input.inp_tengo {
 button.cantidad_puro_editable {
     width: auto;
     min-width: 32px;
-    padding: 3px 4px;
-    background: transparent;
-    color: var(--accent-3);
-    font: inherit;
-    font-weight: 700;
+    font-family: inherit;
+    font-size: inherit;
     box-shadow: none;
-    border-radius: 5px;
     cursor: text;
     touch-action: manipulation;
 }
-button.cantidad_puro_editable:hover { background: rgba(255, 209, 102, 0.12); transform: none; }
-button.cantidad_puro_editable:focus-visible { outline: 2px solid var(--accent-3); }
+button.cantidad_puro_editable:hover { transform: none; }
+button.cantidad_puro_editable:focus-visible { outline: 2px solid currentColor; }
 button.cantidad_puro_editable[hidden] { display: none; }
 input.editar_cantidad_puro {
     width: 7em;
@@ -1732,15 +1735,12 @@ a.ing_titulo_receta:hover .titing {
 
 .cant_editable {
     cursor: text;
-    border-radius: 5px;
-    padding: 0 3px;
-    border-bottom: 1px dashed rgba(255, 209, 102, 0.45);
+    border-bottom: 1px dashed color-mix(in srgb, currentColor 45%, transparent);
     transition: background-color 120ms ease;
 }
 
 .cant_editable:hover {
-    background: rgba(255, 209, 102, 0.14);
-    border-bottom-color: var(--accent-3);
+    border-bottom-color: currentColor;
 }
 
 input.inp_cant_nodo {
@@ -1761,6 +1761,8 @@ input.inp_cant_nodo:focus {
 
 /* el "(N total)" usa su propio celeste */
 .cantcing_total.cant_editable {
+    border-radius: 5px;
+    padding: 0 3px;
     border-bottom-color: rgba(125, 217, 255, 0.45);
 }
 
@@ -1811,4 +1813,17 @@ input.inp_cant_nodo:focus {
     width: 32px;
     height: 32px;
     font-size: 15px;
+}
+
+#vista_icono {
+    position: fixed;
+    z-index: 100;
+    width: min(112px, calc(100vw - 16px), calc(100vh - 16px));
+    height: min(112px, calc(100vw - 16px), calc(100vh - 16px));
+    padding: 6px;
+    border: 1px solid var(--line);
+    object-fit: contain;
+    background: var(--bg-1);
+    box-shadow: var(--shadow);
+    pointer-events: none;
 }
