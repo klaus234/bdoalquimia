@@ -196,7 +196,16 @@
             }
         },
         "elixirdevidafuerte": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/mrecipe/1109/",
+            "ing": {
+                "elixirdevida": "3",
+                "reactivodeliquidoazul": "1"
+            }
+        },
+        "elixirdevida": {
             "tipo": "alquimia",
+            "fuente": "https://bdocodex.com/sp/item/708/",
             "ing": {
                 "reactivodepolvopuro": "1",
                 "azaleaplateada": "3",
@@ -223,7 +232,16 @@
             }
         },
         "elixirdeespiralbrillante": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/mrecipe/2006/",
+            "ing": {
+                "elixirdeespiral": "3",
+                "reactivodeliquidoazul": "1"
+            }
+        },
+        "elixirdeespiral": {
             "tipo": "alquimia",
+            "fuente": "https://bdocodex.com/sp/item/782/",
             "ing": {
                 "saviadetuyaoriental": "6",
                 "ramadelmonje": "3",
@@ -307,7 +325,16 @@
             }
         },
         "elixirderobofuerte": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/mrecipe/1093/",
+            "ing": {
+                "elixirderobo": "3",
+                "reactivodeliquidoazul": "1"
+            }
+        },
+        "elixirderobo": {
             "tipo": "alquimia",
+            "fuente": "https://bdocodex.com/sp/item/676/",
             "ing": {
                 "aceiteindomable": "1",
                 "reactivodeliquidoclaro": "4",
@@ -326,7 +353,16 @@
             }
         },
         "elixirdepenetracionbrutal": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/mrecipe/1095/",
+            "ing": {
+                "elixirdepenetracion": "3",
+                "reactivodeliquidoazul": "1"
+            }
+        },
+        "elixirdepenetracion": {
             "tipo": "alquimia",
+            "fuente": "https://bdocodex.com/sp/item/680/",
             "ing": {
                 "aceitedecorrupcion": "1",
                 "reactivodeliquidoclaro": "4",
@@ -423,7 +459,16 @@
             }
         },
         "elixirdecielodespiadado": {
+            "tipo": "simple",
+            "fuente": "https://bdocodex.com/sp/mrecipe/1115/",
+            "ing": {
+                "elixirdecielo": "3",
+                "reactivodeliquidoazul": "1"
+            }
+        },
+        "elixirdecielo": {
             "tipo": "alquimia",
+            "fuente": "https://bdocodex.com/sp/item/720/",
             "ing": {
                 "aceitedetranquilidad": "1",
                 "reactivodepolvopuro": "6",
@@ -720,11 +765,23 @@
             "titulo": "Elixir de Robo Fuerte",
             "peso": "0.20",
             "plata": "0",
+            "nomejorable": true
+        },
+        "elixirderobo": {
+            "titulo": "Elixir de Robo",
+            "peso": "0.20",
+            "plata": "0",
             "nomejorable": true,
             "nivel": "Hábil Nv. 1"
         },
         "elixirdepenetracionbrutal": {
             "titulo": "Elixir de Penetración Brutal",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "elixirdepenetracion": {
+            "titulo": "Elixir de Penetración",
             "peso": "0.20",
             "plata": "0",
             "nomejorable": true,
@@ -803,6 +860,12 @@
             "titulo": "Elixir de Vida Fuerte",
             "peso": "0.20",
             "plata": "0",
+            "nomejorable": true
+        },
+        "elixirdevida": {
+            "titulo": "Elixir de Vida",
+            "peso": "0.20",
+            "plata": "0",
             "nomejorable": true,
             "nivel": "Principiante Nv. 1"
         },
@@ -829,6 +892,12 @@
         },
         "elixirdecielodespiadado": {
             "titulo": "Elixir de Cielo Despiadado",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "elixirdecielo": {
+            "titulo": "Elixir de Cielo",
             "peso": "0.20",
             "plata": "0",
             "nomejorable": true,
@@ -864,6 +933,12 @@
         },
         "elixirdeespiralbrillante": {
             "titulo": "Elixir de Espiral Brillante",
+            "peso": "0.20",
+            "plata": "0",
+            "nomejorable": true
+        },
+        "elixirdeespiral": {
+            "titulo": "Elixir de Espiral",
             "peso": "0.20",
             "plata": "0",
             "nomejorable": true,
