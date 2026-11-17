@@ -30,12 +30,6 @@
                 "reactivodeliquidoclaro": "2"
             }
         },
-        "aguapurificada": {
-            "tipo": "calentar",
-            "ing": {
-                "botelladeaguaderio": "1"
-            }
-        },
         "reactivodeliquidoclaro": {
             "tipo": "alquimia",
             "ing": {
@@ -2513,29 +2507,22 @@
                 "verificado": "2026-09-05"
             }
         },
-        "botelladeaguaderio": {
-            "titulo": "Botella de Agua de Río",
-            "peso": "0.20",
-            "plata": "0",
-            "nomejorable": true,
-            "obtencion": {
-                "metodos": [
-                    "recoleccion",
-                    "mercado"
-                ],
-                "detalle": "Usar una botella vacía dentro de un río. El NPC vende la botella vacía, no el agua recolectada.",
-                "fuentes": [
-                    "https://www.sa.playblackdesert.com/es-Mx/Wiki?wikiNo=71"
-                ],
-                "verificado": "2026-09-05"
-            }
-        },
         "aguapurificada": {
             "titulo": "Agua Purificada",
             "peso": "0.10",
             "plata": "0",
             "nomejorable": true,
-            "grupo": true
+            "grupo": true,
+            "obtencion": {
+                "metodos": [
+                    "npc"
+                ],
+                "detalle": "Comprar a un vendedor de artículos generales del desierto: Bazar Granos de Arena, Muiquun o Arehaza.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/6656/"
+                ],
+                "verificado": "2026-11-17"
+            }
         },
         "sal": {
             "titulo": "Sal",
