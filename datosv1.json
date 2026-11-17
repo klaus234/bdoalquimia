@@ -95,7 +95,7 @@
         "frascoderabia": {
             "tipo": "simple",
             "ing": {
-                "elixirdedeliriosinfin": "1",
+                "elixirdedelirio": "3",
                 "elixirdeconcentracion": "3",
                 "elixirdefuria": "3",
                 "elixirdeladestruccion": "3",
@@ -188,10 +188,10 @@
         "frascodeadaptacion": {
             "tipo": "simple",
             "ing": {
-                "elixirdevidafuerte": "1",
+                "elixirdevida": "3",
                 "elixirdedefensa": "3",
                 "elixirdeenergia": "3",
-                "elixirdeespiralbrillante": "1",
+                "elixirdeespiral": "3",
                 "catalizadormagico": "1"
             }
         },
@@ -317,8 +317,8 @@
         "frascodecorrupcion": {
             "tipo": "simple",
             "ing": {
-                "elixirderobofuerte": "1",
-                "elixirdepenetracionbrutal": "1",
+                "elixirderobo": "3",
+                "elixirdepenetracion": "3",
                 "elixirdemuerte": "3",
                 "elixirdelaparca": "3",
                 "catalizadormagico": "1"
@@ -424,7 +424,7 @@
                 "elixirdeasesino": "3",
                 "elixirdedeteccion": "3",
                 "elixirdemasacrador": "3",
-                "elixirdecielodespiadado": "1",
+                "elixirdecielo": "3",
                 "catalizadormagico": "1"
             }
         },
