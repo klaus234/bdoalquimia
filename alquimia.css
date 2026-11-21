@@ -239,39 +239,61 @@ input[inputmode="numeric"]:focus {
     color: #e2ccff;
 }
 
-.cajita {
-    width: 18px;
-    height: 18px;
-    border: 1px solid rgba(226, 212, 252, 0.55);
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 2px;
+/* Desplegable para elegir qué ítem del grupo se usa (reemplaza a las
+   cajitas de calidad) */
+.sel_variante {
+    max-width: 210px;
+    padding: 4px 6px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: rgba(8, 5, 16, 0.65);
+    color: #f4fbff;
+    font: inherit;
+    font-size: 12.5px;
     cursor: pointer;
-    border-radius: 4px;
-    background-color: #f6fbff;
-    transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
-.cajita:hover {
-    transform: translateY(-1px);
+.sel_variante:focus-visible {
+    outline: 2px solid #a56bff;
+    outline-offset: 1px;
 }
 
-.verde {
-    background-color: #1f8f56;
+.fila_variante {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-basis: 100%;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--muted);
 }
 
-.azul {
-    background-color: #2f63d8;
+/* borde con el color de la calidad, como en el juego */
+.icono_item.grado_1 {
+    box-shadow: 0 0 0 1.5px #3fc37a;
 }
 
-.vacia {
-    background-color: transparent;
-    border: 0;
-    cursor: auto;
+.icono_item.grado_2 {
+    box-shadow: 0 0 0 1.5px #4a8dff;
 }
 
-.seleccionado {
-    box-shadow: 0 0 0 2px rgba(165, 107, 255, 0.85);
+.panel_grupo li[role="button"] {
+    cursor: pointer;
+}
+
+.panel_grupo li[role="button"]:hover,
+.panel_grupo li[role="button"]:focus-visible {
+    background: rgba(165, 107, 255, 0.16);
+    outline: none;
+}
+
+.panel_grupo li.elegido {
+    box-shadow: inset 3px 0 0 #a56bff;
+}
+
+.panel_grupo li.elegido .mg_nombre::before {
+    content: "✓ ";
+    color: #c79bff;
 }
 
 #otros {

@@ -728,15 +728,21 @@
                 {
                     "t": "Poción de Vida (P)",
                     "v": 1,
+                    "k": "pociondevidap",
+                    "id": 517,
                     "propio": true
                 },
                 {
                     "t": "Poción de Vida (M)",
-                    "v": 6
+                    "v": 6,
+                    "k": "pociondevidam",
+                    "id": 518
                 },
                 {
                     "t": "Poción de Vida (G)",
-                    "v": 36
+                    "v": 36,
+                    "k": "pociondevidag",
+                    "id": 519
                 }
             ],
             "obtencion": {
@@ -1522,19 +1528,29 @@
                 {
                     "t": "Hierba Luz del Atardecer",
                     "v": 1,
+                    "k": "hierbaluzdelatardecer",
+                    "id": 5401,
                     "propio": true
                 },
                 {
                     "t": "Bulto de Hierba Luz del Atardecer",
-                    "v": 6
+                    "v": 6,
+                    "k": "bultodehierbaluzdelatardecer",
+                    "id": 5421
                 },
                 {
                     "t": "Hierba Luz del Atardecer de Calidad",
-                    "v": 6
+                    "v": 6,
+                    "k": "hierbaluzdelatardecerdecalidad",
+                    "id": 5444,
+                    "g": 1
                 },
                 {
                     "t": "Hierba Luz del Atardecer de Alta Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hierbaluzdelatardecerdealtacalidad",
+                    "id": 5464,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1562,19 +1578,29 @@
                 {
                     "t": "Azalea Plateada",
                     "v": 1,
+                    "k": "azaleaplateada",
+                    "id": 5402,
                     "propio": true
                 },
                 {
                     "t": "Azalea Plateada de Calidad",
-                    "v": 6
+                    "v": 6,
+                    "k": "azaleaplateadadecalidad",
+                    "id": 5445,
+                    "g": 1
                 },
                 {
                     "t": "Ramo de Azalea Plateada",
-                    "v": 6
+                    "v": 6,
+                    "k": "ramodeazaleaplateada",
+                    "id": 5422
                 },
                 {
                     "t": "Azalea Plateada de Alta Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "azaleaplateadadealtacalidad",
+                    "id": 5465,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1602,19 +1628,29 @@
                 {
                     "t": "Flor Escama de Fuego",
                     "v": 1,
+                    "k": "florescamadefuego",
+                    "id": 5403,
                     "propio": true
                 },
                 {
                     "t": "Flor Escama de Fuego de Calidad",
-                    "v": 6
+                    "v": 6,
+                    "k": "florescamadefuegodecalidad",
+                    "id": 5446,
+                    "g": 1
                 },
                 {
                     "t": "Montón de Flores Escama de Fuego",
-                    "v": 6
+                    "v": 6,
+                    "k": "montondefloresescamadefuego",
+                    "id": 5423
                 },
                 {
                     "t": "Flor Escama de Fuego de Alta Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "florescamadefuegodealtacalidad",
+                    "id": 5466,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1641,15 +1677,23 @@
                 {
                     "t": "Hierba de Mil Años",
                     "v": 1,
+                    "k": "hierbademilanos",
+                    "id": 5406,
                     "propio": true
                 },
                 {
                     "t": "Hierba de Mil Años de Calidad",
-                    "v": 6
+                    "v": 6,
+                    "k": "hierbademilanosdecalidad",
+                    "id": 5449,
+                    "g": 1
                 },
                 {
                     "t": "Hierba de Mil Años de Alta Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hierbademilanosdealtacalidad",
+                    "id": 5469,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1674,19 +1718,29 @@
                 {
                     "t": "Hongo adivino",
                     "v": 1,
+                    "k": "hongoadivino",
+                    "id": 5407,
                     "propio": true
                 },
                 {
                     "t": "Hongo Adivino Grande",
-                    "v": 2
+                    "v": 2,
+                    "k": "hongoadivinogrande",
+                    "id": 5426
                 },
                 {
                     "t": "Hongo Adivino de Calidad",
-                    "v": 12
+                    "v": 12,
+                    "k": "hongoadivinodecalidad",
+                    "id": 5450,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Adivino de Alta Calidad",
-                    "v": 72
+                    "v": 72,
+                    "k": "hongoadivinodealtacalidad",
+                    "id": 5470,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1716,19 +1770,29 @@
                 {
                     "t": "Hongo flecha",
                     "v": 1,
+                    "k": "hongoflecha",
+                    "id": 5408,
                     "propio": true
                 },
                 {
                     "t": "Hongo Flecha Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongoflechagrande",
+                    "id": 5427
                 },
                 {
                     "t": "Hongo Flecha de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongoflechadecalidad",
+                    "id": 5451,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Flecha de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongoflechadealtacalidad",
+                    "id": 5471,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1758,19 +1822,29 @@
                 {
                     "t": "Hongo Enano",
                     "v": 1,
+                    "k": "hongoenano",
+                    "id": 5409,
                     "propio": true
                 },
                 {
                     "t": "Hongo Enano Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongoenanogrande",
+                    "id": 5428
                 },
                 {
                     "t": "Hongo Enano de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongoenanodecalidad",
+                    "id": 5452,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Enano de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongoenanodealtacalidad",
+                    "id": 5472,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1800,19 +1874,29 @@
                 {
                     "t": "Hongo Nube",
                     "v": 1,
+                    "k": "hongonube",
+                    "id": 5410,
                     "propio": true
                 },
                 {
                     "t": "Hongo Nube Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongonubegrande",
+                    "id": 5429
                 },
                 {
                     "t": "Hongo Nube de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongonubedecalidad",
+                    "id": 5453,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Nube de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongonubedealtacalidad",
+                    "id": 5473,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1842,19 +1926,29 @@
                 {
                     "t": "Hongo Cielo",
                     "v": 1,
+                    "k": "hongocielo",
+                    "id": 5411,
                     "propio": true
                 },
                 {
                     "t": "Hongo Cielo Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongocielogrande",
+                    "id": 5430
                 },
                 {
                     "t": "Hongo Cielo de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongocielodecalidad",
+                    "id": 5454,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Cielo de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongocielodealtacalidad",
+                    "id": 5474,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1882,19 +1976,29 @@
                 {
                     "t": "Hongo tigre",
                     "v": 1,
+                    "k": "hongotigre",
+                    "id": 5412,
                     "propio": true
                 },
                 {
                     "t": "Hongo Tigre Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongotigregrande",
+                    "id": 5431
                 },
                 {
                     "t": "Hongo Tigre de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongotigredecalidad",
+                    "id": 5455,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Tigre de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongotigredealtacalidad",
+                    "id": 5475,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1922,19 +2026,29 @@
                 {
                     "t": "Hongo Emperador",
                     "v": 1,
+                    "k": "hongoemperador",
+                    "id": 5413,
                     "propio": true
                 },
                 {
                     "t": "Hongo Emperador Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongoemperadorgrande",
+                    "id": 5432
                 },
                 {
                     "t": "Hongo Emperador de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongoemperadordecalidad",
+                    "id": 5456,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Emperador de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongoemperadordealtacalidad",
+                    "id": 5476,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -1964,19 +2078,29 @@
                 {
                     "t": "Hongo Fantasma",
                     "v": 1,
+                    "k": "hongofantasma",
+                    "id": 5414,
                     "propio": true
                 },
                 {
                     "t": "Hongo Fantasma Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongofantasmagrande",
+                    "id": 5433
                 },
                 {
                     "t": "Hongo Fantasma de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongofantasmadecalidad",
+                    "id": 5457,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Fantasma de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongofantasmadealtacalidad",
+                    "id": 5477,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -2004,19 +2128,29 @@
                 {
                     "t": "Hongo hinchazón",
                     "v": 1,
+                    "k": "hongohinchazon",
+                    "id": 5416,
                     "propio": true
                 },
                 {
                     "t": "Hongo Hinchazón Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongohinchazongrande",
+                    "id": 5435
                 },
                 {
                     "t": "Hongo Hinchazón de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongohinchazondecalidad",
+                    "id": 5459,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Hinchazón de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongohinchazondealtacalidad",
+                    "id": 5479,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -2042,19 +2176,29 @@
                 {
                     "t": "Hongo Fanfarrón",
                     "v": 1,
+                    "k": "hongofanfarron",
+                    "id": 5417,
                     "propio": true
                 },
                 {
                     "t": "Hongo Fanfarrón Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongofanfarrongrande",
+                    "id": 5436
                 },
                 {
                     "t": "Hongo Fanfarrón de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongofanfarrondecalidad",
+                    "id": 5460,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Fanfarrón de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongofanfarrondealtacalidad",
+                    "id": 5480,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -2080,19 +2224,29 @@
                 {
                     "t": "Hongo ancestral",
                     "v": 1,
+                    "k": "hongoancestral",
+                    "id": 5418,
                     "propio": true
                 },
                 {
                     "t": "Hongo ancestral Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongoancestralgrande",
+                    "id": 5437
                 },
                 {
                     "t": "Hongo Ancestral de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongoancestraldecalidad",
+                    "id": 5461,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Ancestral de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongoancestraldealtacalidad",
+                    "id": 5481,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -2118,19 +2272,29 @@
                 {
                     "t": "Hongo payaso",
                     "v": 1,
+                    "k": "hongopayaso",
+                    "id": 5419,
                     "propio": true
                 },
                 {
                     "t": "Hongo Amanita Grande",
-                    "v": 6
+                    "v": 6,
+                    "k": "hongoamanitagrande",
+                    "id": 5438
                 },
                 {
                     "t": "Hongo Payaso de Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "hongopayasodecalidad",
+                    "id": 5462,
+                    "g": 1
                 },
                 {
                     "t": "Hongo Amanita de Alta Calidad",
-                    "v": 216
+                    "v": 216,
+                    "k": "hongoamanitadealtacalidad",
+                    "id": 5482,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -2156,15 +2320,23 @@
                 {
                     "t": "Hongo Trufa",
                     "v": 1,
+                    "k": "hongotrufa",
+                    "id": 5420,
                     "propio": true
                 },
                 {
                     "t": "Trufa de Calidad",
-                    "v": 6
+                    "v": 6,
+                    "k": "trufadecalidad",
+                    "id": 5463,
+                    "g": 1
                 },
                 {
                     "t": "Trufa de Alta Calidad",
-                    "v": 36
+                    "v": 36,
+                    "k": "trufadealtacalidad",
+                    "id": 5483,
+                    "g": 2
                 }
             ],
             "obtencion": {
@@ -2223,28 +2395,40 @@
             "miembros": [
                 {
                     "t": "Sangre de Escorpión",
-                    "v": 1
+                    "v": 1,
+                    "k": "sangredeescorpion",
+                    "id": 6224
                 },
                 {
                     "t": "Sangre de Zorro",
                     "v": 1,
+                    "k": "sangredezorro",
+                    "id": 6203,
                     "propio": true
                 },
                 {
                     "t": "Sangre de Comadreja",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredecomadreja",
+                    "id": 6212
                 },
                 {
                     "t": "Sangre de Mapache",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredemapache",
+                    "id": 6210
                 },
                 {
                     "t": "Sangre de Marmota",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredemarmota",
+                    "id": 6226
                 },
                 {
                     "t": "Sangre de Mono",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredemono",
+                    "id": 6211
                 }
             ],
             "obtencion": {
@@ -2269,31 +2453,45 @@
                 {
                     "t": "Sangre de Cerdo",
                     "v": 1,
+                    "k": "sangredecerdo",
+                    "id": 6205,
                     "propio": true
                 },
                 {
                     "t": "Sangre de Cabra",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredecabra",
+                    "id": 6228
                 },
                 {
                     "t": "Sangre de Ciervo",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredeciervo",
+                    "id": 6201
                 },
                 {
                     "t": "Sangre de Llama",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredellama",
+                    "id": 6227
                 },
                 {
                     "t": "Sangre de Oveja",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredeoveja",
+                    "id": 6202
                 },
                 {
                     "t": "Sangre de Res",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangrederes",
+                    "id": 6206
                 },
                 {
                     "t": "Sangre de Waragon",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredewaragon",
+                    "id": 6215
                 }
             ],
             "obtencion": {
@@ -2317,28 +2515,40 @@
             "miembros": [
                 {
                     "t": "Sangre de León",
-                    "v": 1
+                    "v": 1,
+                    "k": "sangredeleon",
+                    "id": 6223
                 },
                 {
                     "t": "Sangre de Oso",
                     "v": 1,
+                    "k": "sangredeoso",
+                    "id": 6213,
                     "propio": true
                 },
                 {
                     "t": "Sangre de Yak",
-                    "v": 1
+                    "v": 1,
+                    "k": "sangredeyak",
+                    "id": 6225
                 },
                 {
                     "t": "Sangre de Dinosaurio",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangrededinosaurio",
+                    "id": 6207
                 },
                 {
                     "t": "Sangre de Ogro",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredeogro",
+                    "id": 6221
                 },
                 {
                     "t": "Sangre de Trol",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredetrol",
+                    "id": 6220
                 }
             ],
             "obtencion": {
@@ -2363,19 +2573,27 @@
                 {
                     "t": "Sangre de Lobo",
                     "v": 1,
+                    "k": "sangredelobo",
+                    "id": 6214,
                     "propio": true
                 },
                 {
                     "t": "Sangre de Rinoceronte",
-                    "v": 1
+                    "v": 1,
+                    "k": "sangrederinoceronte",
+                    "id": 6204
                 },
                 {
                     "t": "Sangre de Dragón Chita",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangrededragonchita",
+                    "id": 6216
                 },
                 {
                     "t": "Sangre de Flamenco",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredeflamenco",
+                    "id": 6218
                 }
             ],
             "obtencion": {
@@ -2399,24 +2617,34 @@
             "miembros": [
                 {
                     "t": "Sangre de Lagartija",
-                    "v": 1
+                    "v": 1,
+                    "k": "sangredelagartija",
+                    "id": 6208
                 },
                 {
                     "t": "Sangre de Cobra",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredecobra",
+                    "id": 6222
                 },
                 {
                     "t": "Sangre de Gusano",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredegusano",
+                    "id": 6209
                 },
                 {
                     "t": "Sangre de Murciélago",
-                    "v": 2,
+                    "v": 1,
+                    "k": "sangredemurcielago",
+                    "id": 6219,
                     "propio": true
                 },
                 {
                     "t": "Sangre del Pájaro Cucú",
-                    "v": 2
+                    "v": 1,
+                    "k": "sangredelpajarocucu",
+                    "id": 6217
                 }
             ],
             "obtencion": {
@@ -2533,7 +2761,29 @@
                     "https://bdocodex.com/sp/item/6656/"
                 ],
                 "verificado": "2026-11-17"
-            }
+            },
+            "gid": 1001,
+            "miembros": [
+                {
+                    "t": "Agua Purificada",
+                    "v": 1,
+                    "k": "aguapurificada",
+                    "id": 6656,
+                    "propio": true
+                },
+                {
+                    "t": "Agua Destilada",
+                    "v": 2,
+                    "k": "aguadestilada",
+                    "id": 6651
+                },
+                {
+                    "t": "Agua Pura para Cocinar",
+                    "v": 3,
+                    "k": "aguapuraparacocinar",
+                    "id": 9059
+                }
+            ]
         },
         "sal": {
             "titulo": "Sal",

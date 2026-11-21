@@ -14,8 +14,6 @@ console.log("v 1.0.0");
 let rdata;
 let inglist = [];
 
-const calidad_ing = [1, 3, 5];
-
 let gpeso = 0;
 
 const baseurl = window.location.href;
@@ -25,11 +23,6 @@ let anteriorseleccion = -1;
 let selectactual_recetas = -1;
 let lista_recetas_ul;
 let currentingrediente;
-let calidades = {
-    "normal": 0,
-    "verde": 1,
-    "azul": 2
-}
 
 /* -----------------------------------------------------------------
    Tipos de elaboración
@@ -186,23 +179,34 @@ function crearPlaceholderIcono(clave) {
     const ph = document.createElement("span");
     ph.className = "icono_item icono_vacio";
     ph.setAttribute("aria-hidden", "true");
-    ph.textContent = rdata["datos"][clave]["titulo"].charAt(0);
+    ph.textContent = tituloDe(clave).charAt(0);
     return ph;
 }
 
+/* Si el ingrediente tiene una variante elegida, muestra el ícono de esa
+   variante, con el borde de color de su calidad. */
 function crearIcono(clave) {
-    if (consentimientos.imagenes !== true || iconosFallidos.has(clave))
-        return crearPlaceholderIcono(clave);
+    const archivo = claveIconoDe(clave);
+    const variante = varianteDe(clave);
+    const grado = variante != null ? (variante["g"] || 0) : 0;
+    if (consentimientos.imagenes !== true || iconosFallidos.has(archivo)) {
+        const ph = crearPlaceholderIcono(clave);
+        if (grado) ph.classList.add("grado_" + grado);
+        return ph;
+    }
     const img = document.createElement("img");
     img.className = "icono_item";
-    img.src = "extimg/" + clave + ".webp";
+    if (grado) img.classList.add("grado_" + grado);
+    img.src = "extimg/" + archivo + ".webp";
     img.alt = "";
     img.width = 24;
     img.height = 24;
     img.loading = "lazy";
     img.addEventListener("error", function () {
-        iconosFallidos.add(clave);
-        img.replaceWith(crearPlaceholderIcono(clave));
+        iconosFallidos.add(archivo);
+        const ph = crearPlaceholderIcono(clave);
+        if (grado) ph.classList.add("grado_" + grado);
+        img.replaceWith(ph);
     }, { once: true });
     return img;
 }
@@ -326,11 +330,22 @@ function llenarPanelGrupo(panel) {
     tit.innerText = "Grupo #" + datos["gid"] + " · sirve cualquiera de estos";
     panel.append(tit);
 
+    const elegido = varianteDe(clave);
     const ul = document.createElement("ul");
     for (let m of miembros) {
         const li = document.createElement("li");
         if (m["propio"])
-            li.className = "propio";
+            li.classList.add("propio");
+        if (m === elegido)
+            li.classList.add("elegido");
+        /* tocar una fila la elige, igual que el desplegable */
+        li.tabIndex = 0;
+        li.setAttribute("role", "button");
+        li.title = "Usar " + m["t"] + " en todas las recetas";
+        li.addEventListener("click", function () { elegirVariante(clave, m["k"]); });
+        li.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); elegirVariante(clave, m["k"]); }
+        });
 
         const nom = document.createElement("span");
         nom.className = "mg_nombre";
@@ -351,7 +366,7 @@ function llenarPanelGrupo(panel) {
 
     const nota = document.createElement("div");
     nota.className = "panel_grupo_nota";
-    nota.innerText = "Se gasta por elaboración: lo que sobra de un ítem de mayor valor no pasa a la siguiente.";
+    nota.innerText = "Tocá uno para usarlo en todas las recetas. Se gasta por elaboración: lo que sobra de un ítem de mayor valor no pasa a la siguiente.";
     panel.append(nota);
 }
 
@@ -387,6 +402,123 @@ function montarGrupo(dondeMarca, dondePanel, clave, obtenerUsos) {
             marca.classList.add("abierta");
         }
     });
+}
+
+/* -----------------------------------------------------------------
+   Variante elegida de cada grupo
+   -----------------------------------------------------------------
+   De un ingrediente con `miembros` se puede elegir qué ítem del grupo vas a
+   usar (Sangre de Ciervo en vez de Sangre de Cerdo, Hierba de Calidad en vez
+   de la común...). La elección es GLOBAL: vale para todas las recetas que
+   pidan ese ingrediente, y todas las cantidades (lista de la receta, árbol e
+   Ingredientes Puros) pasan a estar en unidades de la variante elegida.
+
+   Se guarda sola en localStorage si se aceptó el almacenamiento; si no, dura
+   lo que dure la visita. Reemplaza a las viejas cajitas blanco/verde/azul.
+   ----------------------------------------------------------------- */
+const CLAVE_VARIANTES = "variantes_alquimia";
+let variantesElegidas = {};
+
+function cargarVariantes() {
+    variantesElegidas = puedeGuardar() ? leerObjetoLocal(CLAVE_VARIANTES) : {};
+}
+
+/* El miembro del grupo que se usa para `clave`: el elegido o, si no hay
+   elección (o ya no existe en los datos), el propio de la receta. */
+function varianteDe(clave) {
+    const datos = rdata["datos"][clave];
+    if (datos == undefined || !tieneMiembros(clave)) return null;
+    const miembros = datos["miembros"];
+    const elegido = variantesElegidas[clave];
+    return miembros.find(m => m["k"] === elegido)
+        || miembros.find(m => m["propio"])
+        || miembros[0];
+}
+
+function valorPropio(clave) {
+    const propio = rdata["datos"][clave]["miembros"].find(m => m["propio"]);
+    return propio ? propio["v"] : 1;
+}
+
+/* Cuántas unidades de la variante elegida hacen falta en UNA elaboración que
+   pide `q` del ingrediente. Igual que en el juego, lo que sobra de un ítem de
+   mayor valor no pasa a la siguiente elaboración. */
+function cantidadPorElaboracion(clave, q) {
+    const v = varianteDe(clave);
+    if (v == null) return Math.ceil(Number(q));
+    return Math.ceil((Number(q) * valorPropio(clave)) / v["v"]);
+}
+
+function tituloDe(clave) {
+    const v = varianteDe(clave);
+    return v != null ? v["t"] : rdata["datos"][clave]["titulo"];
+}
+
+function claveIconoDe(clave) {
+    const v = varianteDe(clave);
+    return v != null && v["k"] ? v["k"] : clave;
+}
+
+function elegirVariante(clave, k) {
+    const v = rdata["datos"][clave]["miembros"].find(m => m["k"] === k);
+    if (v == undefined) return;
+    if (v["propio"]) delete variantesElegidas[clave];
+    else variantesElegidas[clave] = k;
+    if (puedeGuardar()) escribirObjetoLocal(CLAVE_VARIANTES, variantesElegidas);
+    aplicarCambioVariante(clave);
+}
+
+/* Desplegable para elegir la variante de `clave`. Muestra cuánto vale cada
+   una frente a la de la receta, que es lo que cambia la cantidad. */
+function crearSelectorVariante(clave) {
+    const sel = document.createElement("select");
+    sel.className = "sel_variante sel_variante_" + clave;
+    sel.title = "Qué ítem del grupo vas a usar. Se recuerda para todas las recetas.";
+    sel.setAttribute("aria-label", "Variante de " + rdata["datos"][clave]["titulo"] + " a usar");
+    const vPropio = valorPropio(clave);
+    const actual = varianteDe(clave);
+    for (const m of rdata["datos"][clave]["miembros"]) {
+        const op = document.createElement("option");
+        op.value = m["k"];
+        let txt = m["t"];
+        if (m["v"] !== vPropio)
+            txt += " (" + (m["v"] > vPropio ? "vale " + (m["v"] / vPropio) : "rinde 1/" + (vPropio / m["v"])) + ")";
+        op.textContent = txt;
+        op.selected = m === actual;
+        sel.append(op);
+    }
+    sel.addEventListener("change", function () { elegirVariante(clave, this.value); });
+    return sel;
+}
+
+function crearFilaVariante(clave) {
+    const fila = document.createElement("label");
+    fila.className = "fila_variante";
+    const txt = document.createElement("span");
+    txt.textContent = "Usar:";
+    fila.append(txt, crearSelectorVariante(clave));
+    return fila;
+}
+
+/* Repinta todo lo que depende de la variante de `clave`: la fila de la
+   receta (título, ícono y cantidad por elaboración), los otros selectores
+   del mismo ingrediente y, si ya se calcularon, el árbol y los puros. */
+function aplicarCambioVariante(clave) {
+    const k = claveIconoDe(clave);
+    document.querySelectorAll(".sel_variante_" + clave).forEach(s => { s.value = k; });
+
+    const inp = document.getElementById(clave + "_cant");
+    if (inp != null) {
+        const titulo = document.getElementById("titulo_" + clave);
+        const badge = titulo.querySelector(".badge_cantidad");
+        titulo.firstChild.textContent = tituloDe(clave) + " ";
+        pintarCantidad(badge, cantidadPorElaboracion(clave, inp.bdocant));
+        const icono = titulo.parentNode.querySelector(".icono_item");
+        if (icono != null) icono.replaceWith(crearIcono(clave));
+        recalcularTodo();
+        refrescarPanelesGrupo();
+    }
+    generarListaIngredientesSiHay();
 }
 
 /* Los paneles abiertos de la lista principal siguen a los inputs de cantidad. */
@@ -773,7 +905,7 @@ function crearCantidadPuro(clave, necesario) {
     boton.className = "cantcing_local cantidad_puro_editable";
     pintarCantidad(boton, necesario);
     boton.title = "Doble clic para ajustar toda la receta usando esta cantidad";
-    boton.setAttribute("aria-label", "Ajustar receta según " + rdata.datos[clave].titulo + ": " + necesario);
+    boton.setAttribute("aria-label", "Ajustar receta según " + tituloDe(clave) + ": " + necesario);
     contenedor.append(boton);
     const editar = function () {
         if (contenedor.querySelector("input")) return;
@@ -781,7 +913,7 @@ function crearCantidadPuro(clave, necesario) {
         input.className = "editar_cantidad_puro";
         prepararInputMiles(input);
         input.value = formatearMilesAR(necesario);
-        input.setAttribute("aria-label", "Cantidad para recalcular con " + rdata.datos[clave].titulo);
+        input.setAttribute("aria-label", "Cantidad para recalcular con " + tituloDe(clave));
         input.title = "Enter o salir del campo: aplicar. Escape: cancelar. Se usan elaboraciones completas.";
         boton.hidden = true;
         contenedor.append(input);
@@ -817,7 +949,7 @@ function crearCantidadPuro(clave, necesario) {
                     el.querySelector(".cantidad_puro_editable").focus({ preventScroll: true });
                     const aviso = document.getElementById("aviso_recalculo_puro");
                     aviso.textContent = formatearMilesAR(cantidad) + " elaboraciones: se necesitan " +
-                        formatearMilesAR(el.bdonecesario) + " de " + rdata.datos[clave].titulo +
+                        formatearMilesAR(el.bdonecesario) + " de " + tituloDe(clave) +
                         " de las " + formatearMilesAR(valor) + " indicadas.";
                 }
             });
@@ -846,7 +978,7 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
 
     const puros = Object.keys(totalesGlobales)
         .filter(k => !esReceta(k))
-        .sort((a, b) => rdata["datos"][a]["titulo"].localeCompare(rdata["datos"][b]["titulo"], "es"));
+        .sort((a, b) => tituloDe(a).localeCompare(tituloDe(b), "es"));
 
     for (let k of puros) {
         const li = document.createElement("li");
@@ -870,12 +1002,19 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
 
         const span_titulo = document.createElement("span");
         span_titulo.className = "ing_titulo_ingrediente";
-        span_titulo.innerHTML = `<span class="titing">${rdata["datos"][k]["titulo"]}</span>`;
+        const titing = document.createElement("span");
+        titing.className = "titing";
+        titing.textContent = tituloDe(k);
+        span_titulo.append(titing);
 
         span_contenedor.append(crearIcono(k));
         span_contenedor.append(span_titulo);
         span_contenedor.append(crearCantidadPuro(k, necesario));
         li.append(span_contenedor);
+
+        /* qué ítem del grupo vas a juntar: cambia el nombre y la cantidad */
+        if (tieneMiembros(k))
+            li.append(crearFilaVariante(k));
 
         const tengoWrap = document.createElement("span");
         tengoWrap.className = "tengo_wrap";
@@ -905,8 +1044,8 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         marcaFiltro.textContent = "Fuera del filtro";
         marcaFiltro.hidden = true;
         li.append(marcaFiltro);
-        chk.setAttribute("aria-label", "Marcar " + rdata.datos[k].titulo + " como conseguido");
-        inpTengo.setAttribute("aria-label", "Cantidad conseguida de " + rdata.datos[k].titulo);
+        chk.setAttribute("aria-label", "Marcar " + tituloDe(k) + " como conseguido");
+        inpTengo.setAttribute("aria-label", "Cantidad conseguida de " + tituloDe(k));
 
         /* después del contador, para que el panel de sustitutos quede último
            y ocupe su propio renglón debajo de toda la fila. Acá el ingrediente
@@ -956,7 +1095,7 @@ function generarListaIngredientes() {
     ulpuros.append(ayudaEdicion, avisoRecalculo);
     const ayudaObtencion = document.createElement("li");
     ayudaObtencion.className = "ayuda_obtencion";
-    ayudaObtencion.textContent = "Tocá los íconos para ver en qué recetas de esta preparación se usa cada ingrediente, cómo conseguirlo y sus fuentes. Pueden tener varios métodos. Mercado = compra a otros jugadores, según disponibilidad. Los métodos corresponden al ítem indicado; los sustitutos pueden variar.";
+    ayudaObtencion.textContent = "Tocá los íconos para ver en qué recetas de esta preparación se usa cada ingrediente, cómo conseguirlo y sus fuentes. Pueden tener varios métodos. Mercado = compra a otros jugadores, según disponibilidad. Los métodos son los del ítem que pide la receta; si elegiste otra variante del grupo, puede conseguirse de otra forma. En «Usar» elegís qué ítem del grupo vas a juntar: se recuerda para todas las recetas.";
     ulpuros.append(ayudaObtencion);
     ulpuros.append(puros.ul);
     actualizarProgresoPuros();
@@ -1047,7 +1186,10 @@ function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales, usosGl
 
     for (let ingId of keysLista) {
         const porElaboracion = Number(ingredientes[ingId]);
-        const cantidad_ing = Math.ceil(veces * porElaboracion);
+        /* lo que no es receta se cuenta en unidades de la variante elegida */
+        const cantidad_ing = esReceta(ingId)
+            ? Math.ceil(veces * porElaboracion)
+            : veces * cantidadPorElaboracion(ingId, porElaboracion);
         if (!totalesGlobales[ingId]) {
             totalesGlobales[ingId] = 0;
         }
@@ -1081,8 +1223,11 @@ function cantidadEnCamino(cantidadPrincipal, camino, ingId) {
         const siguiente = (i + 1 < camino.length) ? camino[i + 1] : ingId;
         const ing = ingredientesDe(receta)[siguiente];
         if (ing == undefined) return 0;
-        const cant = Math.ceil(veces * Number(ing));
-        if (i + 1 >= camino.length) return cant;
+        const ultimo = i + 1 >= camino.length;
+        const cant = ultimo && !esReceta(ingId)
+            ? veces * cantidadPorElaboracion(ingId, ing)
+            : Math.ceil(veces * Number(ing));
+        if (ultimo) return cant;
         veces = Math.ceil(cant / ratioDeReceta(siguiente));
     }
     return 0;
@@ -1197,7 +1342,9 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
         li.className = "ingrediente_item";
 
         const subreceta = esReceta(ingId);
-        const cantidad_ing = Math.ceil(veces * ingredientes[ingId]);
+        const cantidad_ing = subreceta
+            ? Math.ceil(veces * ingredientes[ingId])
+            : veces * cantidadPorElaboracion(ingId, ingredientes[ingId]);
         const cantidad_total_global = Math.ceil(totalesGlobales[ingId] || 0);
 
         const span_contenedor = document.createElement("span");
@@ -1258,7 +1405,10 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
         } else {
             const span_titulo = document.createElement("span");
             span_titulo.className = "ing_titulo_ingrediente";
-            span_titulo.innerHTML = `<span class="titing">${rdata["datos"][ingId]["titulo"]}</span>`;
+            const titingHoja = document.createElement("span");
+            titingHoja.className = "titing";
+            titingHoja.textContent = tituloDe(ingId);
+            span_titulo.append(titingHoja);
 
             const span_cant = crearSpanCantidad(cantidad_ing, cantidad_total_global);
             hacerCantidadesEditables(span_cant, caminoAca, ingId);
@@ -1285,7 +1435,7 @@ function actualizarIngredientes(valor) {
     for (let ingx of inglist) {
 
         let inputcocic = document.getElementById(ingx + "_cant");
-        inputcocic.value = valor * Math.ceil(inputcocic.bdocant / calidad_ing[calidades[inputcocic.bdogrado]]);
+        inputcocic.value = valor * cantidadPorElaboracion(ingx, inputcocic.bdocant);
         let titletag = document.getElementById("titulo_" + ingx);
         let platainp = document.getElementById("inpplata_" + ingx);
         let costo = platainp.value.replace(/\./g, "");
@@ -1337,7 +1487,7 @@ function setPeso(p) {
 }
 
 function modificadorIngrediente(e) {
-    const cantidadr = Math.floor(this.value / Math.ceil(this.bdocant / calidad_ing[calidades[this.bdogrado]]));
+    const cantidadr = Math.floor(this.value / cantidadPorElaboracion(this.bdoing, this.bdocant));
     let platatotal = 0;
     let pesototal = 0;
     for (let ingx of inglist) {
@@ -1346,7 +1496,7 @@ function modificadorIngrediente(e) {
         const costo = platainp.value.replace(/\./g, "");
 
         if (this.bdoing != ingx) {
-            inputcocic.value = cantidadr * Math.ceil(inputcocic.bdocant / calidad_ing[calidades[inputcocic.bdogrado]]);
+            inputcocic.value = cantidadr * cantidadPorElaboracion(ingx, inputcocic.bdocant);
         }
         if (gastoIngCalculados[ingx])
             platatotal += costo * inputcocic.value;
@@ -1380,14 +1530,6 @@ function modificarSegunTotal() {
     updatePeso();
 }
 
-function crearCaja(cname, idname) {
-    const box = document.createElement("span");
-    box.className = "cajita " + cname;
-    box.id = "box_" + idname + "_" + cname;
-    box.addEventListener("click", seleccionarCaja);
-    return box;
-}
-
 /* Los campos de peso pueden estar vacíos: sin esto parseFloat("") = NaN y el
    NaN se propaga al texto y al ancho de las barras. */
 function numeroSeguro(valor) {
@@ -1402,27 +1544,6 @@ function calcPrct(total, usado) {
         return 0;
     const p = (usado * 100) / total;
     return p > 100 ? 100 : p;
-}
-
-function seleccionarCaja() {
-    const cajas = ["normal", "verde", "azul"];
-    const datos = this.id.split("_");
-    if (!this.className.includes("seleccionado") && !this.className.includes("vacia")) {
-        this.className += " seleccionado";
-        const titulospan = document.getElementById("titulo_" + datos[1]);
-
-        const inputx = document.getElementById(datos[1] + "_cant");
-        pintarCantidad(titulospan.querySelector(".badge_cantidad"), Math.ceil(inputx.bdocant / calidad_ing[calidades[datos[2]]]));
-        document.getElementById(datos[1] + "_cant").bdogrado = datos[2];
-        const e = new Event("input");
-        inputx.dispatchEvent(e);
-        for (let cc of cajas) {
-            if (cc != datos[2]) {
-                const bx = document.getElementById("box_" + datos[1] + "_" + cc);
-                bx.className = "cajita " + cc;
-            }
-        }
-    }
 }
 
 let secondLoad = false;
@@ -1495,7 +1616,8 @@ function leerPreferencias() {
    Distinto de las preferencias: las preferencias son los ajustes que
    valen para toda la calculadora (ratios, peso de la mula), mientras que
    el estado es el avance concreto de UNA receta — cuánto vas a hacer, a
-   qué precio, con qué calidades y qué ingredientes ya conseguiste.
+   qué precio y qué ingredientes ya conseguiste. La variante elegida de
+   cada ingrediente no va acá: es global y se guarda aparte.
    Se guarda uno por receta y se restaura solo al abrirla.
    ----------------------------------------------------------------- */
 const CLAVE_ESTADO = "estado_alquimia";
@@ -1612,7 +1734,6 @@ function guardarEstado() {
         "pesomax": valorDe("pesomax"),
         "mipeso": valorDe("mipeso"),
         "vista": vistaBaseActual,
-        "calidades": {},
         "precios": {},
         "gastos": [],
         "tenidos": {}
@@ -1626,8 +1747,6 @@ function guardarEstado() {
 
     for (let ing of inglist) {
         const inp = document.getElementById(ing + "_cant");
-        if (inp != null && inp.bdogrado != "normal")
-            est["calidades"][ing] = inp.bdogrado;
         const pl = document.getElementById("inpplata_" + ing);
         if (pl != null && pl.value != rdata["datos"][ing]["plata"])
             est["precios"][ing] = pl.value;
@@ -1685,18 +1804,12 @@ function mostrarAvisoEstado(est) {
     cab.parentNode.insertBefore(aviso, cab.nextSibling);
 }
 
-/* Aplica el estado sobre una receta recién montada. El orden importa: las
-   calidades cambian cuánto rinde cada ingrediente, así que van antes de
-   fijar la cantidad, que es lo que dispara el recálculo general. */
+/* Aplica el estado sobre una receta recién montada. La cantidad va al
+   final porque es lo que dispara el recálculo general. Los estados viejos
+   pueden traer "calidades" de las cajitas que ya no existen: se ignoran. */
 function aplicarEstado(est) {
     ponerValor("ratio", est["ratio"]);
     ponerValor("ratio_proc", est["ratio_proc"]);
-
-    const cal = est["calidades"] || {};
-    for (let ing in cal) {
-        const caja = document.getElementById("box_" + ing + "_" + cal[ing]);
-        if (caja != null) caja.click();
-    }
 
     const pre = est["precios"] || {};
     for (let ing in pre)
@@ -1894,8 +2007,8 @@ function setAndLoad() {
 
         let spantitle = document.createElement(tipoing);
         const badgeCantidad = document.createElement("span");
-        pintarCantidad(badgeCantidad, ingredientes[ird]);
-        spantitle.append(rdata["datos"][ird]["titulo"] + " ", badgeCantidad);
+        pintarCantidad(badgeCantidad, cantidadPorElaboracion(ird, ingredientes[ird]));
+        spantitle.append(tituloDe(ird) + " ", badgeCantidad);
         spantitle.className = "titulo";
         spantitle.id = "titulo_" + ird;
         if (isLink) {
@@ -1935,27 +2048,21 @@ function setAndLoad() {
         inputcant.type = "number";
         inputcant.bdoing = ird;
         inputcant.bdocant = ingredientes[ird];
-        inputcant.bdogrado = "normal";
 
         spansector.append(inputcant)
-        if (rdata["datos"][ird]["nomejorable"] == undefined) {
-            spansector.append(crearCaja("normal", ird));
-            spansector.append(crearCaja("verde", ird));
-            spansector.append(crearCaja("azul", ird));
-        } else {
-            spansector.append(crearCaja("vacia", ird));
-            spansector.append(crearCaja("vacia", ird));
-            spansector.append(crearCaja("vacia", ird));
-        }
 
         lix.append(spansector)
+        /* el desplegable de variante reemplaza a las viejas cajitas de calidad;
+           va en su propio renglón para no apretar el título */
+        if (tieneMiembros(ird))
+            lix.append(crearFilaVariante(ird));
         montarGrupo(contMarca, lix, ird, function () {
             const inp = document.getElementById(ird + "_cant");
             const cant = document.getElementById("cantidad");
             if (inp == null || cant == null) return [];
-            /* lo que pide la receta por elaboración, ya con la calidad elegida */
-            const q = Math.ceil(inp.bdocant / calidad_ing[calidades[inp.bdogrado]]);
-            return [{ "q": q, "veces": Number(cant.value) || 0 }];
+            /* lo que pide la receta por elaboración, en unidades del ítem de
+               la receta: el panel calcula cada sustituto a partir de eso */
+            return [{ "q": Number(inp.bdocant), "veces": Number(cant.value) || 0 }];
         });
         ilista.append(lix);
     }
@@ -2020,7 +2127,7 @@ function setAndLoad() {
     let botonestado = document.createElement("button");
     botonestado.innerText = "Guardar estado";
     botonestado.classList.add("estadobtn");
-    botonestado.title = "Cantidad, precios, calidades y lo ya conseguido de esta receta";
+    botonestado.title = "Cantidad, precios y lo ya conseguido de esta receta";
     botonestado.onclick = guardarEstado;
     botonestado.disabled = !puedeGuardar();
     if (botonestado.disabled)
@@ -2045,7 +2152,7 @@ function setAndLoad() {
     const detalleEstado = document.createElement("p");
     detalleEstado.className = "ayuda_guardado";
     detalleEstado.textContent = puedeGuardar()
-        ? "Guardá cantidades, precios, calidades e ingredientes conseguidos. Se restaura al volver a abrirla."
+        ? "Guardá cantidades, precios e ingredientes conseguidos. Se restaura al volver a abrirla. La variante elegida de cada ingrediente se recuerda sola."
         : "El guardado está deshabilitado. Podés llevar el seguimiento durante esta visita; no se restaurará al volver.";
     ayudaEstado.append(tituloEstado, detalleEstado);
     avance.append(ayudaEstado, botonestado);
@@ -2118,7 +2225,7 @@ function setAndLoad() {
         let pesodata = 0;
         for (let ingx of inglist) {
             let inputcocic = document.getElementById(ingx + "_cant");
-            const ddato = 1 * Math.ceil(inputcocic.bdocant / calidad_ing[calidades[inputcocic.bdogrado]]);
+            const ddato = cantidadPorElaboracion(ingx, inputcocic.bdocant);
             pesodata += parseFloat(rdata["datos"][ingx]["peso"]) * ddato;
         }
         /* sin peso máximo cargado, o con ingredientes sin peso, no hay nada que llenar */
@@ -2426,7 +2533,7 @@ function consolaVariables() {
     inglist.forEach(function (ing, i) {
         const inp = document.getElementById(ing + "_cant");
         if (inp != null)
-            vars["item" + (i + 1)] = { etiqueta: rdata["datos"][ing]["titulo"], input: inp };
+            vars["item" + (i + 1)] = { etiqueta: tituloDe(ing), input: inp };
     });
     return vars;
 }
@@ -2679,6 +2786,7 @@ let ratioprocget;
 window.addEventListener("load", async function () {
     iniciarVistaIcono();
     await iniciarConsentimientos();
+    cargarVariantes();
     const buscador = document.getElementById("buscador");
     const lista_recetas = document.getElementById("lista_recetas");
     let idresget = findGetParameter("id");
