@@ -1604,6 +1604,78 @@ input.inp_tengo {
     }
 }
 
+/* "Tengo" de los ítems compuestos del árbol */
+.btn_tengo_arbol {
+    background: rgba(30, 21, 50, 0.55);
+    border: 1px solid var(--line);
+    color: var(--text-1);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    box-shadow: none;
+    width: auto;
+    min-height: 0;
+}
+
+.btn_tengo_arbol:hover,
+.btn_tengo_arbol.activo {
+    border-color: rgba(78, 227, 165, 0.55);
+    color: var(--accent-2);
+}
+
+.tengo_arbol {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    margin: 6px 0 0 34px;
+    width: fit-content;
+    max-width: calc(100% - 34px);
+}
+
+.tengo_arbol[hidden] { display: none; }
+.tengo_arbol .falta_txt { grid-column: auto; justify-self: auto; }
+
+.pct_tengo {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-1);
+    min-width: 2.8em;
+}
+
+.opcion_descontar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-1);
+    cursor: pointer;
+}
+
+.opcion_descontar input { width: 16px; height: 16px; accent-color: var(--accent-2); }
+
+.cant_hacer {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--accent-2);
+    white-space: nowrap;
+}
+
+/* "Ocultar completados" del árbol: el compuesto completo se va con su rama */
+#ingredientes_base.ocultar_completados .ingrediente_item.completado { display: none !important; }
+
+/* rama que no hace falta elaborar: sus ingredientes quedan en x0 */
+.ingrediente_item.cubierto > .ing_wrapper > .ingredientes_arbol { opacity: 0.4; }
+
+.ingrediente_item.parcial > .ing_wrapper > .ing_contenedor { border-left-color: var(--accent-3); }
+.ingrediente_item.parcial > .ing_wrapper > .tengo_arbol .inp_tengo { border-color: rgba(255, 209, 102, 0.5); }
+.ingrediente_item.completado > .ing_wrapper > .ing_contenedor { border-left-color: var(--accent-2); }
+.ingrediente_item.completado > .ing_wrapper > .ing_contenedor .ing_titulo_receta .titing { text-decoration: line-through; }
+.ingrediente_item.completado > .ing_wrapper > .tengo_arbol .inp_tengo { color: var(--accent-2); border-color: rgba(78, 227, 165, 0.45); }
+.ingrediente_item.completado > .ing_wrapper > .tengo_arbol .pct_tengo { color: var(--accent-2); }
+
 .panel_grupo_nota {
     margin-top: 7px;
     padding-top: 6px;

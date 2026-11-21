@@ -804,35 +804,46 @@ function filtrarIngredientesBase() {
     });
 }
 
-/* Barra de avance encima de la lista de puros. */
-function crearCabeceraProgreso() {
+/* Barra de avance encima de cada vista. Las dos llevan cuentas separadas:
+   la de puros mide las hojas del árbol y la del árbol, los ítems compuestos
+   (lo que se elabora). Como en `tenidos` las claves de unos y otros nunca
+   coinciden, "Vaciar" borra sólo las de su vista. */
+function crearCabeceraProgreso(vista) {
     const li = document.createElement("li");
     li.className = "progreso_puros";
 
     const txt = document.createElement("span");
-    txt.id = "progreso_puros_txt";
+    txt.id = "progreso_" + vista + "_txt";
     txt.className = "progreso_puros_txt";
 
     const barra = document.createElement("span");
     barra.className = "b_base b_contenedor progreso_puros_cont";
     const relleno = document.createElement("span");
-    relleno.id = "progreso_puros_barra";
+    relleno.id = "progreso_" + vista + "_barra";
     relleno.className = "b_base b_usado";
     relleno.style = "width: 0%;";
     barra.append(relleno);
 
+    const compuestos = vista === "arbol";
     const btn = document.createElement("button");
     btn.className = "btn_limpiar_tildes";
-    btn.innerText = "Vaciar todo";
-    btn.title = "Pone en cero lo juntado de todos los ingredientes";
+    btn.innerText = compuestos ? "Vaciar compuestos" : "Vaciar todo";
+    btn.title = compuestos
+        ? "Pone en cero lo que tenés de los ítems compuestos (no toca los ingredientes puros)"
+        : "Pone en cero lo juntado de todos los ingredientes puros (no toca los compuestos)";
     btn.addEventListener("click", function () {
-        tenidos = {};
-        /* repinta las dos vistas, no sólo la de puros */
-        refrescarAvance();
+        for (let k of Object.keys(tenidos))
+            if (esReceta(k) === compuestos) delete tenidos[k];
+        /* con el descuento activo cambian las cantidades: se rearma todo */
+        if (compuestos && descontarCompuestos) generarListaIngredientes();
+        /* repinta las dos vistas */
+        else refrescarAvance();
     });
 
     li.append(txt);
     li.append(barra);
+    if (compuestos) li.append(crearOpcionOcultarCompletadosArbol());
+    li.append(crearOpcionDescontar());
     li.append(btn);
     return li;
 }
@@ -866,6 +877,188 @@ function actualizarProgresoPuros() {
     if (txt != null) txt.innerText = hechos + " de " + total + " completos · " + pct + "%";
 }
 
+/* -----------------------------------------------------------------
+   Lo que ya tenés de los ítems compuestos (árbol)
+   -----------------------------------------------------------------
+   `necesariosArbol` = { clave: total en todo el árbol } de cada sub-receta.
+   Un compuesto que se repite en varias ramas cuenta una sola vez, contra
+   el total sumado, igual que en la pestaña de puros. No descuenta nada de
+   los ingredientes puros: es un avance aparte.
+   `tengoArbolAbierto` recuerda qué filas abriste o cerraste con el botón
+   mientras dure la visita, para que no cambien cada vez que se recalcula el
+   árbol. Sin decisión tuya, se abre sólo si ya hay algo anotado.
+   ----------------------------------------------------------------- */
+let necesariosArbol = {};
+const tengoArbolAbierto = new Map();
+
+/* Si está activado, lo que tenés de cada compuesto se resta de lo que hay
+   que elaborar y, con eso, de sus ingredientes (también de los puros).
+   Es una preferencia global: se guarda sola, como las variantes. */
+const CLAVE_DESCONTAR = "descontar_compuestos_alquimia";
+let descontarCompuestos = false;
+
+function cargarDescontarCompuestos() {
+    descontarCompuestos = puedeGuardar()
+        ? leerObjetoLocal(CLAVE_DESCONTAR)["activo"] === true
+        : false;
+}
+
+function cambiarDescontarCompuestos(activo) {
+    descontarCompuestos = activo;
+    if (puedeGuardar()) escribirObjetoLocal(CLAVE_DESCONTAR, { "activo": activo });
+    generarListaIngredientes();
+}
+
+/* Una copia nueva de lo que tenés de cada compuesto, para gastarla en un
+   recorrido del árbol; null si no se descuenta. */
+function stockCompuestos() {
+    if (!descontarCompuestos) return null;
+    const stock = {};
+    for (let k in tenidos)
+        if (esReceta(k) && tenidos[k] > 0) stock[k] = tenidos[k];
+    return stock;
+}
+
+/* Ocultar los compuestos ya completos en el árbol. No se guarda: arranca
+   apagado en cada visita, pero se mantiene mientras se recalcula el árbol.
+   Se aplica con una clase en la lista, así no choca con el buscador (que usa
+   el estilo de cada ítem) y un nodo se oculta apenas se completa. */
+let ocultarCompletadosArbol = false;
+
+function aplicarOcultarCompletadosArbol() {
+    const ul = document.getElementById("ingredientes_base");
+    if (ul != null) ul.classList.toggle("ocultar_completados", ocultarCompletadosArbol);
+}
+
+function crearOpcionOcultarCompletadosArbol() {
+    const label = document.createElement("label");
+    label.className = "opcion_descontar";
+    label.title = "Oculta los ítems compuestos que ya tenés completos, con todo lo que llevan adentro";
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.id = "ocultar_completados_arbol";
+    chk.checked = ocultarCompletadosArbol;
+    chk.addEventListener("change", function () {
+        ocultarCompletadosArbol = this.checked;
+        aplicarOcultarCompletadosArbol();
+    });
+    label.append(chk, " Ocultar completados");
+    return label;
+}
+
+function crearOpcionDescontar() {
+    const label = document.createElement("label");
+    label.className = "opcion_descontar";
+    label.title = "Resta lo que ya tenés de cada ítem compuesto de lo que hay que elaborar y de sus ingredientes, también en Ingredientes puros";
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.className = "chk_descontar";
+    chk.checked = descontarCompuestos;
+    chk.addEventListener("change", function () { cambiarDescontarCompuestos(this.checked); });
+    label.append(chk, " Descontar compuestos que tengo");
+    return label;
+}
+
+function progresoCompuestos(necesarios) {
+    const claves = Object.keys(necesarios).filter(k => necesarios[k] > 0);
+    let hechos = 0;
+    let avance = 0;
+    for (let k of claves) {
+        const tengo = cantidadTenida(k, necesarios[k]);
+        if (tengo >= necesarios[k]) hechos++;
+        avance += Math.min(tengo, necesarios[k]) / necesarios[k];
+    }
+    return {
+        "total": claves.length,
+        "hechos": hechos,
+        "pct": claves.length > 0 ? Math.round(avance * 100 / claves.length) : 0
+    };
+}
+
+function actualizarProgresoArbol() {
+    const p = progresoCompuestos(necesariosArbol);
+
+    const tab = document.getElementById("tab_arbol");
+    if (tab != null)
+        tab.innerText = p.total > 0
+            ? "Árbol de ingredientes (" + p.hechos + "/" + p.total + ")"
+            : "Árbol de ingredientes";
+
+    const barra = document.getElementById("progreso_arbol_barra");
+    const txt = document.getElementById("progreso_arbol_txt");
+    if (barra != null) barra.style = "width: " + p.pct + "%;";
+    if (txt != null) txt.innerText = p.total > 0
+        ? "Compuestos: " + p.hechos + " de " + p.total + " completos · " + p.pct + "%"
+        : "Esta receta no tiene ítems compuestos";
+}
+
+/* Botón "Tengo" y su fila (cuánto tenés / total · % · faltan) para un nodo
+   compuesto del árbol. Devuelve los dos para que el nodo los ubique. */
+function crearTengoArbol(clave, necesario, destino) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn_tengo_arbol";
+    btn.textContent = "Tengo";
+    btn.title = "Anotar cuánto tenés ya hecho de " + tituloDe(clave);
+
+    const fila = document.createElement("span");
+    fila.className = "tengo_arbol";
+
+    const inp = document.createElement("input");
+    inp.className = "inp_tengo";
+    prepararInputMiles(inp);
+    inp.bdospinner = true;
+    inp.setAttribute("aria-label", "Cantidad que tenés de " + tituloDe(clave));
+
+    const nec = document.createElement("span");
+    nec.className = "nec_txt";
+    nec.textContent = "/ " + formatearMilesAR(necesario);
+
+    const pct = document.createElement("span");
+    pct.className = "pct_tengo";
+
+    const falta = document.createElement("span");
+    falta.className = "falta_txt";
+    falta.setAttribute("aria-live", "polite");
+
+    fila.append(inp, nec, pct, falta);
+
+    fila.bdoclave = clave;
+    btn.bdoclave = clave;
+    btn.bdofila = fila;
+
+    /* abierta si ya hay algo anotado o si la abriste antes. Las copias del
+       mismo ítem en otras ramas se abren y cierran juntas. */
+    const pintarAbierta = function (b, abierta) {
+        b.bdofila.hidden = !abierta;
+        b.setAttribute("aria-expanded", abierta ? "true" : "false");
+        b.classList.toggle("activo", abierta);
+    };
+    const abrir = function (abierta) {
+        tengoArbolAbierto.set(clave, abierta);
+        pintarAbierta(btn, abierta);
+        for (let otro of document.querySelectorAll("#ingredientes_base .btn_tengo_arbol"))
+            if (otro.bdoclave === clave && otro !== btn) pintarAbierta(otro, abierta);
+    };
+    abrir(tengoArbolAbierto.has(clave)
+        ? tengoArbolAbierto.get(clave)
+        : cantidadTenida(clave, necesario) > 0);
+    btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        abrir(fila.hidden);
+        if (!fila.hidden) { inp.focus(); inp.select(); }
+    });
+
+    registrarAvance(clave, necesario, destino, null, inp, { "falta": falta, "pct": pct });
+    /* con el descuento activo, al confirmar (Enter o salir del campo) se
+       recalcula todo; mientras escribís sólo se repinta, para no perder el foco */
+    inp.addEventListener("change", function () {
+        if (descontarCompuestos) generarListaIngredientes();
+    });
+    return { "btn": btn, "fila": fila };
+}
+
 /* Lista plana con lo que hay que conseguir de verdad: las hojas del árbol,
    es decir todo lo que NO es una receta (ni de alquimia ni de procesamiento).
    Las cantidades son los totales ya acumulados de todas las ramas. */
@@ -874,12 +1067,14 @@ function actualizarProgresoPuros() {
 function elaboracionesConIngrediente(recetaId, clave, disponible) {
     if (!Number.isSafeInteger(disponible) || disponible < 0)
         throw new RangeError("Ingresá una cantidad entera, positiva o cero.");
-    const consumo = function (cantidad) {
+    /* con el mismo descuento de compuestos que la lista que se ve */
+    const consumo = function (cantidad, sinDescuento) {
         const totales = {};
-        acumularTotalesArbol(recetaId, cantidad, 0, totales);
+        acumularTotalesArbol(recetaId, cantidad, 0, totales, undefined,
+            sinDescuento ? null : stockCompuestos());
         return totales[clave] || 0;
     };
-    if (esReceta(clave) || consumo(1) <= 0)
+    if (esReceta(clave) || consumo(1, true) <= 0)
         throw new Error("El ingrediente no pertenece a esta receta.");
     if (disponible === 0) return 0;
     let minimo = 0;
@@ -977,7 +1172,8 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
     ul.className = "lista_puros";
 
     const puros = Object.keys(totalesGlobales)
-        .filter(k => !esReceta(k))
+        /* lo que queda cubierto por compuestos que ya tenés no hace falta */
+        .filter(k => !esReceta(k) && totalesGlobales[k] > 0)
         .sort((a, b) => tituloDe(a).localeCompare(tituloDe(b), "es"));
 
     for (let k of puros) {
@@ -1077,14 +1273,25 @@ function generarListaIngredientes() {
     const cantidad = parseFloat(document.getElementById("cantidad").value) || 0;
     const totalesGlobales = {};
     const usosGlobales = {};
-    acumularTotalesArbol(currentingrediente, cantidad, 0, totalesGlobales, usosGlobales);
+    acumularTotalesArbol(currentingrediente, cantidad, 0, totalesGlobales, usosGlobales, stockCompuestos());
 
-    const ul = crearArbolIngredientes(currentingrediente, cantidad, 0, totalesGlobales);
-    ulingredientes.append(ul);
+    necesariosArbol = {};
+    for (let k in totalesGlobales)
+        if (esReceta(k)) necesariosArbol[k] = Math.ceil(totalesGlobales[k]);
+
+    const cabeceraArbol = crearCabeceraProgreso("arbol");
+    cabeceraArbol.classList.add("progreso_arbol");
+    const ayudaArbol = document.createElement("li");
+    ayudaArbol.className = "ayuda_obtencion";
+    ayudaArbol.textContent = "Con «Tengo» anotás cuánto tenés ya hecho de cada ítem compuesto. Si aparece en varias ramas, se anota una vez contra el total. Este avance es aparte del de los ingredientes puros. Con «Descontar» activado, lo que tenés se resta de lo que hay que elaborar, rama por rama en el orden del árbol, y deja de pedir sus ingredientes. Se guarda con «Guardar estado».";
+    const ul = crearArbolIngredientes(currentingrediente, cantidad, 0, totalesGlobales, undefined, stockCompuestos());
+    ulingredientes.append(cabeceraArbol, ayudaArbol, ul);
+    aplicarOcultarCompletadosArbol();
+    actualizarProgresoArbol();
 
     /* las dos vistas se arman juntas y se muestra la que esté activa */
     const puros = crearListaPuros(totalesGlobales, usosGlobales);
-    ulpuros.append(crearCabeceraProgreso());
+    ulpuros.append(crearCabeceraProgreso("puros"));
     const ayudaEdicion = document.createElement("li");
     ayudaEdicion.className = "ayuda_obtencion";
     ayudaEdicion.textContent = "Doble clic en una cantidad amarilla para recalcular toda la receta con ese ingrediente. Enter aplica y Escape cancela. Lo que ya conseguiste se conserva.";
@@ -1179,30 +1386,56 @@ function elaboracionesNecesarias(recetaId, cantidad, nivel) {
    elaboración y cuántas veces se elabora. Un mismo ingrediente puede entrar
    por varias ramas con cantidades distintas, y los sustitutos de grupo se
    calculan por elaboración, no sobre el total. */
-function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales, usosGlobales) {
-    const ingredientes = ingredientesDe(recetaId);
-    const keysLista = Object.keys(ingredientes).sort();
-    const veces = elaboracionesNecesarias(recetaId, cantidad, nivel);
-
-    for (let ingId of keysLista) {
-        const porElaboracion = Number(ingredientes[ingId]);
-        /* lo que no es receta se cuenta en unidades de la variante elegida */
-        const cantidad_ing = esReceta(ingId)
-            ? Math.ceil(veces * porElaboracion)
-            : veces * cantidadPorElaboracion(ingId, porElaboracion);
+function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales, usosGlobales, stock) {
+    recorrerArbol(recetaId, cantidad, nivel, stock, function (ingId, cantidad_ing, usado, receta, porElaboracion, veces) {
         if (!totalesGlobales[ingId]) {
             totalesGlobales[ingId] = 0;
         }
         totalesGlobales[ingId] += cantidad_ing;
 
-        if (usosGlobales != undefined) {
+        /* una rama que no hace falta elaborar no es un uso */
+        if (usosGlobales != undefined && cantidad_ing > 0) {
             if (!usosGlobales[ingId]) usosGlobales[ingId] = [];
-            usosGlobales[ingId].push({ "recetaId": recetaId, "q": porElaboracion, "veces": veces });
+            usosGlobales[ingId].push({ "recetaId": receta, "q": porElaboracion, "veces": veces });
+        }
+    });
+}
+
+/* Recorre el árbol en profundidad, siempre en el mismo orden (ingredientes
+   ordenados por clave), y llama a `visitar` con cada nodo:
+   (ingId, cantidad que pide la rama, cuánto de eso sale de lo que ya tenés,
+    receta que lo pide, unidades por elaboración, elaboraciones, camino).
+   Lo que no es receta se cuenta en unidades de la variante elegida.
+
+   `stock` ({ clave: cantidad }) es lo que tenés de los compuestos, o null
+   para no descontar nada. Se va gastando a medida que aparece cada rama: lo
+   que tenés está en la bolsa, así que la primera rama que lo pide se lo
+   lleva y las siguientes sólo usan lo que sobre. Lo que sale del stock no se
+   elabora, y por eso tampoco piden nada sus ingredientes. Como el orden es
+   siempre el mismo, el árbol, los puros y las ediciones coinciden. */
+function recorrerArbol(recetaId, cantidad, nivel, stock, visitar, camino) {
+    const ingredientes = ingredientesDe(recetaId);
+    const keysLista = Object.keys(ingredientes).sort();
+    const veces = elaboracionesNecesarias(recetaId, cantidad, nivel);
+    const caminoAca = (camino || []).concat([recetaId]);
+
+    for (let ingId of keysLista) {
+        const porElaboracion = Number(ingredientes[ingId]);
+        const subreceta = esReceta(ingId);
+        const cantidad_ing = subreceta
+            ? Math.ceil(veces * porElaboracion)
+            : veces * cantidadPorElaboracion(ingId, porElaboracion);
+
+        let usado = 0;
+        if (subreceta && stock != null && stock[ingId] > 0) {
+            usado = Math.min(stock[ingId], cantidad_ing);
+            stock[ingId] -= usado;
         }
 
-        if (esReceta(ingId)) {
-            acumularTotalesArbol(ingId, cantidad_ing, nivel + 1, totalesGlobales, usosGlobales);
-        }
+        visitar(ingId, cantidad_ing, usado, recetaId, porElaboracion, veces, caminoAca);
+
+        if (subreceta)
+            recorrerArbol(ingId, cantidad_ing - usado, nivel + 1, stock, visitar, caminoAca);
     }
 }
 
@@ -1216,27 +1449,25 @@ function acumularTotalesArbol(recetaId, cantidad, nivel, totalesGlobales, usosGl
    El "(N total)" funciona igual, pero sumando todas las ramas del árbol.
    ----------------------------------------------------------------- */
 
+/* Se recorre el árbol entero (y no sólo la cadena del camino) porque, si se
+   descuentan los compuestos, lo que llega a una rama depende de lo que se
+   llevaron las ramas anteriores. */
 function cantidadEnCamino(cantidadPrincipal, camino, ingId) {
-    let veces = cantidadPrincipal;
-    for (let i = 0; i < camino.length; i++) {
-        const receta = camino[i];
-        const siguiente = (i + 1 < camino.length) ? camino[i + 1] : ingId;
-        const ing = ingredientesDe(receta)[siguiente];
-        if (ing == undefined) return 0;
-        const ultimo = i + 1 >= camino.length;
-        const cant = ultimo && !esReceta(ingId)
-            ? veces * cantidadPorElaboracion(ingId, ing)
-            : Math.ceil(veces * Number(ing));
-        if (ultimo) return cant;
-        veces = Math.ceil(cant / ratioDeReceta(siguiente));
-    }
-    return 0;
+    if (camino.length === 0) return 0;
+    let resultado = 0;
+    recorrerArbol(camino[0], cantidadPrincipal, 0, stockCompuestos(),
+        function (id, cant, usado, receta, porElab, veces, caminoNodo) {
+            if (id === ingId && caminoNodo.length === camino.length &&
+                caminoNodo.every((r, i) => r === camino[i]))
+                resultado = cant;
+        });
+    return resultado;
 }
 
 /* Lo mismo que muestra el "(N total)": `ingId` sumado en todas las ramas. */
 function totalEnArbol(cantidadPrincipal, raiz, ingId) {
     const totales = {};
-    acumularTotalesArbol(raiz, cantidadPrincipal, 0, totales);
+    acumularTotalesArbol(raiz, cantidadPrincipal, 0, totales, undefined, stockCompuestos());
     return Math.ceil(totales[ingId] || 0);
 }
 
@@ -1328,7 +1559,10 @@ function hacerCantidadEditable(spanLocal, cantidadPara, titulo) {
     });
 }
 
-function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, camino) {
+/* `stock` es el mismo que se usó para `totalesGlobales` (una copia nueva):
+   se gasta en el mismo orden que en recorrerArbol, así cada nodo muestra lo
+   mismo que sumaron los totales. */
+function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, camino, stock) {
     const ul = document.createElement("ul");
     ul.className = "ingredientes_arbol nivel_" + nivel;
 
@@ -1347,6 +1581,12 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             : veces * cantidadPorElaboracion(ingId, ingredientes[ingId]);
         const cantidad_total_global = Math.ceil(totalesGlobales[ingId] || 0);
 
+        let usado = 0;
+        if (subreceta && stock != null && stock[ingId] > 0) {
+            usado = Math.min(stock[ingId], cantidad_ing);
+            stock[ingId] -= usado;
+        }
+
         const span_contenedor = document.createElement("span");
         span_contenedor.className = "ing_contenedor";
 
@@ -1362,10 +1602,13 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             divContenedor.className = "ing_wrapper";
 
             /* las sub-recetas se abren en otra pestaña con el total de TODO el
-               árbol, que es lo que hay que fabricar sumando todas las ramas */
+               árbol, que es lo que hay que fabricar sumando todas las ramas
+               (menos lo que ya tenés, si se descuenta) */
             const span_titulo = document.createElement("a");
             span_titulo.className = "ing_titulo_receta";
-            span_titulo.href = enlaceReceta(ingId, cantidad_total_global);
+            span_titulo.href = enlaceReceta(ingId, stock != null
+                ? Math.max(0, cantidad_total_global - cantidadTenida(ingId, cantidad_total_global))
+                : cantidad_total_global);
             span_titulo.target = "_blank";
             span_titulo.title = "Abrir " + rdata["datos"][ingId]["titulo"] + " en otra pestaña";
             span_titulo.innerHTML = `<span class="titing">${rdata["datos"][ingId]["titulo"]}</span>`;
@@ -1394,11 +1637,29 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             span_contenedor.append(crearIcono(ingId));
             span_contenedor.append(span_titulo);
             span_contenedor.append(span_cant);
+            /* lo que sale de lo que tenés no se elabora en esta rama */
+            if (usado > 0) {
+                const hacer = document.createElement("span");
+                hacer.className = "cant_hacer";
+                const aHacer = cantidad_ing - usado;
+                hacer.textContent = aHacer > 0
+                    ? "→ elaborar x" + formatearMilesAR(aHacer)
+                    : "✓ cubierto con lo que tenés";
+                hacer.title = formatearMilesAR(usado) + " de esta rama salen de lo que ya tenés";
+                span_contenedor.append(hacer);
+                li.classList.toggle("cubierto", aHacer === 0);
+            }
             span_contenedor.append(crearBadgeTipo(ingId));
 
-            const subArbol = crearArbolIngredientes(ingId, cantidad_ing, nivel + 1, totalesGlobales, caminoAca);
+            /* lo que ya tenés hecho se compara contra el total de todo el
+               árbol: si se repite en varias ramas, es una sola anotación */
+            const tengo = crearTengoArbol(ingId, cantidad_total_global, li);
+            span_contenedor.append(tengo.btn);
+
+            const subArbol = crearArbolIngredientes(ingId, cantidad_ing - usado, nivel + 1, totalesGlobales, caminoAca, stock);
 
             divContenedor.append(span_contenedor);
+            divContenedor.append(tengo.fila);
             divContenedor.append(subArbol);
 
             li.append(divContenedor);
@@ -1650,14 +1911,21 @@ let controlesAvance = [];
 /* Toma un tilde y un input ya construidos y los ata al avance de `clave`:
    escriben en `tenidos` y, al cambiar, repintan a todos los controles del
    mismo ítem, estén en el árbol o en la pestaña de puros.
-   `destino` es el elemento que recibe las clases completado/parcial. */
-function registrarAvance(clave, necesario, destino, chk, inp) {
+   `destino` es el elemento que recibe las clases completado/parcial.
+   Los nodos compuestos del árbol no llevan tilde (`chk` null) y traen su
+   propio texto de "faltan" y de porcentaje en `extras`. */
+function registrarAvance(clave, necesario, destino, chk, inp, extras) {
     /* un estado viejo marcado sólo como "listo" se vuelve un número concreto */
     if (tenidos[clave] === COMPLETO_SIN_CANTIDAD) tenidos[clave] = necesario;
 
-    const ctrl = { "clave": clave, "necesario": necesario, "destino": destino, "chk": chk, "inp": inp };
+    extras = extras || {};
+    const ctrl = {
+        "clave": clave, "necesario": necesario, "destino": destino, "chk": chk, "inp": inp,
+        "falta": extras.falta || (destino != null ? destino.querySelector(".falta_txt") : null),
+        "pct": extras.pct || null
+    };
 
-    chk.addEventListener("change", function () {
+    if (chk != null) chk.addEventListener("change", function () {
         tenidos[clave] = this.checked ? necesario : 0;
         refrescarAvance(clave);
     });
@@ -1678,14 +1946,16 @@ function pintarAvance(c) {
     const tengo = cantidadTenida(c["clave"], c["necesario"]);
     const completo = c["necesario"] > 0 && tengo >= c["necesario"];
 
-    c["chk"].checked = completo;
+    if (c["chk"] != null) c["chk"].checked = completo;
     /* no pisar el número mientras lo estás escribiendo */
     if (document.activeElement !== c["inp"]) c["inp"].value = formatearMilesAR(tengo);
 
     const falta = Math.max(0, c["necesario"] - tengo);
     c["inp"].title = falta > 0 ? "Faltan " + formatearMilesAR(falta) : "Completo";
 
-    const txtFalta = c["destino"] != null ? c["destino"].querySelector(".falta_txt") : null;
+    if (c["pct"] != null) c["pct"].textContent = Math.round(calcPrct(c["necesario"], tengo)) + "%";
+
+    const txtFalta = c["falta"];
     if (txtFalta != null) {
         const sobra = tengo - c["necesario"];
         txtFalta.textContent = falta > 0
@@ -1705,6 +1975,7 @@ function refrescarAvance(clave) {
         if (clave == undefined || c["clave"] === clave) pintarAvance(c);
     }
     actualizarProgresoPuros();
+    actualizarProgresoArbol();
     filtrarIngredientesPuros(document.getElementById("buscador_ingredientes").value.toLowerCase());
 }
 
@@ -1905,6 +2176,9 @@ function setAndLoad() {
     const tabPuros = document.getElementById("tab_puros");
     document.getElementById("resultado_filtro_puros").textContent = "";
     if (tabPuros != null) tabPuros.innerText = "Ingredientes puros";
+    necesariosArbol = {};
+    tengoArbolAbierto.clear();
+    actualizarProgresoArbol();
     const buscadorIng = document.getElementById("buscador_ingredientes");
     if (buscadorIng != null) { buscadorIng.value = ""; buscadorIng.style.display = "none"; }
     const t = rdata["datos"][this.id]["titulo"];
@@ -2787,6 +3061,7 @@ window.addEventListener("load", async function () {
     iniciarVistaIcono();
     await iniciarConsentimientos();
     cargarVariantes();
+    cargarDescontarCompuestos();
     const buscador = document.getElementById("buscador");
     const lista_recetas = document.getElementById("lista_recetas");
     let idresget = findGetParameter("id");
