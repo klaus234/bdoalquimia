@@ -734,13 +734,13 @@
                 },
                 {
                     "t": "Poción de Vida (M)",
-                    "v": 6,
+                    "v": 2,
                     "k": "pociondevidam",
                     "id": 518
                 },
                 {
                     "t": "Poción de Vida (G)",
-                    "v": 36,
+                    "v": 3,
                     "k": "pociondevidag",
                     "id": 519
                 }
@@ -1534,20 +1534,20 @@
                 },
                 {
                     "t": "Bulto de Hierba Luz del Atardecer",
-                    "v": 6,
+                    "v": 2,
                     "k": "bultodehierbaluzdelatardecer",
                     "id": 5421
                 },
                 {
                     "t": "Hierba Luz del Atardecer de Calidad",
-                    "v": 6,
+                    "v": 2,
                     "k": "hierbaluzdelatardecerdecalidad",
                     "id": 5444,
                     "g": 1
                 },
                 {
                     "t": "Hierba Luz del Atardecer de Alta Calidad",
-                    "v": 36,
+                    "v": 3,
                     "k": "hierbaluzdelatardecerdealtacalidad",
                     "id": 5464,
                     "g": 2
@@ -1584,20 +1584,20 @@
                 },
                 {
                     "t": "Azalea Plateada de Calidad",
-                    "v": 6,
+                    "v": 2,
                     "k": "azaleaplateadadecalidad",
                     "id": 5445,
                     "g": 1
                 },
                 {
                     "t": "Ramo de Azalea Plateada",
-                    "v": 6,
+                    "v": 2,
                     "k": "ramodeazaleaplateada",
                     "id": 5422
                 },
                 {
                     "t": "Azalea Plateada de Alta Calidad",
-                    "v": 36,
+                    "v": 3,
                     "k": "azaleaplateadadealtacalidad",
                     "id": 5465,
                     "g": 2
@@ -1634,20 +1634,20 @@
                 },
                 {
                     "t": "Flor Escama de Fuego de Calidad",
-                    "v": 6,
+                    "v": 2,
                     "k": "florescamadefuegodecalidad",
                     "id": 5446,
                     "g": 1
                 },
                 {
                     "t": "Montón de Flores Escama de Fuego",
-                    "v": 6,
+                    "v": 2,
                     "k": "montondefloresescamadefuego",
                     "id": 5423
                 },
                 {
                     "t": "Flor Escama de Fuego de Alta Calidad",
-                    "v": 36,
+                    "v": 3,
                     "k": "florescamadefuegodealtacalidad",
                     "id": 5466,
                     "g": 2
@@ -1683,14 +1683,14 @@
                 },
                 {
                     "t": "Hierba de Mil Años de Calidad",
-                    "v": 6,
+                    "v": 2,
                     "k": "hierbademilanosdecalidad",
                     "id": 5449,
                     "g": 1
                 },
                 {
                     "t": "Hierba de Mil Años de Alta Calidad",
-                    "v": 36,
+                    "v": 3,
                     "k": "hierbademilanosdealtacalidad",
                     "id": 5469,
                     "g": 2
@@ -1730,14 +1730,14 @@
                 },
                 {
                     "t": "Hongo Adivino de Calidad",
-                    "v": 12,
+                    "v": 2,
                     "k": "hongoadivinodecalidad",
                     "id": 5450,
                     "g": 1
                 },
                 {
                     "t": "Hongo Adivino de Alta Calidad",
-                    "v": 72,
+                    "v": 3,
                     "k": "hongoadivinodealtacalidad",
                     "id": 5470,
                     "g": 2
@@ -1776,20 +1776,20 @@
                 },
                 {
                     "t": "Hongo Flecha Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongoflechagrande",
                     "id": 5427
                 },
                 {
                     "t": "Hongo Flecha de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongoflechadecalidad",
                     "id": 5451,
                     "g": 1
                 },
                 {
                     "t": "Hongo Flecha de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongoflechadealtacalidad",
                     "id": 5471,
                     "g": 2
@@ -1828,20 +1828,20 @@
                 },
                 {
                     "t": "Hongo Enano Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongoenanogrande",
                     "id": 5428
                 },
                 {
                     "t": "Hongo Enano de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongoenanodecalidad",
                     "id": 5452,
                     "g": 1
                 },
                 {
                     "t": "Hongo Enano de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongoenanodealtacalidad",
                     "id": 5472,
                     "g": 2
@@ -1880,20 +1880,20 @@
                 },
                 {
                     "t": "Hongo Nube Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongonubegrande",
                     "id": 5429
                 },
                 {
                     "t": "Hongo Nube de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongonubedecalidad",
                     "id": 5453,
                     "g": 1
                 },
                 {
                     "t": "Hongo Nube de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongonubedealtacalidad",
                     "id": 5473,
                     "g": 2
@@ -1932,20 +1932,20 @@
                 },
                 {
                     "t": "Hongo Cielo Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongocielogrande",
                     "id": 5430
                 },
                 {
                     "t": "Hongo Cielo de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongocielodecalidad",
                     "id": 5454,
                     "g": 1
                 },
                 {
                     "t": "Hongo Cielo de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongocielodealtacalidad",
                     "id": 5474,
                     "g": 2
@@ -1982,20 +1982,20 @@
                 },
                 {
                     "t": "Hongo Tigre Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongotigregrande",
                     "id": 5431
                 },
                 {
                     "t": "Hongo Tigre de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongotigredecalidad",
                     "id": 5455,
                     "g": 1
                 },
                 {
                     "t": "Hongo Tigre de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongotigredealtacalidad",
                     "id": 5475,
                     "g": 2
@@ -2032,20 +2032,20 @@
                 },
                 {
                     "t": "Hongo Emperador Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongoemperadorgrande",
                     "id": 5432
                 },
                 {
                     "t": "Hongo Emperador de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongoemperadordecalidad",
                     "id": 5456,
                     "g": 1
                 },
                 {
                     "t": "Hongo Emperador de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongoemperadordealtacalidad",
                     "id": 5476,
                     "g": 2
@@ -2084,20 +2084,20 @@
                 },
                 {
                     "t": "Hongo Fantasma Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongofantasmagrande",
                     "id": 5433
                 },
                 {
                     "t": "Hongo Fantasma de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongofantasmadecalidad",
                     "id": 5457,
                     "g": 1
                 },
                 {
                     "t": "Hongo Fantasma de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongofantasmadealtacalidad",
                     "id": 5477,
                     "g": 2
@@ -2134,20 +2134,20 @@
                 },
                 {
                     "t": "Hongo Hinchazón Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongohinchazongrande",
                     "id": 5435
                 },
                 {
                     "t": "Hongo Hinchazón de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongohinchazondecalidad",
                     "id": 5459,
                     "g": 1
                 },
                 {
                     "t": "Hongo Hinchazón de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongohinchazondealtacalidad",
                     "id": 5479,
                     "g": 2
@@ -2182,20 +2182,20 @@
                 },
                 {
                     "t": "Hongo Fanfarrón Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongofanfarrongrande",
                     "id": 5436
                 },
                 {
                     "t": "Hongo Fanfarrón de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongofanfarrondecalidad",
                     "id": 5460,
                     "g": 1
                 },
                 {
                     "t": "Hongo Fanfarrón de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongofanfarrondealtacalidad",
                     "id": 5480,
                     "g": 2
@@ -2230,20 +2230,20 @@
                 },
                 {
                     "t": "Hongo ancestral Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongoancestralgrande",
                     "id": 5437
                 },
                 {
                     "t": "Hongo Ancestral de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongoancestraldecalidad",
                     "id": 5461,
                     "g": 1
                 },
                 {
                     "t": "Hongo Ancestral de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongoancestraldealtacalidad",
                     "id": 5481,
                     "g": 2
@@ -2278,20 +2278,20 @@
                 },
                 {
                     "t": "Hongo Amanita Grande",
-                    "v": 6,
+                    "v": 2,
                     "k": "hongoamanitagrande",
                     "id": 5438
                 },
                 {
                     "t": "Hongo Payaso de Calidad",
-                    "v": 36,
+                    "v": 2,
                     "k": "hongopayasodecalidad",
                     "id": 5462,
                     "g": 1
                 },
                 {
                     "t": "Hongo Amanita de Alta Calidad",
-                    "v": 216,
+                    "v": 3,
                     "k": "hongoamanitadealtacalidad",
                     "id": 5482,
                     "g": 2
@@ -2326,14 +2326,14 @@
                 },
                 {
                     "t": "Trufa de Calidad",
-                    "v": 6,
+                    "v": 2,
                     "k": "trufadecalidad",
                     "id": 5463,
                     "g": 1
                 },
                 {
                     "t": "Trufa de Alta Calidad",
-                    "v": 36,
+                    "v": 3,
                     "k": "trufadealtacalidad",
                     "id": 5483,
                     "g": 2
@@ -2751,7 +2751,6 @@
             "peso": "0.10",
             "plata": "0",
             "nomejorable": true,
-            "grupo": true,
             "obtencion": {
                 "metodos": [
                     "npc"
@@ -2761,29 +2760,7 @@
                     "https://bdocodex.com/sp/item/6656/"
                 ],
                 "verificado": "2026-11-17"
-            },
-            "gid": 1001,
-            "miembros": [
-                {
-                    "t": "Agua Purificada",
-                    "v": 1,
-                    "k": "aguapurificada",
-                    "id": 6656,
-                    "propio": true
-                },
-                {
-                    "t": "Agua Destilada",
-                    "v": 2,
-                    "k": "aguadestilada",
-                    "id": 6651
-                },
-                {
-                    "t": "Agua Pura para Cocinar",
-                    "v": 3,
-                    "k": "aguapuraparacocinar",
-                    "id": 9059
-                }
-            ]
+            }
         },
         "sal": {
             "titulo": "Sal",
