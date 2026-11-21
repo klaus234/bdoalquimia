@@ -2283,13 +2283,27 @@ function esTeclaConsola(e) {
 
 function tokenizarExpresion(txt) {
     const tokens = [];
-    const re = /\s*(\d+(?:[.,]\d+)?|[a-zA-Z]+|[()+\-*/%^]|\S)/g;
+    const re = /\s*(\d+(?:[.,]\d+)?|[a-zA-Z_][a-zA-Z0-9_]*|[()+\-*/%^]|\S)/g;
     let m;
     while ((m = re.exec(txt)) !== null) tokens.push(m[1]);
     return tokens;
 }
 
-function evaluarExpresion(txt) {
+/* "tb = 5", "ce += 10", "item2 -= 3". También se aceptan =+ y =- como
+   sinónimos de += y -= (ojo: "tb =-3" resta 3; para asignar un negativo
+   va con espacio, "tb = -3"). Devuelve null si la línea no es una asignación. */
+function parsearAsignacion(txt) {
+    const m = /^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(\+=|-=|=\+|=-|=)\s*(.*)$/.exec(txt);
+    if (m == null) return null;
+    let op = m[2];
+    if (op === "=+") op = "+=";
+    if (op === "=-") op = "-=";
+    return { nombre: m[1].toLowerCase(), op: op, expr: m[3] };
+}
+
+/* `leerVariable(nombre)` devuelve el número de la variable o undefined si no
+   existe; puede tirar un Error con un mensaje para el usuario. */
+function evaluarExpresion(txt, leerVariable) {
     const t = tokenizarExpresion(txt);
     let i = 0;
 
@@ -2341,8 +2355,10 @@ function evaluarExpresion(txt) {
             return v;
         }
         if (esNumero(s)) { comer(); return parseFloat(comaAPunto(s)); }
-        if (/^[a-zA-Z]+$/.test(s)) {
+        if (/^[a-zA-Z_]/.test(s)) {
             if (s.toLowerCase() === "ans") { comer(); return consolaUltimo; }
+            const v = leerVariable ? leerVariable(s.toLowerCase()) : undefined;
+            if (v !== undefined) { comer(); return v; }
             throw new Error('no conozco "' + s + '"');
         }
         throw new Error('no entiendo "' + s + '"');
@@ -2389,7 +2405,78 @@ function consolaAyuda() {
     consolaEscribir("Operadores:  +  -  *  /  %  ^  y paréntesis", "info");
     consolaEscribir("Decimales con punto o coma:  2.5  ·  2,5", "info");
     consolaEscribir("ans reutiliza el último resultado:  ans * 2", "info");
-    consolaEscribir("Comandos:  help  ·  clear (o cls)", "info");
+    consolaEscribir("Variables de la receta abierta:  tb (total obtenidos)  ·  ce (cantidad elaborada)  ·  item1, item2... (ingredientes)", "info");
+    consolaEscribir("Asignar:  tb = 500  ·  tb += 3  ·  tb -= 300  (también =+ y =-)", "info");
+    consolaEscribir("Comandos:  items  ·  help  ·  clear (o cls)", "info");
+}
+
+// --- variables de la receta abierta ----------------------------------
+
+/* tb, ce e itemN apuntan a los inputs de la receta que está abierta; itemN
+   sigue el orden en que se ven los ingredientes. Asignarles un valor es lo
+   mismo que escribirlo a mano en ese input. */
+function consolaVariables() {
+    const vars = {};
+    const ce = document.getElementById("cantidad");
+    const tb = document.getElementById("total");
+    if (ce == null || tb == null || !rdata || !esReceta(currentingrediente))
+        return vars;
+    vars["tb"] = { etiqueta: "Total obtenidos", input: tb };
+    vars["ce"] = { etiqueta: VERBO_TIPO[grupoDe(currentingrediente)].replace(/:\s*$/, ""), input: ce };
+    inglist.forEach(function (ing, i) {
+        const inp = document.getElementById(ing + "_cant");
+        if (inp != null)
+            vars["item" + (i + 1)] = { etiqueta: rdata["datos"][ing]["titulo"], input: inp };
+    });
+    return vars;
+}
+
+function valorDeInput(inp) {
+    const n = parseFloat(inp.value);
+    return isFinite(n) ? n : 0;
+}
+
+function leerVariableConsola(nombre) {
+    const v = consolaVariables()[nombre];
+    if (v !== undefined) return valorDeInput(v.input);
+    if (nombre === "tb" || nombre === "ce" || /^item\d+$/.test(nombre)) {
+        if (Object.keys(consolaVariables()).length === 0)
+            throw new Error('"' + nombre + '" necesita una receta abierta');
+        throw new Error('"' + nombre + '" no existe en esta receta (escribí items para ver la lista)');
+    }
+    return undefined;
+}
+
+function consolaListarItems() {
+    const vars = consolaVariables();
+    const nombres = Object.keys(vars);
+    if (nombres.length === 0) {
+        consolaEscribir("No hay una receta abierta.", "info");
+        return;
+    }
+    for (const n of nombres)
+        consolaEscribir(n + " = " + formatearResultado(valorDeInput(vars[n].input)) + "   " + vars[n].etiqueta, "info");
+}
+
+function consolaAsignar(asig) {
+    const vars = consolaVariables();
+    const v = vars[asig.nombre];
+    if (v === undefined) {
+        if (asig.nombre === "ans") throw new Error("ans no se puede asignar");
+        leerVariableConsola(asig.nombre);   // tira el mensaje que corresponda
+        throw new Error('no conozco "' + asig.nombre + '"');
+    }
+    if (asig.expr.trim() === "") throw new Error("falta el valor después de " + asig.op);
+
+    const derecha = evaluarExpresion(asig.expr, leerVariableConsola);
+    const actual = valorDeInput(v.input);
+    let nuevo = asig.op === "+=" ? actual + derecha : (asig.op === "-=" ? actual - derecha : derecha);
+    if (nuevo < 0) throw new Error(asig.nombre + " no puede quedar negativo (" + formatearResultado(nuevo) + ")");
+    const entero = Math.floor(Math.round(nuevo * 1e10) / 1e10);
+
+    v.input.value = entero;
+    v.input.dispatchEvent(new Event("input"));
+    return { nombre: asig.nombre, valor: valorDeInput(v.input), redondeado: entero !== nuevo, pedido: nuevo };
 }
 
 function consolaEjecutar(entrada) {
@@ -2403,9 +2490,26 @@ function consolaEjecutar(entrada) {
     const cmd = txt.toLowerCase();
     if (cmd === "clear" || cmd === "cls") { consolaLimpiar(); return; }
     if (cmd === "help" || cmd === "ayuda" || cmd === "?") { consolaAyuda(); return; }
+    if (cmd === "items") { consolaListarItems(); return; }
 
     try {
-        const r = evaluarExpresion(txt);
+        const asig = parsearAsignacion(txt);
+        if (asig != null) {
+            const r = consolaAsignar(asig);
+            consolaUltimo = r.valor;
+            consolaEscribir(r.nombre + " = " + formatearResultado(r.valor), "resultado");
+            if (r.redondeado)
+                consolaEscribir("(" + formatearResultado(r.pedido) + " redondeado hacia abajo: las cantidades son enteras)", "info");
+            const vars = consolaVariables();
+            if (r.nombre !== "tb" && r.nombre !== "ce")
+                consolaEscribir("ce = " + formatearResultado(valorDeInput(vars["ce"].input)) +
+                    "  ·  tb = " + formatearResultado(valorDeInput(vars["tb"].input)), "info");
+            else
+                consolaEscribir((r.nombre === "tb" ? "ce = " + formatearResultado(valorDeInput(vars["ce"].input))
+                    : "tb = " + formatearResultado(valorDeInput(vars["tb"].input))), "info");
+            return;
+        }
+        const r = evaluarExpresion(txt, leerVariableConsola);
         consolaUltimo = r;
         consolaEscribir("= " + formatearResultado(r), "resultado");
     } catch (err) {
