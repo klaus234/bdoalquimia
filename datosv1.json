@@ -619,6 +619,17 @@
             "ing": {
                 "delotia": "3"
             }
+        },
+        "aceitedelainmortalidadcorrompido": {
+            "tipo": "alquimia",
+            "fuente": "https://bdocodex.com/sp/item/1178/",
+            "ing": {
+                "corazondelosturos": "1",
+                "restosdelespirituquemado": "1",
+                "aceitederegeneracion": "20",
+                "aceiteindomable": "20",
+                "aceitedecorrupcion": "20"
+            }
         }
     },
     "datos": {
@@ -2654,6 +2665,46 @@
                     "https://bdocodex.com/sp/item/821467/"
                 ],
                 "verificado": "2026-10-04"
+            }
+        },
+        "aceitedelainmortalidadcorrompido": {
+            "titulo": "Aceite de la Inmortalidad Corrompido",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "nivel": "Profesional Nv. 6"
+        },
+        "corazondelosturos": {
+            "titulo": "Corazón de los Turos",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "botin"
+                ],
+                "detalle": "Botín de los Turos.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/44461/"
+                ],
+                "verificado": "2026-11-21"
+            }
+        },
+        "restosdelespirituquemado": {
+            "titulo": "Restos del Espíritu Quemado",
+            "peso": "0.10",
+            "plata": "0",
+            "nomejorable": true,
+            "obtencion": {
+                "metodos": [
+                    "recoleccion",
+                    "mercado"
+                ],
+                "detalle": "Se obtiene con baja probabilidad al recolectar Delotia, o en el mercado.",
+                "fuentes": [
+                    "https://bdocodex.com/sp/item/5964/"
+                ],
+                "verificado": "2026-11-21"
             }
         }
     }
