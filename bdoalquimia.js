@@ -207,25 +207,25 @@ async function iniciarConsentimientos() {
    ----------------------------------------------------------------- */
 const iconosFallidos = new Set();
 
-function crearPlaceholderIcono(clave) {
-    const ph = document.createElement("span");
-    ph.className = "icono_item icono_vacio";
-    ph.setAttribute("aria-hidden", "true");
-    ph.textContent = tituloDe(clave).charAt(0);
-    return ph;
-}
-
 /* Si el ingrediente tiene una variante elegida, muestra el ícono de esa
    variante, con el borde de color de su calidad. */
 function crearIcono(clave) {
-    const archivo = claveIconoDe(clave);
     const variante = varianteDe(clave);
-    const grado = variante != null ? (variante["g"] || 0) : 0;
-    if (consentimientos.imagenes !== true || iconosFallidos.has(archivo)) {
-        const ph = crearPlaceholderIcono(clave);
+    return crearIconoArchivo(claveIconoDe(clave), tituloDe(clave), variante != null ? (variante["g"] || 0) : 0);
+}
+
+/* El ícono de un ítem concreto (extimg/<archivo>.webp), o su inicial. */
+function crearIconoArchivo(archivo, titulo, grado) {
+    const placeholder = function () {
+        const ph = document.createElement("span");
+        ph.className = "icono_item icono_vacio";
+        ph.setAttribute("aria-hidden", "true");
+        ph.textContent = String(titulo).charAt(0);
         if (grado) ph.classList.add("grado_" + grado);
         return ph;
-    }
+    };
+    if (consentimientos.imagenes !== true || iconosFallidos.has(archivo))
+        return placeholder();
     const img = document.createElement("img");
     img.className = "icono_item";
     if (grado) img.classList.add("grado_" + grado);
@@ -236,9 +236,7 @@ function crearIcono(clave) {
     img.loading = "lazy";
     img.addEventListener("error", function () {
         iconosFallidos.add(archivo);
-        const ph = crearPlaceholderIcono(clave);
-        if (grado) ph.classList.add("grado_" + grado);
-        img.replaceWith(ph);
+        img.replaceWith(placeholder());
     }, { once: true });
     return img;
 }
@@ -876,6 +874,7 @@ function crearCabeceraProgreso(vista) {
     li.append(barra);
     if (compuestos) li.append(crearBotonPlegarTodo(), crearOpcionOcultarCompletadosArbol());
     li.append(crearOpcionDescontar());
+    li.append(crearBotonTraerTodo(vista));
     li.append(btn);
     return li;
 }
@@ -978,6 +977,29 @@ function crearOpcionOcultarCompletadosArbol() {
     return label;
 }
 
+/* "Traer del almacén" de la cabecera: lo mismo que el botón de cada ítem,
+   para todos los de esa vista a la vez. */
+function crearBotonTraerTodo(vista) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn_limpiar_tildes btn_traer_todo";
+    btn.textContent = "🏠 Traer del almacén";
+    btn.title = vista === "arbol"
+        ? "Anota en esta receta lo que tenés en el almacén de cada ítem compuesto, hasta lo que hace falta. No saca nada del almacén."
+        : "Anota en esta receta lo que tenés en el almacén de cada ingrediente puro, hasta lo que hace falta. No saca nada del almacén.";
+    btn.addEventListener("click", function () {
+        const claves = controlesAvance
+            .map(c => c["clave"])
+            .filter((k, i, todas) => todas.indexOf(k) === i && esReceta(k) === (vista === "arbol"));
+        const n = traerDelAlmacen(claves);
+        /* con el descuento activo el árbol se rearma y este botón se reemplaza:
+           el aviso sólo se ve si el botón sigue en la página */
+        btn.textContent = n > 0 ? "✓ " + plural(n, "ítem anotado", "ítems anotados") : "Nada para traer";
+        setTimeout(function () { btn.textContent = "🏠 Traer del almacén"; }, 1800);
+    });
+    return btn;
+}
+
 function crearOpcionDescontar() {
     const label = document.createElement("label");
     label.className = "opcion_descontar";
@@ -1053,7 +1075,8 @@ function crearTengoArbol(clave, necesario, destino) {
     falta.className = "falta_txt";
     falta.setAttribute("aria-live", "polite");
 
-    fila.append(inp, nec, pct, falta);
+    const almacenItem = crearAlmacenDeItem(clave);
+    fila.append(inp, nec, pct, falta, almacenItem.span);
 
     fila.bdoclave = clave;
     btn.bdoclave = clave;
@@ -1074,7 +1097,7 @@ function crearTengoArbol(clave, necesario, destino) {
     };
     abrir(tengoArbolAbierto.has(clave)
         ? tengoArbolAbierto.get(clave)
-        : cantidadTenida(clave, necesario) > 0);
+        : cantidadTenida(clave, necesario) > 0 || cantidadAlmacen(claveAlmacenDe(clave)) > 0);
     btn.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -1082,7 +1105,7 @@ function crearTengoArbol(clave, necesario, destino) {
         if (!fila.hidden) { inp.focus(); inp.select(); }
     });
 
-    registrarAvance(clave, necesario, destino, null, inp, { "falta": falta, "pct": pct });
+    registrarAvance(clave, necesario, destino, null, inp, { "falta": falta, "pct": pct, "almacen": almacenItem });
     /* con el descuento activo, al confirmar (Enter o salir del campo) se
        recalcula todo; mientras escribís sólo se repinta, para no perder el foco */
     inp.addEventListener("change", function () {
@@ -1270,6 +1293,9 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         tengoWrap.append(inpTengo);
         tengoWrap.append(nec);
         tengoWrap.append(falta);
+        /* cuánto hay en tu almacén, con el atajo para anotarlo acá */
+        const almacenItem = crearAlmacenDeItem(k);
+        tengoWrap.append(almacenItem.span);
         li.append(tengoWrap);
         li.append(crearObtencion(k, usosGlobales[k] || []));
         const marcaFiltro = document.createElement("span");
@@ -1286,7 +1312,7 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
         montarGrupo(span_contenedor, li, k, function () { return usosGlobales[k] || []; });
 
         /* mismo sistema que los nodos del árbol: editar acá repinta allá */
-        registrarAvance(k, necesario, li, chk, inpTengo);
+        registrarAvance(k, necesario, li, chk, inpTengo, { "almacen": almacenItem });
         ul.append(li);
     }
 
@@ -2098,7 +2124,8 @@ function registrarAvance(clave, necesario, destino, chk, inp, extras) {
     const ctrl = {
         "clave": clave, "necesario": necesario, "destino": destino, "chk": chk, "inp": inp,
         "falta": extras.falta || (destino != null ? destino.querySelector(".falta_txt") : null),
-        "pct": extras.pct || null
+        "pct": extras.pct || null,
+        "almacen": extras.almacen || null
     };
 
     if (chk != null) chk.addEventListener("change", function () {
@@ -2130,6 +2157,7 @@ function pintarAvance(c) {
     c["inp"].title = falta > 0 ? "Faltan " + formatearMilesAR(falta) : "Completo";
 
     if (c["pct"] != null) c["pct"].textContent = Math.round(calcPrct(c["necesario"], tengo)) + "%";
+    pintarAlmacenDeItem(c);
 
     const txtFalta = c["falta"];
     if (txtFalta != null) {
@@ -3326,6 +3354,8 @@ function limpiarEstadoReceta(est) {
    se descarta y se cuenta. Si el archivo no sirve, lanza un Error con el
    motivo para mostrar. */
 function validarRespaldo(obj) {
+    if (esObjetoPlano(obj) && obj["app"] === APP_RESPALDO && obj["tipo"] === "almacen")
+        throw new Error("Es un archivo de almacén: importalo en «Mi almacén».");
     if (!esObjetoPlano(obj) || obj["app"] !== APP_RESPALDO || obj["tipo"] !== "respaldo")
         throw new Error("El archivo no es un respaldo de esta calculadora.");
     if (obj["version"] !== VERSION_RESPALDO)
@@ -3534,6 +3564,429 @@ function iniciarRespaldo() {
     actualizarRespaldo();
 }
 
+/* -----------------------------------------------------------------
+   Mi almacén
+   -----------------------------------------------------------------
+   Inventario global: cuánto tenés de cada ítem, para toda la calculadora.
+   Es aparte del "Tengo" de cada receta (que sigue siendo por receta): en
+   la receta se muestra cuánto hay en el almacén y un botón "Traer" copia
+   de ahí a lo anotado en la receta, hasta lo que hace falta. Traer no
+   saca nada del almacén.
+   Las claves son ítems concretos: si de un grupo elegiste Sangre de Ciervo,
+   la receta mira cuánta Sangre de Ciervo hay, no Sangre de Cerdo.
+   Se guarda solo en cada cambio (si se aceptó el almacenamiento) y tiene
+   su propio exportar / importar / vaciar, separado del respaldo general.
+   ----------------------------------------------------------------- */
+const CLAVE_ALMACEN = "almacen_alquimia";
+const CLAVE_ALMACEN_PREVIO = "almacen_previo_alquimia";
+let almacen = {};
+let catalogoAlmacen = null;
+
+/* Todos los ítems que pueden ir al almacén: los de los datos y los
+   miembros de cada grupo (variantes). { clave: { t, g } } */
+function catalogo() {
+    if (catalogoAlmacen != null) return catalogoAlmacen;
+    const c = {};
+    for (let k in rdata["datos"]) {
+        const d = rdata["datos"][k];
+        if (c[k] == undefined) c[k] = { "t": d["titulo"], "g": 0 };
+        for (let m of (d["miembros"] || []))
+            if (m["k"] && c[m["k"]] == undefined) c[m["k"]] = { "t": m["t"], "g": m["g"] || 0 };
+    }
+    catalogoAlmacen = c;
+    return c;
+}
+
+function tituloAlmacen(k) {
+    const item = catalogo()[k];
+    return item ? item["t"] : k;
+}
+
+/* El ítem concreto que se busca en el almacén para un ingrediente. */
+function claveAlmacenDe(clave) {
+    return claveIconoDe(clave);
+}
+
+function cantidadAlmacen(k) {
+    return almacen[k] > 0 ? almacen[k] : 0;
+}
+
+/* Sólo ítems que existen, con cantidades enteras positivas. */
+function limpiarItemsAlmacen(items) {
+    const limpio = {};
+    let descartados = 0;
+    if (esObjetoPlano(items)) {
+        const cat = catalogo();
+        for (let k in items) {
+            const n = items[k];
+            if (cat[k] != undefined && Number.isSafeInteger(n) && n > 0) limpio[k] = n;
+            else if (!(Number.isSafeInteger(n) && n === 0)) descartados++;
+        }
+    }
+    return { "items": limpio, "descartados": descartados };
+}
+
+function cargarAlmacen() {
+    almacen = puedeGuardar() ? limpiarItemsAlmacen(leerObjetoLocal(CLAVE_ALMACEN)["items"])["items"] : {};
+}
+
+function guardarAlmacen() {
+    if (puedeGuardar()) escribirObjetoLocal(CLAVE_ALMACEN, { "items": almacen, "fecha": Date.now() });
+}
+
+/* Repinta todo lo que muestra el almacén: el resumen del panel y lo que
+   aparece en la receta abierta. No rearma la lista del panel (`relistar`
+   en false) para no sacarte el foco del número que estás escribiendo. */
+function alCambiarAlmacen(relistar) {
+    if (relistar !== false) listarAlmacen();
+    actualizarResumenAlmacen();
+    if (controlesAvance.length > 0) refrescarAvance();
+}
+
+function fijarAlmacen(k, n, relistar) {
+    if (n > 0) almacen[k] = n;
+    else delete almacen[k];
+    guardarAlmacen();
+    alCambiarAlmacen(relistar);
+}
+
+function resumenAlmacen(items) {
+    const claves = Object.keys(items);
+    const unidades = claves.reduce((s, k) => s + items[k], 0);
+    return claves.length === 0
+        ? "vacío"
+        : plural(claves.length, "ítem", "ítems") + " · " + plural(unidades, "unidad", "unidades");
+}
+
+function avisoAlmacen(texto, tipo) {
+    const p = document.getElementById("estado_almacen");
+    if (p == null) return;
+    p.textContent = texto;
+    p.className = "estado_respaldo" + (tipo ? " " + tipo : "");
+}
+
+function actualizarResumenAlmacen() {
+    const resumen = document.getElementById("resumen_almacen");
+    if (resumen != null) resumen.textContent = "🏠 Mi almacén · " + resumenAlmacen(almacen);
+    const vaciar = document.getElementById("btn_vaciar_almacen");
+    if (vaciar != null) vaciar.disabled = Object.keys(almacen).length === 0;
+    const exportar = document.getElementById("btn_exportar_almacen");
+    if (exportar != null) exportar.disabled = Object.keys(almacen).length === 0;
+    const deshacer = document.getElementById("btn_deshacer_almacen");
+    if (deshacer != null) {
+        const previo = puedeGuardar() ? leerObjetoLocal(CLAVE_ALMACEN_PREVIO) : almacenPrevioMemoria;
+        deshacer.hidden = !esObjetoPlano(previo["items"]);
+        deshacer.textContent = previo["accion"] === "vaciar" ? "Deshacer vaciado" : "Deshacer importación";
+    }
+    const nota = document.getElementById("nota_almacen");
+    if (nota != null)
+        nota.textContent = puedeGuardar()
+            ? "Se guarda solo en este navegador cada vez que lo cambiás. Tiene su propio respaldo, aparte del de las recetas."
+            : "El guardado está deshabilitado: lo que cargues dura hasta que cierres la página. Podés exportarlo para no perderlo.";
+}
+
+/* Si no se puede guardar, la copia para deshacer vive en memoria. */
+let almacenPrevioMemoria = {};
+
+function guardarAlmacenPrevio(accion) {
+    const previo = { "accion": accion, "fecha": Date.now(), "items": Object.assign({}, almacen) };
+    if (puedeGuardar()) escribirObjetoLocal(CLAVE_ALMACEN_PREVIO, previo);
+    else almacenPrevioMemoria = previo;
+}
+
+function listarAlmacen() {
+    const ul = document.getElementById("lista_almacen");
+    if (ul == null || rdata == undefined) return;
+    ul.replaceChildren();
+    const claves = Object.keys(almacen).sort((a, b) => tituloAlmacen(a).localeCompare(tituloAlmacen(b), "es"));
+    if (claves.length === 0) {
+        const li = document.createElement("li");
+        li.className = "almacen_vacio";
+        li.textContent = "Todavía no cargaste nada. Buscá un ítem arriba y agregalo con su cantidad.";
+        ul.append(li);
+        return;
+    }
+    for (let k of claves) {
+        const li = document.createElement("li");
+        li.className = "item_almacen";
+        li.bdoclave = k;
+        const titulo = document.createElement("span");
+        titulo.className = "titing";
+        titulo.textContent = tituloAlmacen(k);
+
+        const inp = document.createElement("input");
+        inp.className = "inp_tengo inp_almacen";
+        prepararInputMiles(inp);
+        inp.value = formatearMilesAR(almacen[k]);
+        inp.setAttribute("aria-label", "Cantidad de " + tituloAlmacen(k) + " en el almacén");
+        /* mientras escribís se guarda sin rearmar la lista; al salir, un 0 lo quita */
+        inp.addEventListener("input", function () {
+            const n = enteroDeTexto(inp.value);
+            if (n > 0) fijarAlmacen(k, n, false);
+        });
+        inp.addEventListener("change", function () {
+            fijarAlmacen(k, enteroDeTexto(inp.value), enteroDeTexto(inp.value) <= 0);
+        });
+
+        const quitar = document.createElement("button");
+        quitar.type = "button";
+        quitar.className = "btn_quitar_almacen";
+        quitar.textContent = "✕";
+        quitar.title = "Quitar " + tituloAlmacen(k) + " del almacén";
+        quitar.setAttribute("aria-label", quitar.title);
+        quitar.addEventListener("click", function () {
+            fijarAlmacen(k, 0);
+            avisoAlmacen("Se quitó " + tituloAlmacen(k) + " del almacén.");
+        });
+
+        const item = catalogo()[k];
+        li.append(crearIconoArchivo(k, tituloAlmacen(k), item ? item["g"] : 0), titulo, inp, quitar);
+        ul.append(li);
+    }
+}
+
+/* El buscador del panel: sugiere por nombre y resuelve el nombre al ítem. */
+function llenarSugerenciasAlmacen() {
+    const lista = document.getElementById("catalogo_almacen");
+    if (lista == null) return;
+    const cat = catalogo();
+    const vistos = new Set();
+    const opciones = [];
+    for (let k of Object.keys(cat).sort((a, b) => cat[a]["t"].localeCompare(cat[b]["t"], "es"))) {
+        if (vistos.has(cat[k]["t"])) continue;
+        vistos.add(cat[k]["t"]);
+        const o = document.createElement("option");
+        o.value = cat[k]["t"];
+        opciones.push(o);
+    }
+    lista.replaceChildren(...opciones);
+}
+
+function claveDeTitulo(texto) {
+    const buscado = String(texto).trim().toLocaleLowerCase("es");
+    if (buscado === "") return null;
+    const cat = catalogo();
+    for (let k in cat)
+        if (cat[k]["t"].toLocaleLowerCase("es") === buscado) return k;
+    return null;
+}
+
+function agregarAlAlmacen() {
+    const buscar = document.getElementById("almacen_buscar");
+    const cant = document.getElementById("almacen_cant");
+    const k = claveDeTitulo(buscar.value);
+    if (k == null) {
+        avisoAlmacen(buscar.value.trim() === ""
+            ? "Escribí el nombre de un ítem y elegilo de la lista."
+            : "No encontré «" + buscar.value.trim() + "». Elegilo de la lista de sugerencias.", "error");
+        buscar.focus();
+        return;
+    }
+    const n = enteroDeTexto(cant.value);
+    if (n <= 0) {
+        avisoAlmacen("Poné cuántos tenés de " + tituloAlmacen(k) + ".", "error");
+        cant.focus();
+        return;
+    }
+    fijarAlmacen(k, cantidadAlmacen(k) + n);
+    avisoAlmacen("Agregado: " + formatearMilesAR(n) + " de " + tituloAlmacen(k) +
+        " (ahora " + formatearMilesAR(cantidadAlmacen(k)) + ").", "ok");
+    buscar.value = "";
+    cant.value = "";
+    buscar.focus();
+}
+
+/* ---- dentro de una receta ---- */
+
+/* "🏠 N · Traer" para un ítem de la receta; lo pinta pintarAvance. */
+function crearAlmacenDeItem(clave) {
+    const span = document.createElement("span");
+    span.className = "almacen_de_item";
+    const txt = document.createElement("span");
+    txt.className = "almacen_cant";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn_traer_almacen";
+    btn.textContent = "Traer";
+    btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        traerDelAlmacen([clave]);
+    });
+    span.append(txt, btn);
+    return { "span": span, "txt": txt, "btn": btn };
+}
+
+/* Lo que "Traer" dejaría anotado: lo del almacén, sin pasar de lo que hace
+   falta y sin bajar lo que ya anotaste. */
+function tenidoTrasTraer(clave, necesario) {
+    const tengo = cantidadTenida(clave, necesario);
+    return Math.max(tengo, Math.min(cantidadAlmacen(claveAlmacenDe(clave)), necesario));
+}
+
+function pintarAlmacenDeItem(c) {
+    const a = c["almacen"];
+    if (a == null) return;
+    const real = claveAlmacenDe(c["clave"]);
+    const n = cantidadAlmacen(real);
+    a["span"].hidden = n <= 0;
+    a["txt"].textContent = "🏠 " + formatearMilesAR(n);
+    a["txt"].title = "En tu almacén hay " + formatearMilesAR(n) + " de " + tituloAlmacen(real);
+    const nuevo = tenidoTrasTraer(c["clave"], c["necesario"]);
+    a["btn"].disabled = nuevo <= cantidadTenida(c["clave"], c["necesario"]);
+    a["btn"].title = a["btn"].disabled
+        ? "Ya anotaste lo que alcanza a cubrir el almacén"
+        : "Anotar " + formatearMilesAR(nuevo) + " en esta receta con lo del almacén (no lo saca del almacén)";
+}
+
+/* Copia del almacén a lo anotado en la receta, para cada clave visible. */
+function traerDelAlmacen(claves) {
+    let cambiados = 0;
+    let compuestos = false;
+    for (let clave of claves) {
+        const ctrl = controlesAvance.find(c => c["clave"] === clave);
+        if (ctrl == null) continue;
+        const nuevo = tenidoTrasTraer(clave, ctrl["necesario"]);
+        if (nuevo > cantidadTenida(clave, ctrl["necesario"])) {
+            tenidos[clave] = nuevo;
+            cambiados++;
+            if (esReceta(clave)) compuestos = true;
+        }
+    }
+    if (cambiados === 0) return 0;
+    if (compuestos && descontarCompuestos) programarRegeneracion();
+    else refrescarAvance();
+    return cambiados;
+}
+
+/* ---- exportar / importar / vaciar ---- */
+
+function exportarAlmacen() {
+    const datos = {
+        "app": APP_RESPALDO, "tipo": "almacen", "version": 1,
+        "fecha": new Date().toISOString(), "items": almacen
+    };
+    const nombre = "alquimia-bdo-almacen-" + fechaArchivo(new Date()) + ".json";
+    const url = URL.createObjectURL(new Blob([JSON.stringify(datos, null, 2)], { "type": "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nombre;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    avisoAlmacen("Almacén descargado: " + nombre + " (" + resumenAlmacen(almacen) + ").", "ok");
+}
+
+function validarArchivoAlmacen(obj) {
+    if (!esObjetoPlano(obj) || obj["app"] !== APP_RESPALDO)
+        throw new Error("El archivo no es de esta calculadora.");
+    if (obj["tipo"] === "respaldo")
+        throw new Error("Es un respaldo de recetas: importalo en «Respaldo de tus datos».");
+    if (obj["tipo"] !== "almacen")
+        throw new Error("El archivo no es un almacén.");
+    if (obj["version"] !== 1)
+        throw new Error("El almacén es de una versión que esta calculadora no conoce (" + obj["version"] + ").");
+    if (!esObjetoPlano(obj["items"]))
+        throw new Error("El archivo no trae ítems.");
+    const r = limpiarItemsAlmacen(obj["items"]);
+    r["fecha"] = typeof obj["fecha"] === "string" ? obj["fecha"] : null;
+    return r;
+}
+
+async function importarAlmacen(archivo) {
+    if (archivo == null) return;
+    let leido;
+    try {
+        if (archivo.size > MAX_BYTES_RESPALDO)
+            throw new Error("El archivo es demasiado grande.");
+        let obj;
+        try {
+            obj = JSON.parse(await archivo.text());
+        } catch (e) {
+            throw new Error("El archivo no es un JSON válido.");
+        }
+        leido = validarArchivoAlmacen(obj);
+    } catch (e) {
+        avisoAlmacen("No se importó «" + archivo.name + "»: " + e.message, "error");
+        return;
+    }
+
+    const fecha = leido["fecha"] ? new Date(leido["fecha"]) : null;
+    document.getElementById("resumen_importar_almacen").textContent =
+        "«" + archivo.name + "»" +
+        (fecha && !isNaN(fecha) ? ", creado el " + fechaCorta(fecha.getTime()) : "") +
+        ": " + resumenAlmacen(leido["items"]) + "." +
+        (leido["descartados"] > 0
+            ? " " + plural(leido["descartados"], "ítem se descarta porque", "ítems se descartan porque") + " no existe o no tiene una cantidad válida."
+            : "");
+    document.getElementById("actual_importar_almacen").textContent =
+        "Tu almacén ahora: " + resumenAlmacen(almacen) + ".";
+
+    const decision = await pedirDecision("confirmar_importar_almacen");
+    if (decision !== "combinar" && decision !== "reemplazar") {
+        avisoAlmacen("Importación cancelada. No se cambió nada.");
+        return;
+    }
+    guardarAlmacenPrevio("importar");
+    almacen = decision === "combinar"
+        ? Object.assign({}, almacen, leido["items"])
+        : Object.assign({}, leido["items"]);
+    guardarAlmacen();
+    alCambiarAlmacen();
+    avisoAlmacen((decision === "combinar" ? "Almacén combinado" : "Almacén reemplazado") +
+        ". Ahora tiene " + resumenAlmacen(almacen) + ".", "ok");
+}
+
+async function vaciarAlmacen() {
+    if (Object.keys(almacen).length === 0) return;
+    if (!await pedirConfirmacion("confirmar_vaciar_almacen")) return;
+    guardarAlmacenPrevio("vaciar");
+    almacen = {};
+    guardarAlmacen();
+    alCambiarAlmacen();
+    avisoAlmacen("Almacén vaciado. Podés recuperarlo con «Deshacer vaciado».", "ok");
+}
+
+function deshacerAlmacen() {
+    const previo = puedeGuardar() ? leerObjetoLocal(CLAVE_ALMACEN_PREVIO) : almacenPrevioMemoria;
+    if (!esObjetoPlano(previo["items"])) return;
+    almacen = limpiarItemsAlmacen(previo["items"])["items"];
+    if (puedeGuardar()) {
+        try { localStorage.removeItem(CLAVE_ALMACEN_PREVIO); } catch (e) { }
+    } else almacenPrevioMemoria = {};
+    guardarAlmacen();
+    alCambiarAlmacen();
+    avisoAlmacen("Se deshizo: el almacén volvió a como estaba (" + resumenAlmacen(almacen) + ").", "ok");
+}
+
+/* Se llama con los datos ya cargados. */
+function iniciarAlmacen() {
+    if (document.getElementById("almacen") == null) return;
+    cargarAlmacen();
+    llenarSugerenciasAlmacen();
+    const archivo = document.getElementById("archivo_almacen");
+    document.getElementById("almacen_agregar").addEventListener("click", agregarAlAlmacen);
+    for (let id of ["almacen_buscar", "almacen_cant"]) {
+        const inp = document.getElementById(id);
+        inp.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") { e.preventDefault(); agregarAlAlmacen(); }
+        });
+    }
+    prepararInputMiles(document.getElementById("almacen_cant"));
+    document.getElementById("btn_exportar_almacen").addEventListener("click", exportarAlmacen);
+    document.getElementById("btn_importar_almacen").addEventListener("click", function () { archivo.click(); });
+    archivo.addEventListener("change", function () {
+        const f = archivo.files && archivo.files[0];
+        archivo.value = "";
+        importarAlmacen(f);
+    });
+    document.getElementById("btn_vaciar_almacen").addEventListener("click", vaciarAlmacen);
+    document.getElementById("btn_deshacer_almacen").addEventListener("click", deshacerAlmacen);
+    listarAlmacen();
+    actualizarResumenAlmacen();
+}
+
 let ratioprocget;
 window.addEventListener("load", async function () {
     iniciarVistaIcono();
@@ -3561,6 +4014,7 @@ window.addEventListener("load", async function () {
         })
         .then(function (jj) {
             rdata = jj;
+            iniciarAlmacen();
             lista_recetas.innerHTML = "";
             let ccc = 0;
             for (let k of Object.keys(rdata["datos"])) {

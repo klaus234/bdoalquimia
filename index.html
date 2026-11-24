@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alquimia BDO v1</title>
     <link rel="icon" href="icono1.svg" type="image/svg+xml">
-    <script src="bdoalquimia.js?d=25"></script>
+    <script src="bdoalquimia.js?d=27"></script>
 </head>
-<link rel="stylesheet" href="alquimia.css?d=25">
+<link rel="stylesheet" href="alquimia.css?d=27">
 <body>
 
     <dialog id="aviso_almacenamiento" class="aviso_consentimiento" aria-labelledby="titulo_aviso_almacenamiento" aria-describedby="texto_aviso_almacenamiento">
@@ -78,6 +78,34 @@
         </div>
     </dialog>
 
+    <dialog id="confirmar_importar_almacen" class="aviso_consentimiento" aria-labelledby="titulo_importar_almacen" aria-describedby="resumen_importar_almacen">
+        <h2 id="titulo_importar_almacen" tabindex="-1">¿Importar este almacén?</h2>
+        <div>
+            <p id="resumen_importar_almacen"></p>
+            <p id="actual_importar_almacen" class="nota_consentimiento"></p>
+            <p><b>Combinar</b> conserva tu almacén y le aplica el archivo: los ítems que trae quedan con la cantidad del archivo y el resto no se toca.</p>
+            <p><b>Reemplazar todo</b> deja el almacén exactamente como el archivo.</p>
+            <p class="nota_consentimiento">Antes de importar se guarda una copia del almacén actual: podés volver atrás con «Deshacer importación».</p>
+        </div>
+        <div class="acciones_consentimiento">
+            <button type="button" data-decision="rechazar">Cancelar</button>
+            <button type="button" data-decision="combinar">Combinar</button>
+            <button type="button" data-decision="reemplazar" class="btn_peligro">Reemplazar todo</button>
+        </div>
+    </dialog>
+
+    <dialog id="confirmar_vaciar_almacen" class="aviso_consentimiento" aria-labelledby="titulo_vaciar_almacen" aria-describedby="texto_vaciar_almacen">
+        <h2 id="titulo_vaciar_almacen" tabindex="-1">¿Vaciar el almacén?</h2>
+        <div id="texto_vaciar_almacen">
+            <p>Se borran todos los ítems y cantidades de tu almacén. Lo anotado en cada receta no se toca.</p>
+            <p class="nota_consentimiento">Se guarda una copia: podés recuperarlo con «Deshacer vaciado» hasta tu próxima importación o vaciado.</p>
+        </div>
+        <div class="acciones_consentimiento">
+            <button type="button" data-decision="rechazar">Cancelar</button>
+            <button type="button" data-decision="aceptar" class="btn_peligro">Sí, vaciar</button>
+        </div>
+    </dialog>
+
     <div id="consola" aria-hidden="true">
         <div id="consola_salida"></div>
         <div id="consola_linea">
@@ -141,9 +169,29 @@
                 <li>Sin calcular aún</li>
             </ul>
         </div>
+        <details id="almacen">
+            <summary id="resumen_almacen">🏠 Mi almacén</summary>
+            <p class="ayuda_guardado">Lo que tenés de cada ítem, para todas las recetas. En cada receta vas a ver «🏠 N» junto a los ingredientes que tengas acá, y «Traer» lo anota en esa receta hasta lo que haga falta, sin sacarlo del almacén. Las variantes cuentan aparte: Sangre de Ciervo no es Sangre de Cerdo.</p>
+            <p id="nota_almacen" class="ayuda_guardado"></p>
+            <div class="agregar_almacen">
+                <input type="search" id="almacen_buscar" list="catalogo_almacen" placeholder="Buscar ítem…" aria-label="Ítem para agregar al almacén" autocomplete="off">
+                <input type="text" id="almacen_cant" placeholder="Cantidad" aria-label="Cantidad para agregar">
+                <button type="button" id="almacen_agregar">Agregar</button>
+                <datalist id="catalogo_almacen"></datalist>
+            </div>
+            <ul id="lista_almacen"></ul>
+            <div class="acciones_respaldo">
+                <button type="button" id="btn_exportar_almacen">Exportar almacén</button>
+                <button type="button" id="btn_importar_almacen">Importar almacén…</button>
+                <button type="button" id="btn_vaciar_almacen" class="btn_vaciar_almacen">Vaciar almacén</button>
+                <button type="button" id="btn_deshacer_almacen" hidden>Deshacer</button>
+                <input type="file" id="archivo_almacen" accept=".json,application/json" hidden>
+            </div>
+            <p id="estado_almacen" class="estado_respaldo" role="status"></p>
+        </details>
         <details id="respaldo">
             <summary>💾 Respaldo de tus datos</summary>
-            <p class="ayuda_guardado">Lo guardado queda sólo en este navegador: si borrás los datos del sitio o cambiás de PC, se pierde. Exportá un archivo para tenerlo a salvo y volvé a importarlo cuando lo necesites.</p>
+            <p class="ayuda_guardado">Lo guardado queda sólo en este navegador: si borrás los datos del sitio o cambiás de PC, se pierde. Exportá un archivo para tenerlo a salvo y volvé a importarlo cuando lo necesites. El almacén no va acá: tiene su propio exportar e importar.</p>
             <p id="resumen_respaldo" class="ayuda_guardado"></p>
             <div class="acciones_respaldo">
                 <button type="button" id="btn_exportar_respaldo">Exportar respaldo</button>

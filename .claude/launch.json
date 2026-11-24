@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8765"],
       "port": 8765
+    },
+    {
+      "name": "ocr",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["extapp/app.py"],
+      "port": 5057
     }
   ]
 }

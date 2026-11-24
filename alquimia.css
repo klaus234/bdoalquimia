@@ -1726,6 +1726,75 @@ input.inp_tengo {
 #acciones_estado .ayuda_guardado { margin-bottom: 0; }
 #acciones_estado .estadobtn { flex-shrink: 0; width: auto; }
 
+/* Mi almacén */
+#almacen {
+    margin: 22px 0 0;
+    padding: 12px 18px;
+    border: 1px solid rgba(78, 227, 165, 0.28);
+    border-radius: var(--radius-md);
+    background: rgba(20, 60, 45, 0.18);
+}
+#almacen > summary { cursor: pointer; color: var(--text-0); font-weight: 700; padding: 4px 0; }
+#almacen > summary:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 4px; }
+.agregar_almacen { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.agregar_almacen #almacen_buscar { flex: 1 1 240px; min-width: 0; }
+.agregar_almacen #almacen_cant { width: 7em; text-align: right; }
+.agregar_almacen button { width: auto; margin: 0; }
+#lista_almacen {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 8px;
+}
+.item_almacen {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: rgba(16, 11, 28, 0.4);
+}
+.item_almacen .titing { flex: 1 1 auto; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.btn_quitar_almacen {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    box-shadow: none;
+    border-radius: 999px;
+}
+.btn_quitar_almacen:hover { color: #ff8fa0; border-color: rgba(255, 107, 129, 0.55); }
+.almacen_vacio { color: var(--muted); font-size: 13px; }
+.btn_vaciar_almacen { background: transparent; color: #ffb3c0; border: 1px solid rgba(255, 107, 129, 0.55); box-shadow: none; }
+#btn_deshacer_almacen { background: var(--surface-2); color: var(--text-0); box-shadow: none; }
+
+/* "🏠 N · Traer" dentro de la receta */
+.almacen_de_item { display: inline-flex; align-items: center; gap: 6px; }
+.almacen_de_item[hidden] { display: none; }
+.tengo_wrap .almacen_de_item { grid-column: 1 / -1; justify-self: end; }
+.almacen_cant { font-size: 12px; font-weight: 700; color: #9ff0cd; white-space: nowrap; }
+.btn_traer_almacen {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 2px 9px;
+    font-size: 11.5px;
+    font-weight: 700;
+    border-radius: 999px;
+    background: rgba(78, 227, 165, 0.12);
+    color: var(--accent-2);
+    border: 1px solid rgba(78, 227, 165, 0.45);
+    box-shadow: none;
+}
+.btn_traer_almacen:disabled { opacity: 0.45; cursor: default; }
+
 /* Respaldo: exportar / importar lo guardado */
 #respaldo {
     margin: 22px 0 16px;
