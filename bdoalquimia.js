@@ -152,6 +152,38 @@ function pedirConsentimiento(id) {
     });
 }
 
+/* Igual que pedirConsentimiento, pero para confirmar una acción: Escape
+   cuenta como "no" y el foco arranca en Cancelar, para que un Enter de más
+   no borre nada. */
+function pedirConfirmacion(id) {
+    return pedirDecision(id).then(decision => decision === "aceptar");
+}
+
+/* Abre el diálogo `id` y devuelve el data-decision del botón elegido;
+   Escape devuelve "rechazar", que es también el botón que arranca enfocado. */
+function pedirDecision(id) {
+    const dialogo = document.getElementById(id);
+    if (dialogo == null || typeof dialogo.showModal !== "function")
+        return Promise.resolve(window.confirm("¿Seguro?") ? "aceptar" : "rechazar");
+    return new Promise(resolve => {
+        const terminar = function (decision) {
+            dialogo.removeEventListener("click", elegir);
+            dialogo.removeEventListener("cancel", cancelar);
+            if (dialogo.open) dialogo.close();
+            resolve(decision);
+        };
+        const cancelar = function (event) { event.preventDefault(); terminar("rechazar"); };
+        const elegir = function (event) {
+            const boton = event.target.closest("button[data-decision]");
+            if (boton) terminar(boton.dataset.decision);
+        };
+        dialogo.addEventListener("cancel", cancelar);
+        dialogo.addEventListener("click", elegir);
+        dialogo.showModal();
+        dialogo.querySelector('button[data-decision="rechazar"]').focus();
+    });
+}
+
 async function iniciarConsentimientos() {
     const guardados = leerObjetoLocal(CLAVE_CONSENTIMIENTOS);
     for (const tipo of ["almacenamiento", "imagenes"]) {
@@ -842,7 +874,7 @@ function crearCabeceraProgreso(vista) {
 
     li.append(txt);
     li.append(barra);
-    if (compuestos) li.append(crearOpcionOcultarCompletadosArbol());
+    if (compuestos) li.append(crearBotonPlegarTodo(), crearOpcionOcultarCompletadosArbol());
     li.append(crearOpcionDescontar());
     li.append(btn);
     return li;
@@ -1054,8 +1086,13 @@ function crearTengoArbol(clave, necesario, destino) {
     /* con el descuento activo, al confirmar (Enter o salir del campo) se
        recalcula todo; mientras escribís sólo se repinta, para no perder el foco */
     inp.addEventListener("change", function () {
-        if (descontarCompuestos) generarListaIngredientes();
+        if (descontarCompuestos) programarRegeneracion();
     });
+    /* con "Ocultar completados", el nodo no desaparece mientras lo estás
+       escribiendo (la página saltaría y perderías el foco): se va al salir */
+    fila.addEventListener("focusin", function () { destino.classList.add("editando"); });
+    inp.addEventListener("input", function () { destino.classList.add("editando"); });
+    fila.addEventListener("focusout", function () { destino.classList.remove("editando"); });
     return { "btn": btn, "fila": fila };
 }
 
@@ -1259,6 +1296,7 @@ function crearListaPuros(totalesGlobales, usosGlobales) {
 function generarListaIngredientes() {
     const ulingredientes = document.getElementById("ingredientes_base");
     const ulpuros = document.getElementById("ingredientes_puros");
+    const vistaPrevia = capturarVistaArbol();
     ulingredientes.innerHTML = "";
     ulpuros.innerHTML = "";
     controlesAvance = [];
@@ -1287,6 +1325,7 @@ function generarListaIngredientes() {
     const ul = crearArbolIngredientes(currentingrediente, cantidad, 0, totalesGlobales, undefined, stockCompuestos());
     ulingredientes.append(cabeceraArbol, ayudaArbol, ul);
     aplicarOcultarCompletadosArbol();
+    actualizarBotonPlegarTodo();
     actualizarProgresoArbol();
 
     /* las dos vistas se arman juntas y se muestra la que esté activa */
@@ -1308,6 +1347,149 @@ function generarListaIngredientes() {
     actualizarProgresoPuros();
     filtrarIngredientesPuros(buscadorIngredientes.value.toLowerCase());
     if (vistaBaseActual === "arbol") filtrarIngredientesBase();
+    restaurarVistaArbol(vistaPrevia);
+}
+
+/* -----------------------------------------------------------------
+   Rearmar el árbol sin perder el lugar
+   -----------------------------------------------------------------
+   El árbol se rearma entero (al descontar compuestos, al recalcular...).
+   Para que no salte la página ni se pierda lo que estabas haciendo, antes
+   se anota qué nodo tenía el foco y dónde estaba en pantalla un nodo de
+   referencia (el del foco o, si no, el primero visible), y después se
+   vuelve a enfocar y se corrige el scroll para que quede en el mismo lugar.
+   Mientras tanto la lista conserva su alto, así el navegador no recorta el
+   scroll al vaciarla, y no se repite la animación de entrada.
+   ----------------------------------------------------------------- */
+function nodoArbol(ul, ruta) {
+    for (let li of ul.querySelectorAll("li[data-ruta]"))
+        if (li.dataset.ruta === ruta) return li;
+    return null;
+}
+
+/* el control de `clase` que es del nodo y no de un nodo de adentro */
+function controlDelNodo(li, clase) {
+    for (let el of li.querySelectorAll("." + clase))
+        if (el.closest("li[data-ruta]") === li) return el;
+    return null;
+}
+
+function capturarVistaArbol() {
+    const ul = document.getElementById("ingredientes_base");
+    if (ul == null || vistaBaseActual !== "arbol" || ul.querySelector("li[data-ruta]") == null)
+        return null;
+
+    const activo = document.activeElement;
+    const liFoco = activo != null && ul.contains(activo) ? activo.closest("li[data-ruta]") : null;
+    let foco = null;
+    if (liFoco != null && activo.classList.length > 0) {
+        foco = { "ruta": liFoco.dataset.ruta, "clase": activo.classList[0] };
+        if (activo.tagName === "INPUT")
+            foco["sel"] = [activo.selectionStart, activo.selectionEnd];
+    }
+
+    let ancla = liFoco;
+    if (ancla == null) {
+        for (let li of ul.querySelectorAll("li[data-ruta]")) {
+            if (li.offsetParent === null) continue;
+            const top = li.getBoundingClientRect().top;
+            if (top >= 0 && top < window.innerHeight) { ancla = li; break; }
+        }
+    }
+
+    const vista = {
+        "foco": foco,
+        "ancla": ancla != null ? { "ruta": ancla.dataset.ruta, "top": ancla.getBoundingClientRect().top } : null
+    };
+    ul.style.minHeight = ul.offsetHeight + "px";
+    return vista;
+}
+
+function restaurarVistaArbol(vista) {
+    const ul = document.getElementById("ingredientes_base");
+    if (ul == null) return;
+    /* la animación de entrada sólo en el primer armado de cada receta */
+    ul.classList.toggle("sin_animacion", vista != null);
+    if (vista == null) return;
+
+    if (vista["foco"] != null) {
+        const li = nodoArbol(ul, vista["foco"]["ruta"]);
+        const el = li != null ? controlDelNodo(li, vista["foco"]["clase"]) : null;
+        if (el != null && el.offsetParent !== null) {
+            el.focus({ "preventScroll": true });
+            if (vista["foco"]["sel"] && typeof el.setSelectionRange === "function") {
+                try { el.setSelectionRange(vista["foco"]["sel"][0], vista["foco"]["sel"][1]); } catch (e) { }
+            }
+        }
+    }
+
+    ul.style.minHeight = "";
+    if (vista["ancla"] != null) {
+        const li = nodoArbol(ul, vista["ancla"]["ruta"]);
+        if (li != null && li.offsetParent !== null)
+            window.scrollBy(0, li.getBoundingClientRect().top - vista["ancla"]["top"]);
+    }
+}
+
+/* Con el descuento activo, completar un "Tengo" rearma el árbol. Se hace un
+   instante después del cambio: si saliste del campo tocando otro, el foco
+   ya está en el nuevo y se lo puede devolver después de rearmar. */
+let regeneracionPendiente = false;
+function programarRegeneracion() {
+    if (regeneracionPendiente) return;
+    regeneracionPendiente = true;
+    setTimeout(function () {
+        regeneracionPendiente = false;
+        generarListaIngredientes();
+    }, 0);
+}
+
+/* -----------------------------------------------------------------
+   Plegar ramas del árbol
+   -----------------------------------------------------------------
+   Lo plegado se recuerda por nodo mientras dure la visita (y se olvida al
+   cambiar de receta), así no se despliega todo cada vez que se rearma. */
+const arbolPlegado = new Map();
+
+function plegarNodo(btn, plegado) {
+    if (btn.bdosub != null) btn.bdosub.classList.toggle("oculto", plegado);
+    btn.textContent = plegado ? "▶" : "▼";
+    btn.setAttribute("data-expanded", plegado ? "false" : "true");
+    btn.setAttribute("aria-expanded", plegado ? "false" : "true");
+    btn.title = plegado ? "Desplegar" : "Plegar";
+    if (plegado) arbolPlegado.set(btn.bdoruta, true);
+    else arbolPlegado.delete(btn.bdoruta);
+}
+
+function botonesPlegar() {
+    return document.querySelectorAll("#ingredientes_base .btn_expand");
+}
+
+/* "Colapsar todo" si hay algo desplegado; si ya está todo plegado, "Expandir todo" */
+function actualizarBotonPlegarTodo() {
+    const btn = document.getElementById("btn_plegar_todo");
+    if (btn == null) return;
+    const botones = botonesPlegar();
+    const algunoAbierto = Array.from(botones).some(b => b.getAttribute("data-expanded") === "true");
+    btn.hidden = botones.length === 0;
+    btn.textContent = algunoAbierto ? "▶ Colapsar todo" : "▼ Expandir todo";
+    btn.title = algunoAbierto
+        ? "Pliega todos los ítems compuestos y deja a la vista sólo los de la receta"
+        : "Despliega todos los ítems compuestos";
+    btn.bdoplegar = algunoAbierto;
+}
+
+function crearBotonPlegarTodo() {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.id = "btn_plegar_todo";
+    btn.className = "btn_limpiar_tildes btn_plegar_todo";
+    btn.addEventListener("click", function () {
+        const plegar = btn.bdoplegar === true;
+        for (let b of botonesPlegar()) plegarNodo(b, plegar);
+        actualizarBotonPlegarTodo();
+    });
+    return btn;
 }
 
 function formatearMilesAR(numero) {
@@ -1574,6 +1756,8 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
     for (let ingId of keysLista) {
         const li = document.createElement("li");
         li.className = "ingrediente_item";
+        /* identifica el nodo entre un armado y otro del árbol */
+        li.dataset.ruta = caminoAca.join(">") + ">" + ingId;
 
         const subreceta = esReceta(ingId);
         const cantidad_ing = subreceta
@@ -1594,9 +1778,9 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             li.classList.add("nodo_" + grupoDe(ingId));
 
             const btnExpand = document.createElement("button");
+            btnExpand.type = "button";
             btnExpand.className = "btn_expand";
-            btnExpand.textContent = "▼";
-            btnExpand.setAttribute("data-expanded", "true");
+            btnExpand.bdoruta = li.dataset.ruta;
 
             const divContenedor = document.createElement("div");
             divContenedor.className = "ing_wrapper";
@@ -1619,18 +1803,8 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             btnExpand.addEventListener("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                const expanded = btnExpand.getAttribute("data-expanded") === "true";
-                const subArbol = divContenedor.querySelector(".ingredientes_arbol");
-
-                if (expanded) {
-                    subArbol.classList.add("oculto");
-                    btnExpand.textContent = "▶";
-                    btnExpand.setAttribute("data-expanded", "false");
-                } else {
-                    subArbol.classList.remove("oculto");
-                    btnExpand.textContent = "▼";
-                    btnExpand.setAttribute("data-expanded", "true");
-                }
+                plegarNodo(btnExpand, btnExpand.getAttribute("data-expanded") === "true");
+                actualizarBotonPlegarTodo();
             });
 
             span_contenedor.append(btnExpand);
@@ -1661,6 +1835,8 @@ function crearArbolIngredientes(recetaId, cantidad, nivel, totalesGlobales, cami
             divContenedor.append(span_contenedor);
             divContenedor.append(tengo.fila);
             divContenedor.append(subArbol);
+            btnExpand.bdosub = subArbol;
+            plegarNodo(btnExpand, arbolPlegado.get(btnExpand.bdoruta) === true);
 
             li.append(divContenedor);
         } else {
@@ -2064,7 +2240,11 @@ function mostrarAvisoEstado(est) {
     btn.className = "btn_descartar";
     btn.innerText = "Descartar";
     btn.title = "Borra el estado guardado de esta receta y empieza de cero";
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", async function () {
+        if (!await pedirConfirmacion("confirmar_descartar")) {
+            btn.focus();
+            return;
+        }
         borrarEstado(currentingrediente);
         const o = { "id": currentingrediente };
         o.setAndLoad = setAndLoad;
@@ -2178,6 +2358,7 @@ function setAndLoad() {
     if (tabPuros != null) tabPuros.innerText = "Ingredientes puros";
     necesariosArbol = {};
     tengoArbolAbierto.clear();
+    arbolPlegado.clear();
     actualizarProgresoArbol();
     const buscadorIng = document.getElementById("buscador_ingredientes");
     if (buscadorIng != null) { buscadorIng.value = ""; buscadorIng.style.display = "none"; }
@@ -3056,12 +3237,310 @@ function crearItemLista(k, contador) {
 }
 
 let ratioget;
+/* -----------------------------------------------------------------
+   Respaldo: exportar e importar lo guardado
+   -----------------------------------------------------------------
+   Todo lo guardado vive en el localStorage de este navegador. El respaldo
+   es un archivo JSON con esas mismas claves (preferencias, avance de cada
+   receta, variantes elegidas y la opción de descontar compuestos), para no
+   perderlo al borrar los datos del sitio y para pasarlo a otra PC.
+   Las decisiones de los avisos (consentimientos) no viajan: son de cada
+   navegador. Antes de importar se guarda una copia de lo que había, así
+   la última importación se puede deshacer.
+   ----------------------------------------------------------------- */
+const APP_RESPALDO = "alquimia-bdo";
+const VERSION_RESPALDO = 1;
+const CLAVES_RESPALDO = ["preferencias_alquimia", "estado_alquimia", "variantes_alquimia", "descontar_compuestos_alquimia"];
+const CLAVE_RESPALDO_PREVIO = "respaldo_previo_alquimia";
+const MAX_BYTES_RESPALDO = 5 * 1024 * 1024;
+
+function esObjetoPlano(v) {
+    return v != null && typeof v === "object" && !Array.isArray(v);
+}
+
+function datosGuardadosActuales() {
+    const datos = {};
+    for (let k of CLAVES_RESPALDO) datos[k] = leerObjetoLocal(k);
+    return datos;
+}
+
+function crearRespaldo(datos) {
+    return {
+        "app": APP_RESPALDO,
+        "tipo": "respaldo",
+        "version": VERSION_RESPALDO,
+        "fecha": new Date().toISOString(),
+        "datos": datos
+    };
+}
+
+function plural(n, uno, varios) {
+    return formatearMilesAR(n) + " " + (n === 1 ? uno : varios);
+}
+
+function resumenRespaldo(datos) {
+    const recetas = Object.keys(datos["estado_alquimia"] || {}).length;
+    const variantes = Object.keys(datos["variantes_alquimia"] || {}).length;
+    const prefs = Object.keys(datos["preferencias_alquimia"] || {}).length > 0;
+    return plural(recetas, "receta con avance guardado", "recetas con avance guardado") + ", " +
+        plural(variantes, "variante elegida", "variantes elegidas") +
+        (prefs ? " y preferencias" : ", sin preferencias guardadas");
+}
+
+function textoONumero(v) {
+    return typeof v === "string" || (typeof v === "number" && isFinite(v));
+}
+
+/* El avance guardado de una receta, sólo con los campos que entiende
+   aplicarEstado y con el tipo esperado. */
+function limpiarEstadoReceta(est) {
+    const limpio = {};
+    for (let k of ["cantidad", "ratio", "ratio_proc", "pesomax", "mipeso"])
+        if (textoONumero(est[k])) limpio[k] = est[k];
+    if (typeof est["v"] === "number") limpio["v"] = est["v"];
+    if (typeof est["fecha"] === "number" && isFinite(est["fecha"])) limpio["fecha"] = est["fecha"];
+    if (est["vista"] === "arbol" || est["vista"] === "puros") limpio["vista"] = est["vista"];
+
+    limpio["precios"] = {};
+    if (esObjetoPlano(est["precios"]))
+        for (let ing in est["precios"])
+            if (rdata["datos"][ing] && textoONumero(est["precios"][ing])) limpio["precios"][ing] = String(est["precios"][ing]);
+
+    limpio["gastos"] = Array.isArray(est["gastos"])
+        ? est["gastos"].filter(ing => typeof ing === "string" && rdata["datos"][ing]) : [];
+
+    limpio["tenidos"] = {};
+    if (esObjetoPlano(est["tenidos"]))
+        for (let ing in est["tenidos"]) {
+            const n = est["tenidos"][ing];
+            if (rdata["datos"][ing] && Number.isSafeInteger(n) && (n > 0 || n === COMPLETO_SIN_CANTIDAD))
+                limpio["tenidos"][ing] = n;
+        }
+    if (Array.isArray(est["completados"]))
+        limpio["completados"] = est["completados"].filter(ing => typeof ing === "string" && rdata["datos"][ing]);
+    return limpio;
+}
+
+/* Valida un respaldo leído de un archivo y lo deja sólo con lo que esta
+   versión entiende. Lo que no existe más (recetas, ingredientes, variantes)
+   se descarta y se cuenta. Si el archivo no sirve, lanza un Error con el
+   motivo para mostrar. */
+function validarRespaldo(obj) {
+    if (!esObjetoPlano(obj) || obj["app"] !== APP_RESPALDO || obj["tipo"] !== "respaldo")
+        throw new Error("El archivo no es un respaldo de esta calculadora.");
+    if (obj["version"] !== VERSION_RESPALDO)
+        throw new Error("El respaldo es de una versión que esta calculadora no conoce (" + obj["version"] + ").");
+    if (!esObjetoPlano(obj["datos"]))
+        throw new Error("El respaldo no tiene datos.");
+
+    const d = obj["datos"];
+    const datos = {};
+    let descartados = 0;
+
+    datos["preferencias_alquimia"] = {};
+    if (esObjetoPlano(d["preferencias_alquimia"]))
+        for (let k of ["ratio", "ratio_proc", "pesomax", "mipeso"])
+            if (textoONumero(d["preferencias_alquimia"][k])) datos["preferencias_alquimia"][k] = d["preferencias_alquimia"][k];
+
+    datos["estado_alquimia"] = {};
+    if (esObjetoPlano(d["estado_alquimia"]))
+        for (let receta in d["estado_alquimia"]) {
+            if (rdata["recetas"][receta] && esObjetoPlano(d["estado_alquimia"][receta]))
+                datos["estado_alquimia"][receta] = limpiarEstadoReceta(d["estado_alquimia"][receta]);
+            else descartados++;
+        }
+
+    datos["variantes_alquimia"] = {};
+    if (esObjetoPlano(d["variantes_alquimia"]))
+        for (let ing in d["variantes_alquimia"]) {
+            const k = d["variantes_alquimia"][ing];
+            const miembros = rdata["datos"][ing] ? rdata["datos"][ing]["miembros"] : null;
+            if (Array.isArray(miembros) && miembros.some(m => m["k"] === k))
+                datos["variantes_alquimia"][ing] = k;
+            else descartados++;
+        }
+
+    datos["descontar_compuestos_alquimia"] = {};
+    if (esObjetoPlano(d["descontar_compuestos_alquimia"]) &&
+        typeof d["descontar_compuestos_alquimia"]["activo"] === "boolean")
+        datos["descontar_compuestos_alquimia"]["activo"] = d["descontar_compuestos_alquimia"]["activo"];
+
+    return {
+        "datos": datos,
+        "fecha": typeof obj["fecha"] === "string" ? obj["fecha"] : null,
+        "descartados": descartados
+    };
+}
+
+/* "Combinar" conserva lo que hay y suma lo del archivo: de una misma
+   receta queda el avance guardado más reciente; en variantes y
+   preferencias manda el archivo. "Reemplazar" deja sólo lo del archivo. */
+function combinarRespaldo(actual, nuevo) {
+    const r = {};
+    r["preferencias_alquimia"] = Object.assign({}, actual["preferencias_alquimia"], nuevo["preferencias_alquimia"]);
+    r["variantes_alquimia"] = Object.assign({}, actual["variantes_alquimia"], nuevo["variantes_alquimia"]);
+    r["descontar_compuestos_alquimia"] = "activo" in nuevo["descontar_compuestos_alquimia"]
+        ? nuevo["descontar_compuestos_alquimia"] : (actual["descontar_compuestos_alquimia"] || {});
+    r["estado_alquimia"] = Object.assign({}, actual["estado_alquimia"]);
+    for (let receta in nuevo["estado_alquimia"]) {
+        const previo = r["estado_alquimia"][receta];
+        const entrante = nuevo["estado_alquimia"][receta];
+        if (previo == undefined || (entrante["fecha"] || 0) >= (previo["fecha"] || 0))
+            r["estado_alquimia"][receta] = entrante;
+    }
+    return r;
+}
+
+function escribirDatosGuardados(datos) {
+    for (let k of CLAVES_RESPALDO)
+        if (!escribirObjetoLocal(k, datos[k] || {})) return false;
+    return true;
+}
+
+/* Después de importar o deshacer: recargar lo que la página tiene en
+   memoria y, si hay una receta abierta, volver a abrirla con lo guardado. */
+function aplicarDatosGuardados() {
+    cargarVariantes();
+    cargarDescontarCompuestos();
+    if (currentingrediente && rdata["recetas"][currentingrediente]) {
+        const o = { "id": currentingrediente };
+        o.setAndLoad = setAndLoad;
+        o.setAndLoad();
+    }
+}
+
+function avisoRespaldo(texto, tipo) {
+    const p = document.getElementById("estado_respaldo");
+    if (p == null) return;
+    p.textContent = texto;
+    p.className = "estado_respaldo" + (tipo ? " " + tipo : "");
+}
+
+function fechaArchivo(d) {
+    const p = n => (n < 10 ? "0" : "") + n;
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "_" + p(d.getHours()) + p(d.getMinutes());
+}
+
+function exportarRespaldo() {
+    if (!puedeGuardar()) return;
+    const datos = datosGuardadosActuales();
+    const texto = JSON.stringify(crearRespaldo(datos), null, 2);
+    const nombre = "alquimia-bdo-respaldo-" + fechaArchivo(new Date()) + ".json";
+    const url = URL.createObjectURL(new Blob([texto], { "type": "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nombre;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    avisoRespaldo("Respaldo descargado: " + nombre + " (" + resumenRespaldo(datos) + ").", "ok");
+}
+
+async function importarRespaldo(archivo) {
+    if (!puedeGuardar() || archivo == null) return;
+    let leido;
+    try {
+        if (archivo.size > MAX_BYTES_RESPALDO)
+            throw new Error("El archivo es demasiado grande para ser un respaldo.");
+        let obj;
+        try {
+            obj = JSON.parse(await archivo.text());
+        } catch (e) {
+            throw new Error("El archivo no es un JSON válido.");
+        }
+        leido = validarRespaldo(obj);
+    } catch (e) {
+        avisoRespaldo("No se importó «" + archivo.name + "»: " + e.message, "error");
+        return;
+    }
+
+    const fecha = leido["fecha"] ? new Date(leido["fecha"]) : null;
+    document.getElementById("resumen_importar").textContent =
+        "«" + archivo.name + "»" +
+        (fecha && !isNaN(fecha) ? ", creado el " + fechaCorta(fecha.getTime()) : "") +
+        ": " + resumenRespaldo(leido["datos"]) + "." +
+        (leido["descartados"] > 0
+            ? " " + plural(leido["descartados"], "dato se descarta porque", "datos se descartan porque") + " ya no existe en la calculadora."
+            : "");
+    document.getElementById("actual_importar").textContent =
+        "En este navegador ahora: " + resumenRespaldo(datosGuardadosActuales()) + ".";
+
+    const decision = await pedirDecision("confirmar_importar");
+    if (decision !== "combinar" && decision !== "reemplazar") {
+        avisoRespaldo("Importación cancelada. No se cambió nada.");
+        return;
+    }
+
+    const actual = datosGuardadosActuales();
+    const final = decision === "combinar" ? combinarRespaldo(actual, leido["datos"]) : leido["datos"];
+    if (!escribirObjetoLocal(CLAVE_RESPALDO_PREVIO, crearRespaldo(actual)) || !escribirDatosGuardados(final)) {
+        avisoRespaldo("No se pudo guardar en este navegador. Puede que no quede espacio.", "error");
+        return;
+    }
+    aplicarDatosGuardados();
+    actualizarRespaldo();
+    avisoRespaldo((decision === "combinar" ? "Respaldo combinado" : "Respaldo importado") +
+        ". Ahora hay " + resumenRespaldo(final) + ".", "ok");
+}
+
+async function deshacerImportacion() {
+    if (!puedeGuardar()) return;
+    const previo = leerObjetoLocal(CLAVE_RESPALDO_PREVIO);
+    if (!esObjetoPlano(previo["datos"])) return;
+    if (!await pedirConfirmacion("confirmar_deshacer_importar")) return;
+    if (!escribirDatosGuardados(previo["datos"])) {
+        avisoRespaldo("No se pudo guardar en este navegador.", "error");
+        return;
+    }
+    try { localStorage.removeItem(CLAVE_RESPALDO_PREVIO); } catch (e) { }
+    aplicarDatosGuardados();
+    actualizarRespaldo();
+    avisoRespaldo("Se deshizo la última importación: volvió lo que había antes.", "ok");
+}
+
+/* Estado de los botones y resumen de lo guardado en este navegador. */
+function actualizarRespaldo() {
+    const puede = puedeGuardar();
+    for (let id of ["btn_exportar_respaldo", "btn_importar_respaldo"]) {
+        const b = document.getElementById(id);
+        if (b != null) b.disabled = !puede;
+    }
+    const deshacer = document.getElementById("btn_deshacer_importar");
+    if (deshacer != null)
+        deshacer.hidden = !puede || !esObjetoPlano(leerObjetoLocal(CLAVE_RESPALDO_PREVIO)["datos"]);
+    const resumen = document.getElementById("resumen_respaldo");
+    if (resumen != null)
+        resumen.textContent = puede
+            ? "En este navegador: " + resumenRespaldo(datosGuardadosActuales()) + ". El respaldo incluye lo guardado con «Guardar estado» y «Guardar preferencias», no lo que todavía no guardaste."
+            : "El guardado está deshabilitado (no se aceptó el almacenamiento o el navegador no lo permite), así que no hay datos para respaldar ni dónde importarlos.";
+}
+
+function iniciarRespaldo() {
+    const seccion = document.getElementById("respaldo");
+    if (seccion == null) return;
+    const archivo = document.getElementById("archivo_respaldo");
+    document.getElementById("btn_exportar_respaldo").addEventListener("click", exportarRespaldo);
+    document.getElementById("btn_importar_respaldo").addEventListener("click", function () { archivo.click(); });
+    archivo.addEventListener("change", function () {
+        const f = archivo.files && archivo.files[0];
+        /* vaciarlo permite volver a elegir el mismo archivo */
+        archivo.value = "";
+        importarRespaldo(f);
+    });
+    document.getElementById("btn_deshacer_importar").addEventListener("click", deshacerImportacion);
+    /* el resumen se actualiza al abrir la sección, por si guardaste algo después */
+    seccion.addEventListener("toggle", function () { if (seccion.open) actualizarRespaldo(); });
+    actualizarRespaldo();
+}
+
 let ratioprocget;
 window.addEventListener("load", async function () {
     iniciarVistaIcono();
     await iniciarConsentimientos();
     cargarVariantes();
     cargarDescontarCompuestos();
+    iniciarRespaldo();
     const buscador = document.getElementById("buscador");
     const lista_recetas = document.getElementById("lista_recetas");
     let idresget = findGetParameter("id");

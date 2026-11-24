@@ -32,6 +32,8 @@ body:has(.aviso_consentimiento[open]) { overflow: hidden; }
 .acciones_consentimiento button { flex: 1 1 120px; min-height: 44px; margin: 0; background: var(--surface-2); color: var(--text-0); border: 1px solid var(--line); box-shadow: none; }
 .acciones_consentimiento button:hover { background: var(--bg-2); border-color: var(--accent-2); }
 .acciones_consentimiento button:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; }
+.acciones_consentimiento button.btn_peligro { border-color: rgba(255, 107, 129, 0.55); color: #ffb3c0; }
+.acciones_consentimiento button.btn_peligro:hover { background: rgba(255, 107, 129, 0.14); border-color: #ff6b81; }
 button.savebtn:disabled, button.estadobtn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
 #aviso_almacenamiento_no_disponible { padding: 12px; border: 1px solid var(--accent-3); border-radius: var(--radius-sm); color: var(--accent-3); font-size: 13px; }
 #atribucion_imagenes { margin: 12px 0 0; color: var(--text-1); font-size: 11px; }
@@ -1664,7 +1666,12 @@ input.inp_tengo {
 }
 
 /* "Ocultar completados" del árbol: el compuesto completo se va con su rama */
-#ingredientes_base.ocultar_completados .ingrediente_item.completado { display: none !important; }
+#ingredientes_base.ocultar_completados .ingrediente_item.completado:not(.editando):not(:focus-within) { display: none !important; }
+
+/* al rearmar el árbol no se repite la animación de entrada */
+#ingredientes_base.sin_animacion .ingrediente_item { animation: none; }
+
+.btn_plegar_todo { margin-left: 0; }
 
 /* rama que no hace falta elaborar: sus ingredientes quedan en x0 */
 .ingrediente_item.cubierto > .ing_wrapper > .ingredientes_arbol { opacity: 0.4; }
@@ -1718,6 +1725,23 @@ input.inp_tengo {
 
 #acciones_estado .ayuda_guardado { margin-bottom: 0; }
 #acciones_estado .estadobtn { flex-shrink: 0; width: auto; }
+
+/* Respaldo: exportar / importar lo guardado */
+#respaldo {
+    margin: 22px 0 16px;
+    padding: 12px 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: rgba(30, 21, 50, 0.35);
+}
+#respaldo > summary { cursor: pointer; color: var(--text-1); font-weight: 700; padding: 4px 0; }
+#respaldo > summary:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 4px; }
+.acciones_respaldo { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 6px; }
+.acciones_respaldo button { width: auto; margin: 0; }
+#btn_deshacer_importar { background: var(--surface-2); color: var(--text-0); box-shadow: none; }
+.estado_respaldo { margin: 6px 0 4px; font-size: 13px; color: var(--text-1); min-height: 1em; }
+.estado_respaldo.ok { color: var(--accent-2); }
+.estado_respaldo.error { color: #ff8fa0; }
 .fuente_receta { font-size: 12px; color: var(--accent-2); }
 
 .ayuda_obtencion { color: var(--text-1); font-size: 12px; margin-bottom: 14px; }
